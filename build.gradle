@@ -89,9 +89,6 @@ task runTests(type: Test) {
   def screen_resolution = project.hasProperty('screen_resolution') ? project.screen_resolution : '1920x1080'
   systemProperty 'screen_resolution', screen_resolution
 
-  def sierra_api_url = project.hasProperty('sierra_api_url') ? project.base_url : ''
-  systemProperty 'sierra_api_url', sierra_api_url
-
   def suite = project.hasProperty('suite') ? project.suite : 'sanity'
   systemProperty 'suite', suite
 

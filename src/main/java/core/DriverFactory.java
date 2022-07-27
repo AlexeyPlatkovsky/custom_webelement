@@ -33,8 +33,7 @@ public class DriverFactory {
                 .set(new FirefoxDriver((FirefoxOptions) (new DriverCapabilities(BrowserNames.FIREFOX)).getCapabilities()));
         return DRIVER.get();
       case REMOTE:
-        DriverCapabilities options = new DriverCapabilities(
-                BrowserNames.valueOf(SystemProperties.BROWSER.toUpperCase()));
+        DriverCapabilities options = new DriverCapabilities(BrowserNames.valueOf(SystemProperties.BROWSER.toUpperCase()));
         options.setRemoteOptions();
         String accessUrl = EnvProperties.LAMBDA_URL_KEY;
         options.setLambdaTestOptions(testName, SystemProperties.BUILD_NUMBER);
