@@ -7,6 +7,7 @@ buildscript {
 plugins {
   id 'io.franzbecker.gradle-lombok' version '4.0.0'
   id 'checkstyle'
+  id 'maven'
   id 'java'
   id 'idea'
 }
@@ -31,17 +32,15 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.googlecode.json-simple:json-simple:1.1.1'
-    implementation 'com.fasterxml.jackson.core:jackson-core:2.13.3'
-    implementation 'com.jayway.jsonpath:json-path:2.7.0'
-    implementation 'com.sun.mail:javax.mail:1.6.2'
-    implementation 'io.github.bonigarcia:webdrivermanager:5.2.1'
-    implementation 'org.apache.logging.log4j:log4j-api:2.18.0'
-    implementation 'org.apache.logging.log4j:log4j-core:2.18.0'
-    implementation 'org.json:json:20220320'
-    implementation 'org.seleniumhq.selenium:selenium-java:4.3.0'
-    implementation 'org.seleniumhq.selenium:selenium-remote-driver:4.3.0'
-    implementation 'org.testng:testng:7.6.1'
+  compile(
+          [group: 'com.sun.mail', name: 'javax.mail', version: '1.6.2'],
+          [group: 'io.github.bonigarcia', name: 'webdrivermanager', version: '4.0.0'],
+          [group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.13.3'],
+          [group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.13.3'],
+          [group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '3.141.59'],
+          [group: 'org.seleniumhq.selenium', name: 'selenium-remote-driver', version: '3.141.59'],
+          [group: 'org.testng', name: 'testng', version: '7.3.0'],
+  )
 }
 
 //=================================== Test =====================================
