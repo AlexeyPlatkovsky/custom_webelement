@@ -67,9 +67,6 @@ task runTests(type: Test) {
   def remote_key = project.hasProperty('remote_key') ? project.remote_key : ''
   systemProperty 'remote_key', remote_key
 
-  def remote_option = project.hasProperty('remote_option') ? project.remote_option : 'lambdatest'
-  systemProperty 'remote_option', remote_option
-
   def remote_username = project.hasProperty('remote_username') ? project.remote_username : ''
   systemProperty 'remote_username', remote_username
 

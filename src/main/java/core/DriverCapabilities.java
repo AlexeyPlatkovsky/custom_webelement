@@ -10,9 +10,6 @@ import utils.logging.iLogger;
 import utils.properties.EnvProperties;
 import utils.properties.SystemProperties;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class DriverCapabilities {
 
   private MutableCapabilities capabilities;
@@ -20,15 +17,7 @@ public class DriverCapabilities {
   public DriverCapabilities(BrowserNames browser) {
     switch (browser) {
       case CHROME:
-        /*
-        Set the preferred languages to JP, a non-supported language in vega so we are forced to use
-        the default language selected by the library in staff UI.
-         */
-        ChromeOptions options = new ChromeOptions();
-        Map<String, Object> prefs = new HashMap<>();
-        prefs.put("intl.accept_languages", "ja-jp,ja");
-        options.setExperimentalOption("prefs", prefs);
-        capabilities = options;
+        capabilities = new ChromeOptions();;
         break;
       case FIREFOX:
         capabilities = new FirefoxOptions();
@@ -57,7 +46,7 @@ public class DriverCapabilities {
     capabilities.setCapability("platform", SystemProperties.PLATFORM);
   }
 
-  public void setLambdaTestOptions(String testName, String buildNumber) {
+  public void setRemoteTestOptions(String testName, String buildNumber) {
     capabilities.setCapability("resolution", SystemProperties.SCREEN_RESOLUTION);
     capabilities.setCapability("user", SystemProperties.REMOTE_USERNAME);
     capabilities.setCapability("accessKey", SystemProperties.REMOTE_KEY);

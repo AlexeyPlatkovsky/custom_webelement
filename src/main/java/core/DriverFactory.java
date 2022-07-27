@@ -29,14 +29,13 @@ public class DriverFactory {
         return DRIVER.get();
       case FIREFOX:
         WebDriverManager.firefoxdriver().setup();
-        DRIVER
-                .set(new FirefoxDriver((FirefoxOptions) (new DriverCapabilities(BrowserNames.FIREFOX)).getCapabilities()));
+        DRIVER.set(new FirefoxDriver((FirefoxOptions) (new DriverCapabilities(BrowserNames.FIREFOX)).getCapabilities()));
         return DRIVER.get();
       case REMOTE:
         DriverCapabilities options = new DriverCapabilities(BrowserNames.valueOf(SystemProperties.BROWSER.toUpperCase()));
         options.setRemoteOptions();
-        String accessUrl = EnvProperties.LAMBDA_URL_KEY;
-        options.setLambdaTestOptions(testName, SystemProperties.BUILD_NUMBER);
+        String accessUrl = EnvProperties.REMOTE_URL_KEY;
+        options.setRemoteTestOptions(testName, SystemProperties.BUILD_NUMBER);
         try {
           DRIVER.set(new RemoteWebDriver(new URL(accessUrl), options.getCapabilities()));
           iLogger.info("Driver created. Remote session starting.");
