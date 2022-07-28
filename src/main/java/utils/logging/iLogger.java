@@ -1,6 +1,6 @@
 package utils.logging;
 
-import core.DriverFactory;
+import core.driver.DriverFactory;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

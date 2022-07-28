@@ -1,4 +1,4 @@
-package core;
+package core.driver;
 
 import org.openqa.selenium.MutableCapabilities;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -10,30 +10,28 @@ import utils.logging.iLogger;
 import utils.properties.EnvProperties;
 import utils.properties.SystemProperties;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 public class DriverCapabilities {
 
-  private MutableCapabilities capabilities;
+  private final MutableCapabilities capabilities;
+  private static final Map<BrowserNames, MutableCapabilities> CAPS;
+
+  static {
+    final Map<BrowserNames, MutableCapabilities> browserCapabilities = new HashMap<>();
+    browserCapabilities.put(BrowserNames.CHROME, new ChromeOptions());
+    browserCapabilities.put(BrowserNames.FIREFOX, new FirefoxOptions());
+    browserCapabilities.put(BrowserNames.EDGE, new EdgeOptions());
+    browserCapabilities.put(BrowserNames.SAFARI, new SafariOptions());
+    browserCapabilities.put(BrowserNames.IE11, new InternetExplorerOptions());
+
+    CAPS = Collections.unmodifiableMap(browserCapabilities);
+  }
 
   public DriverCapabilities(BrowserNames browser) {
-    switch (browser) {
-      case CHROME:
-        capabilities = new ChromeOptions();;
-        break;
-      case FIREFOX:
-        capabilities = new FirefoxOptions();
-        break;
-      case EDGE:
-        capabilities = new EdgeOptions();
-        break;
-      case SAFARI:
-        capabilities = new SafariOptions();
-        break;
-      case IE11:
-        capabilities = new InternetExplorerOptions();
-        break;
-      default:
-        break;
-    }
+    capabilities = CAPS.get(browser);
   }
 
   public MutableCapabilities getCapabilities() {
@@ -46,11 +44,10 @@ public class DriverCapabilities {
     capabilities.setCapability("platform", SystemProperties.PLATFORM);
   }
 
-  public void setRemoteTestOptions(String testName, String buildNumber) {
+  public void setRemoteTestOptions(String buildNumber) {
     capabilities.setCapability("resolution", SystemProperties.SCREEN_RESOLUTION);
     capabilities.setCapability("user", SystemProperties.REMOTE_USERNAME);
     capabilities.setCapability("accessKey", SystemProperties.REMOTE_KEY);
-    capabilities.setCapability("name", testName);
     capabilities.setCapability("build", buildNumber);
     capabilities.setCapability("timezone", "UTC+00:00");
 

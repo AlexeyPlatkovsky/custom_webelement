@@ -5,9 +5,10 @@ import utils.logging.iLogger;
 import utils.properties.FilePath;
 import utils.properties.Property;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Properties;
 
@@ -25,7 +26,7 @@ public class PropertyReader {
       if (clazz.isAnnotationPresent(FilePath.class)) {
         filePath = clazz.getAnnotation(FilePath.class).value();
         try {
-          PROPERTIES.load(new FileInputStream(filePath));
+          PROPERTIES.load(Files.newInputStream(Paths.get(filePath)));
         } catch (IOException e) {
           iLogger.error("Couldn't read file " + filePath, e);
         }

@@ -1,4 +1,4 @@
-package core;
+package core.driver.idrivers;
 
 public enum DriverNames {
     CHROME,

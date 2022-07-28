@@ -1,4 +1,4 @@
-package core;
+package core.driver;
 
 public enum BrowserNames {
     CHROME,
