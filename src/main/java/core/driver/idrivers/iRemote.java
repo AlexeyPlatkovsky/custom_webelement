@@ -13,6 +13,10 @@ import java.net.URL;
 public class iRemote extends iDriver {
 
   public iRemote() {
+  }
+
+  @Override
+  public void initDriver() {
     DriverCapabilities options = new DriverCapabilities(BrowserNames.valueOf(SystemProperties.BROWSER.toUpperCase()));
     options.setRemoteOptions();
     String accessUrl = EnvProperties.REMOTE_URL_KEY;

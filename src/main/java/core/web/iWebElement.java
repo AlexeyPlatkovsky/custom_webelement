@@ -29,20 +29,20 @@ public class iWebElement implements WebElement {
 
   public iWebElement(WebDriver driver, String name) {
     this.driver = driver;
-    wait = new WebDriverWait(this.driver, WAIT_TIMEOUT_SEC, SLEEP_TIMEOUT_MS);
+    wait = new WebDriverWait(this.driver, Duration.ofSeconds(WAIT_TIMEOUT_SEC), Duration.ofSeconds(SLEEP_TIMEOUT_MS));
     this.name = name;
   }
 
   public iWebElement(WebDriver driver, String name, String locator) {
     this.driver = driver;
-    wait = new WebDriverWait(this.driver, WAIT_TIMEOUT_SEC, SLEEP_TIMEOUT_MS);
+    wait = new WebDriverWait(this.driver, Duration.ofSeconds(WAIT_TIMEOUT_SEC), Duration.ofSeconds(SLEEP_TIMEOUT_MS));
     this.name = name;
     this.byLocator = By.xpath(locator);
   }
 
   public iWebElement(WebDriver driver, String name, By locator, WebElement el) {
     this.driver = driver;
-    wait = new WebDriverWait(this.driver, WAIT_TIMEOUT_SEC, SLEEP_TIMEOUT_MS);
+    wait = new WebDriverWait(this.driver, Duration.ofSeconds(WAIT_TIMEOUT_SEC), Duration.ofSeconds(SLEEP_TIMEOUT_MS));
     this.name = name;
     this.byLocator = locator;
     this.setWebElement(el);
@@ -81,7 +81,7 @@ public class iWebElement implements WebElement {
   }
 
   public void click(int timeout) {
-    click(new WebDriverWait(this.driver, timeout, SLEEP_TIMEOUT_MS));
+    click(new WebDriverWait(this.driver, Duration.ofSeconds(timeout), Duration.ofSeconds(SLEEP_TIMEOUT_MS)));
   }
 
   private void click(WebDriverWait waitForClick) {

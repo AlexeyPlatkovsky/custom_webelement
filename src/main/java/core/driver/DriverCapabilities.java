@@ -21,7 +21,7 @@ public class DriverCapabilities {
 
   static {
     final Map<BrowserNames, MutableCapabilities> browserCapabilities = new HashMap<>();
-    browserCapabilities.put(BrowserNames.CHROME, new ChromeOptions());
+    browserCapabilities.put(BrowserNames.CHROME, new ChromeOptions().addArguments("--lang=" + SystemProperties.LOCALE));
     browserCapabilities.put(BrowserNames.FIREFOX, new FirefoxOptions());
     browserCapabilities.put(BrowserNames.EDGE, new EdgeOptions());
     browserCapabilities.put(BrowserNames.SAFARI, new SafariOptions());
@@ -50,6 +50,7 @@ public class DriverCapabilities {
     capabilities.setCapability("accessKey", SystemProperties.REMOTE_KEY);
     capabilities.setCapability("build", buildNumber);
     capabilities.setCapability("timezone", "UTC+00:00");
+    capabilities.setCapability("--lang=", SystemProperties.LOCALE);
 
     if (!EnvProperties.USE_LOCAL_PORT.isEmpty()) {
       capabilities.setCapability("tunnel", true);

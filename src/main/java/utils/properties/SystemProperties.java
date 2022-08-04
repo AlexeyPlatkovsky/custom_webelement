@@ -1,7 +1,6 @@
 package utils.properties;
 
 public class SystemProperties {
-
   @Property(value = "base_url")
   public static String BASE_URL;
 
@@ -16,6 +15,9 @@ public class SystemProperties {
 
   @Property(value = "driver")
   public static String DRIVER;
+
+  @Property(value = "locale")
+  public static String LOCALE;
 
   @Property(value = "platform")
   public static String PLATFORM;

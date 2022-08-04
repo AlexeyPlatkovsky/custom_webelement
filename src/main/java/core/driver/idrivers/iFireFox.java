@@ -10,6 +10,10 @@ public class iFireFox extends iDriver {
 
   public iFireFox() {
     super();
+  }
+
+  @Override
+  public void initDriver() {
     WebDriverManager.firefoxdriver().setup();
     driver = new FirefoxDriver((FirefoxOptions) (new DriverCapabilities(BrowserNames.FIREFOX)).getCapabilities());
   }
