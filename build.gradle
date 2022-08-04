@@ -37,8 +37,8 @@ dependencies {
           [group: 'io.github.bonigarcia', name: 'webdrivermanager', version: '4.0.0'],
           [group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.13.3'],
           [group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.13.3'],
-          [group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '3.141.59'],
-          [group: 'org.seleniumhq.selenium', name: 'selenium-remote-driver', version: '3.141.59'],
+          [group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '4.3.0'],
+          [group: 'org.seleniumhq.selenium', name: 'selenium-remote-driver', version: '4.3.0'],
           [group: 'org.testng', name: 'testng', version: '7.3.0'],
   )
 }
@@ -61,6 +61,9 @@ task runTests(type: Test) {
   def driver = project.hasProperty('driver') ? project.driver : 'CHROME'
   systemProperty 'driver', driver
 
+  def locale = project.hasProperty('locale') ? project.locale : 'en-RU'
+  systemProperty 'locale', locale
+
   def platform = project.hasProperty('platform') ? project.platform : 'Windows 10'
   systemProperty 'platform', platform
 
@@ -73,7 +76,7 @@ task runTests(type: Test) {
   def screen_resolution = project.hasProperty('screen_resolution') ? project.screen_resolution : '1920x1080'
   systemProperty 'screen_resolution', screen_resolution
 
-  def suite = project.hasProperty('suite') ? project.suite : 'sanity'
+  def suite = project.hasProperty('suite') ? project.suite : 'ui'
   systemProperty 'suite', suite
 
   def thread_count = project.hasProperty('thread_count') ? project.thread_count : 1
