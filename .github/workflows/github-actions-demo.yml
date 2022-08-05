@@ -2,10 +2,9 @@ name: Java CI
 on:
   pull_request:
     types: [ edited, opened, reopened ]
-    branches:
-      - 'feature/**'
+
 jobs:
-  gradle:
+  build:
     runs-on: ubuntu-latest
 
     steps:
