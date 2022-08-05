@@ -5,7 +5,7 @@ on:
     branches:
       - 'feature/**'
 jobs:
-  Explore-GitHub-Actions:
+  gradle:
     runs-on: ubuntu-latest
 
     steps:
@@ -19,9 +19,9 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: '11'
-          distribution: 'adopt'
-      - name: Build with Gradle
-          uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
+          distribution: temurin
+      - name: Setup and execute Gradle 'runTests' task
+          uses: gradle/gradle-build-action@v2
           with:
             arguments: runTests
       - run: echo "This job's status is ${{ job.status }}."
