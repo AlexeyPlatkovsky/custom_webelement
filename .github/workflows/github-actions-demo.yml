@@ -21,7 +21,7 @@ jobs:
           java-version: '11'
           distribution: temurin
       - name: Setup and execute Gradle 'runTests' task
-          uses: gradle/gradle-build-action@v2
+        uses: gradle/gradle-build-action@v2
           with:
             arguments: runTests
       - run: echo "This job's status is ${{ job.status }}."
