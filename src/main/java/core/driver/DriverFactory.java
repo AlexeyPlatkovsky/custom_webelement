@@ -24,11 +24,10 @@ public class DriverFactory {
     IDRIVERS = Collections.unmodifiableMap(drivers);
   }
 
-  public static WebDriver getDriver() {
+  public static void initDriver() {
     driverName = DriverNames.valueOf(SystemProperties.DRIVER.toUpperCase());
     iLogger.info("Create driver " + driverName);
     DRIVER.set(IDRIVERS.get(driverName).getDriver());
-    return DRIVER.get();
   }
 
   public static WebDriver getCurrentDriver() {

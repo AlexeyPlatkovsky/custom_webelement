@@ -7,7 +7,6 @@ import org.openqa.selenium.WebDriver;
 import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeSuite;
-import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Listeners;
 import utils.logging.TestListener;
 import utils.logging.iLogger;
@@ -15,16 +14,13 @@ import utils.readers.PropertyReader;
 
 @Listeners(TestListener.class)
 public class BaseTest {
-  WebDriver driver;
+  protected WebDriver driver;
 
   @BeforeSuite(alwaysRun = true)
   public void setupTestClass() {
     PropertyReader.readProperties();
-  }
-
-  @BeforeTest(alwaysRun = true)
-  public void setupTest() {
-    driver = DriverFactory.getDriver();
+    DriverFactory.initDriver();
+    driver = DriverFactory.getCurrentDriver();
   }
 
   @AfterMethod(alwaysRun = true)
