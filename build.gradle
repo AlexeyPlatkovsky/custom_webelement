@@ -7,7 +7,6 @@ buildscript {
 plugins {
   id 'io.franzbecker.gradle-lombok' version '4.0.0'
   id 'checkstyle'
-  id 'maven'
   id 'java'
   id 'idea'
 }
@@ -32,15 +31,20 @@ repositories {
 }
 
 dependencies {
-  compile(
+  implementation(
           [group: 'com.sun.mail', name: 'javax.mail', version: '1.6.2'],
           [group: 'io.github.bonigarcia', name: 'webdrivermanager', version: '4.0.0'],
           [group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.13.3'],
           [group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.13.3'],
           [group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '4.3.0'],
           [group: 'org.seleniumhq.selenium', name: 'selenium-remote-driver', version: '4.3.0'],
-          [group: 'org.testng', name: 'testng', version: '7.3.0'],
+          [group: 'org.testng', name: 'testng', version: '7.3.0']
   )
+  compileOnly 'org.projectlombok:lombok:1.18.24'
+  annotationProcessor 'org.projectlombok:lombok:1.18.24'
+
+  testCompileOnly 'org.projectlombok:lombok:1.18.24'
+  testAnnotationProcessor 'org.projectlombok:lombok:1.18.24'
 }
 
 //=================================== Test =====================================
@@ -79,7 +83,7 @@ task runTests(type: Test) {
   def suite = project.hasProperty('suite') ? project.suite : 'ui'
   systemProperty 'suite', suite
 
-  def thread_count = project.hasProperty('thread_count') ? project.thread_count : 1
+  def thread_count = project.hasProperty('thread_count') ? project.thread_count : 2
 
   def exclude = project.hasProperty('exclude') ? project.exclude : 'disabled'
 
