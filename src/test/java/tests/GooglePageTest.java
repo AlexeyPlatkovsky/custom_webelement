@@ -1,22 +1,26 @@
 package tests;
 
+import core.driver.DriverFactory;
 import org.testng.Assert;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import pages.GooglePage;
 
-@Test(groups = {"ui"}, singleThreaded = true)
+@Test(groups = {"ui"}, threadPoolSize = 2)
 public class GooglePageTest extends BaseTest {
-  GooglePage googlePage;
 
-  @BeforeMethod
-  public void initTest() {
-    googlePage = new GooglePage(driver);
+  @Test
+  public void searchGoogleSpecification() {
+    GooglePage googlePage = new GooglePage(DriverFactory.initDriver());
+    String searchText = "Find chrome specification";
+    googlePage.navigate();
+    googlePage.searchForText(searchText);
+    Assert.assertEquals(googlePage.getTextFromSearchInput(), searchText);
   }
 
   @Test
-  public void checkSearchText() {
-    String searchText = "Find webdriver specification";
+  public void searchFireFoxSpecification() {
+    GooglePage googlePage = new GooglePage(DriverFactory.initDriver());
+    String searchText = "Find firefox specification";
     googlePage.navigate();
     googlePage.searchForText(searchText);
     Assert.assertEquals(googlePage.getTextFromSearchInput(), searchText);

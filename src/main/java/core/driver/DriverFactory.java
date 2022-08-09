@@ -1,6 +1,10 @@
 package core.driver;
 
 import core.driver.idrivers.*;
+import core.driver.idrivers.factories.BrowserFactory;
+import core.driver.idrivers.factories.iChromeFactory;
+import core.driver.idrivers.factories.iFireFoxFactory;
+import core.driver.idrivers.factories.iRemoteFactory;
 import org.openqa.selenium.WebDriver;
 import utils.logging.iLogger;
 import utils.properties.SystemProperties;
@@ -13,21 +17,22 @@ public class DriverFactory {
 
   private static final ThreadLocal<WebDriver> DRIVER = new ThreadLocal<>();
   private static DriverNames driverName;
-  private static final Map<DriverNames, iDriver> IDRIVERS;
+  private static final Map<DriverNames, BrowserFactory> IDRIVERS;
 
   static {
-    final Map<DriverNames, iDriver> drivers = new HashMap<>();
-    drivers.put(DriverNames.CHROME, new iChrome());
-    drivers.put(DriverNames.FIREFOX, new iFireFox());
-    drivers.put(DriverNames.REMOTE, new iRemote());
+    final Map<DriverNames, BrowserFactory> factories = new HashMap<>();
+    factories.put(DriverNames.CHROME, new iChromeFactory());
+    factories.put(DriverNames.FIREFOX, new iFireFoxFactory());
+    factories.put(DriverNames.REMOTE, new iRemoteFactory());
 
-    IDRIVERS = Collections.unmodifiableMap(drivers);
+    IDRIVERS = Collections.unmodifiableMap(factories);
   }
 
-  public static void initDriver() {
+  public static WebDriver initDriver() {
     driverName = DriverNames.valueOf(SystemProperties.DRIVER.toUpperCase());
     iLogger.info("Create driver " + driverName);
-    DRIVER.set(IDRIVERS.get(driverName).getDriver());
+    DRIVER.set(IDRIVERS.get(driverName).initBrowser().getDriver());
+    return DRIVER.get();
   }
 
   public static WebDriver getCurrentDriver() {
