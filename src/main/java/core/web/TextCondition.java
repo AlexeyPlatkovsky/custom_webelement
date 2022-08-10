@@ -6,16 +6,16 @@ import utils.logging.iLogger;
 
 public class TextCondition {
 
-    public static ExpectedCondition<Boolean> textIsNotEmpty(final iWebElement element) {
-        return input -> {
-            try {
-                iLogger.info("Wait until text is not empty");
-                String elementText = element.getText();
-                return !elementText.isEmpty();
-            } catch (StaleElementReferenceException e) {
-                iLogger.error("Can't get text for element {}", element.toString());
-                return null;
-            }
-        };
-    }
+  public static ExpectedCondition<Boolean> textIsNotEmpty(final iWebElement element) {
+    return input -> {
+      try {
+        iLogger.info("Wait until text is not empty");
+        String elementText = element.getText();
+        return !elementText.isEmpty();
+      } catch (StaleElementReferenceException e) {
+        iLogger.error("Can't get text for element {}", element.toString());
+        return null;
+      }
+    };
+  }
 }

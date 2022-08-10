@@ -19,8 +19,8 @@ public class TestListener extends TestListenerAdapter {
   @Override
   public void onTestFailure(ITestResult result) {
     if (!result.isSuccess()) {
-      iLogger.takeScreenshot();
       iLogger.error("Test failed", result.getThrowable());
+      iLogger.takeScreenshot();
     }
   }
 }

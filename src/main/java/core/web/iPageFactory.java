@@ -1,5 +1,7 @@
 package core.web;
 
+import core.web.annotations.CacheElement;
+import core.web.annotations.Waiter;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -49,6 +51,7 @@ public class iPageFactory {
           if (waiter != null) {
             el.setWaiter(waiter.waitFor());
           }
+          el.setShouldBeCached(getCachedField(field));
         }
         field.set(section, instance);
       }
@@ -94,6 +97,11 @@ public class iPageFactory {
       return field.getAnnotation(Waiter.class);
     }
     return null;
+  }
+
+  private static boolean getCachedField(Field field) {
+    return hasAnnotation(field)
+            && Arrays.stream(field.getAnnotations()).anyMatch(a -> a.annotationType() == CacheElement.class);
   }
 
   private static boolean hasAnnotation(Field field) {

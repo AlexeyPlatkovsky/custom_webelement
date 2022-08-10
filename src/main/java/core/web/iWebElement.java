@@ -1,10 +1,10 @@
 package core.web;
 
 import core.tools.CacheValue;
+import core.web.conditions.HiddenElementCondition;
 import org.openqa.selenium.*;
 import org.openqa.selenium.By.*;
 import org.openqa.selenium.interactions.Actions;
-import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import utils.logging.iLogger;
@@ -26,6 +26,7 @@ public class iWebElement implements WebElement {
   private final CacheValue<WebElement> cachedWebElement = new CacheValue<>();
   protected By byLocator;
   protected String copiedByLocator;
+  private boolean shouldBeCached = false;
 
   public iWebElement(WebDriver driver, String name) {
     this.driver = driver;
@@ -68,6 +69,9 @@ public class iWebElement implements WebElement {
       try {
         WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(byLocator));
         highlightElement(element);
+        if (shouldBeCached) {
+          cachedWebElement.setForce(element);
+        }
         return element;
       } catch (TimeoutException e) {
         throw new TimeoutException("Don't see " + this);
@@ -104,7 +108,7 @@ public class iWebElement implements WebElement {
     } catch (Exception e) {
       try {
         iLogger.takeScreenshot("Can't click element with regular click");
-        waitForClick.until(new HiddenCondition(element));
+        waitForClick.until(new HiddenElementCondition(element));
       } catch (TimeoutException ex) {
         if (driver.findElements(byLocator).size() == 0) {
           throw new NoSuchElementException("No such element");
@@ -249,7 +253,6 @@ public class iWebElement implements WebElement {
 
   public iWebElement template(String text) {
     setupLocator(text);
-    cachedWebElement.setForce(getWebElement());
     return this;
   }
 
@@ -279,7 +282,7 @@ public class iWebElement implements WebElement {
 
   @Override
   public String toString() {
-    return String.format("Webelement %s with locator %s", name, byLocator);
+    return String.format("WebElement %s with locator %s", name, byLocator);
   }
 
   public void setWaiter(Long waiter) {
@@ -317,29 +320,7 @@ public class iWebElement implements WebElement {
     actions.moveToElement(getWebElement()).perform();
   }
 
-  public class HiddenCondition implements ExpectedCondition {
-
-    WebElement element;
-
-    public HiddenCondition(WebElement element) {
-      iLogger.info("Try to click element with JS");
-      this.element = element;
-    }
-
-    @Override
-    public Boolean apply(Object input) {
-      try {
-        executeScript("arguments[0].scrollIntoView(true);", element);
-        executeScript("arguments[0].focus();", element);
-        try {
-          element.click();
-        } catch (WebDriverException ex) {
-          element.sendKeys(Keys.RETURN);
-        }
-        return true;
-      } catch (WebDriverException e) {
-        return false;
-      }
-    }
+  public void setShouldBeCached(boolean shouldBeCached) {
+    this.shouldBeCached = shouldBeCached;
   }
 }
