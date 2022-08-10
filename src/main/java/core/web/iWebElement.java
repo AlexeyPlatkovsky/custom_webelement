@@ -23,7 +23,7 @@ public class iWebElement implements WebElement {
   protected final WebDriver driver;
   protected final String name;
   protected final WebDriverWait wait;
-  private final CacheValue<WebElement> webElement = new CacheValue<>();
+  private final CacheValue<WebElement> cachedWebElement = new CacheValue<>();
   protected By byLocator;
   protected String copiedByLocator;
 
@@ -61,19 +61,31 @@ public class iWebElement implements WebElement {
   }
 
   public WebElement getWebElement() {
-    if (webElement.hasValue()) {
-      return webElement.get();
+    if (cachedWebElement.hasValue()) {
+      highlightElement();
+      return cachedWebElement.get();
     } else {
       try {
-        return wait.until(ExpectedConditions.presenceOfElementLocated(byLocator));
+        WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(byLocator));
+        highlightElement(element);
+        return element;
       } catch (TimeoutException e) {
-        throw new TimeoutException("Don't see " + toString());
+        throw new TimeoutException("Don't see " + this);
       }
     }
   }
 
+  private void highlightElement() {
+    highlightElement(cachedWebElement.get());
+  }
+
+  private void highlightElement(WebElement element) {
+    JavascriptExecutor jsExecutor = (JavascriptExecutor) driver;
+    jsExecutor.executeScript("arguments[0].style.border='2px solid red'", element);
+  }
+
   public void setWebElement(WebElement el) {
-    webElement.setForce(el);
+    cachedWebElement.setForce(el);
   }
 
   public void click() {
@@ -97,7 +109,7 @@ public class iWebElement implements WebElement {
         if (driver.findElements(byLocator).size() == 0) {
           throw new NoSuchElementException("No such element");
         }
-        throw new TimeoutException("Failed to click with JS on " + toString());
+        throw new TimeoutException("Failed to click with JS on " + this);
       }
     }
   }
@@ -237,7 +249,7 @@ public class iWebElement implements WebElement {
 
   public iWebElement template(String text) {
     setupLocator(text);
-    webElement.setForce(getWebElement());
+    cachedWebElement.setForce(getWebElement());
     return this;
   }
 
