@@ -15,9 +15,6 @@ ext {
   archivesBaseName = 'autotests'
 }
 
-sourceCompatibility = 8.0
-targetCompatibility = 8.0
-
 idea {
   module {
     outputDir = file("${project.buildDir}/classes/java/main")
@@ -93,7 +90,7 @@ task runTests(type: Test) {
     outputDirectory = file("$projectDir/build/reports/tests/testng")
     includeGroups suite
     excludeGroups exclude
-    parallel 'methods'
+    parallel = 'methods'
     threadCount = thread_count as int
   }
 }

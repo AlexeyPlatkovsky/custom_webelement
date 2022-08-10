@@ -32,6 +32,7 @@ public class iLogger {
 
   public static void info(String s, String... replacement) {
     Arrays.stream(replacement).forEach(r -> s.replace("{}", r));
+    info(s);
   }
 
   public static void info(String s, int replacement) {
@@ -53,6 +54,7 @@ public class iLogger {
 
   public static void debug(String s, String... replacement) {
     Arrays.stream(replacement).sequential().forEach(r -> s.replace("{}", r));
+    debug(s);
   }
 
   public static void error(String s, String replacement) {
