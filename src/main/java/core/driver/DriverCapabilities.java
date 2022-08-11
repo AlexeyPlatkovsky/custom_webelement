@@ -7,11 +7,9 @@ import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.ie.InternetExplorerOptions;
 import org.openqa.selenium.safari.SafariOptions;
 import utils.logging.iLogger;
-import utils.properties.EnvProperties;
+import utils.properties.RemoteEnvProperties;
 import utils.properties.SystemProperties;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 public class DriverCapabilities {
@@ -20,14 +18,12 @@ public class DriverCapabilities {
   private static final Map<BrowserNames, MutableCapabilities> CAPS;
 
   static {
-    final Map<BrowserNames, MutableCapabilities> browserCapabilities = new HashMap<>();
-    browserCapabilities.put(BrowserNames.CHROME, new ChromeOptions().addArguments("--lang=" + SystemProperties.LOCALE));
-    browserCapabilities.put(BrowserNames.FIREFOX, new FirefoxOptions());
-    browserCapabilities.put(BrowserNames.EDGE, new EdgeOptions());
-    browserCapabilities.put(BrowserNames.SAFARI, new SafariOptions());
-    browserCapabilities.put(BrowserNames.IE11, new InternetExplorerOptions());
 
-    CAPS = Collections.unmodifiableMap(browserCapabilities);
+    CAPS = Map.of(BrowserNames.CHROME, new ChromeOptions().addArguments("--lang=" + SystemProperties.LOCALE),
+            BrowserNames.FIREFOX, new FirefoxOptions(),
+            BrowserNames.EDGE, new EdgeOptions(),
+            BrowserNames.SAFARI, new SafariOptions(),
+            BrowserNames.IE11, new InternetExplorerOptions());
   }
 
   public DriverCapabilities(BrowserNames browser) {
@@ -35,7 +31,7 @@ public class DriverCapabilities {
   }
 
   public MutableCapabilities getCapabilities() {
-    iLogger.info("Browser options are : {}", capabilities.toString());
+    iLogger.debug("Browser options are : {}", capabilities.toString());
     return capabilities;
   }
 
@@ -52,7 +48,7 @@ public class DriverCapabilities {
     capabilities.setCapability("timezone", "UTC+00:00");
     capabilities.setCapability("--lang=", SystemProperties.LOCALE);
 
-    if (!EnvProperties.USE_LOCAL_PORT.isEmpty()) {
+    if (!RemoteEnvProperties.USE_LOCAL_PORT.isEmpty()) {
       capabilities.setCapability("tunnel", true);
     }
   }

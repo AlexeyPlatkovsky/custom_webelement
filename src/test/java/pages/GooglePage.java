@@ -1,15 +1,22 @@
 package pages;
 
+import core.web.annotations.CacheElement;
 import core.web.iWebElement;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
+import utils.logging.iLogger;
 
 public class GooglePage extends AbstractPage {
   private static final String URL = "https://www.google.com/";
 
   @FindBy(css = "[aria-label='Search']")
   private iWebElement searchInput;
+
+  @FindBy(css = "[aria-label='Search']")
+  @CacheElement
+  private iWebElement cachedSearchInput;
 
   public GooglePage(WebDriver driver) {
     super(driver);
@@ -34,5 +41,24 @@ public class GooglePage extends AbstractPage {
 
   public String getTextFromSearchInput() {
     return searchInput.getText();
+  }
+
+  public long getCachedElementFindTime() {
+    return getElementFindTime(cachedSearchInput);
+  }
+
+  public long getNonCachedElementFindTime() {
+    return getElementFindTime(searchInput);
+  }
+
+  private long getElementFindTime(WebElement el) {
+    long withoutStartTime = System.currentTimeMillis();
+    for(int i = 0; i < 1000; i ++)
+    {
+      el.getText();
+    }
+    long executionTime = System.currentTimeMillis() - withoutStartTime;
+    iLogger.info("Find time for element " + el + " = " + executionTime);
+    return executionTime;
   }
 }

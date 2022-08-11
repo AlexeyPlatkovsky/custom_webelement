@@ -62,7 +62,7 @@ public class iWebElement implements WebElement {
   }
 
   public WebElement getWebElement() {
-    if (cachedWebElement.hasValue()) {
+    if (shouldBeCached && cachedWebElement.hasValue()) {
       highlightElement();
       return cachedWebElement.get();
     } else {
@@ -107,11 +107,10 @@ public class iWebElement implements WebElement {
       waitForClick.until(ExpectedConditions.elementToBeClickable(element)).click();
     } catch (Exception e) {
       try {
-        iLogger.takeScreenshot("Can't click element with regular click");
         waitForClick.until(new HiddenElementCondition(element));
       } catch (TimeoutException ex) {
         if (driver.findElements(byLocator).size() == 0) {
-          throw new NoSuchElementException("No such element");
+          throw new NoSuchElementException("No such element " + this);
         }
         throw new TimeoutException("Failed to click with JS on " + this);
       }
@@ -294,14 +293,14 @@ public class iWebElement implements WebElement {
   }
 
   public void setFocus() {
-    iLogger.info("Set focus on element {}", toString());
+    iLogger.debug("Set focus on element {}", toString());
     executeScript("arguments[0].scrollIntoView(true);", this.getWebElement());
     executeScript("arguments[0].focus();", this.getWebElement());
   }
 
   public boolean hasChild(iWebElement child) {
     boolean hasChild = findElements(child.getLocator()).size() > 0;
-    iLogger.info(String.format("Element %s has %s as child = %s", name, child.getLocator(), hasChild));
+    iLogger.debug(String.format("Element %s has %s as child = %s", name, child.getLocator(), hasChild));
     return hasChild;
   }
 

@@ -66,9 +66,9 @@ public class iLogger {
     Reporter.log(timeStamp() + "ERROR: " + message + "</br>");
   }
 
-  public static void error(String s, Throwable throwable) {
-    LOG.error(s, throwable);
-    Reporter.log(timeStamp() + "ERROR: " + s + "</br>" + throwable.getMessage());
+  public static void error(String s, Throwable e) {
+    LOG.error(s, e);
+    Reporter.log(timeStamp() + "ERROR: " + s + "</br>" + e);
   }
 
   public static void error(String s, String replacement, Throwable e) {
@@ -77,7 +77,7 @@ public class iLogger {
 
   public static void error(Throwable e) {
     LOG.error(e);
-    Reporter.log(timeStamp() + e.getMessage());
+    Reporter.log(timeStamp() + e);
   }
 
   private static String timeStamp() {

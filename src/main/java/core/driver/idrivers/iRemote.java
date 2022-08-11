@@ -5,7 +5,7 @@ import core.driver.DriverCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.testng.Assert;
 import utils.logging.iLogger;
-import utils.properties.EnvProperties;
+import utils.properties.RemoteEnvProperties;
 import utils.properties.SystemProperties;
 
 import java.net.URL;
@@ -19,7 +19,7 @@ public class iRemote extends iDriver {
   public void initDriver() {
     DriverCapabilities options = new DriverCapabilities(BrowserNames.valueOf(SystemProperties.BROWSER.toUpperCase()));
     options.setRemoteOptions();
-    String accessUrl = EnvProperties.REMOTE_URL_KEY;
+    String accessUrl = RemoteEnvProperties.REMOTE_URL_KEY;
     options.setRemoteTestOptions(SystemProperties.BUILD_NUMBER);
     try {
       driver = new RemoteWebDriver(new URL(accessUrl), options.getCapabilities());
