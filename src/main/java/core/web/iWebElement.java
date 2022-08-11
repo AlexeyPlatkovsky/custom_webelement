@@ -17,7 +17,6 @@ import java.util.NoSuchElementException;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class iWebElement implements WebElement {
-
   private static final int WAIT_TIMEOUT_SEC = 5;
   private static final int SLEEP_TIMEOUT_MS = 100;
   protected final WebDriver driver;
@@ -124,10 +123,19 @@ public class iWebElement implements WebElement {
 
   public void sendKeys(CharSequence... value) {
     iLogger.debug("Send keys " + Arrays.toString(value) + " to " + name);
+    sendText(value);
+  }
+
+  public void sendKeys(Keys value) {
+    iLogger.debug("Send keys " + value.name() + " to " + name);
+    sendText(value);
+  }
+
+  private void sendText(CharSequence... charSequences) {
     try {
       WebElement element = getWebElement();
       wait.until(ExpectedConditions.elementToBeClickable(element));
-      element.sendKeys(value);
+      element.sendKeys(charSequences);
     } catch (TimeoutException e) {
       throw new TimeoutException("Failed to send keys to " + name + " with locator " + byLocator);
     }
