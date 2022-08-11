@@ -1,7 +1,7 @@
 package core;
 
 import utils.logging.iLogger;
-import utils.properties.EnvProperties;
+import utils.properties.RemoteEnvProperties;
 import utils.properties.SystemProperties;
 
 import java.util.regex.Matcher;
@@ -22,7 +22,7 @@ public class Environment {
   }
 
   public static String getSiteUrl(String property) {
-    String localPort = EnvProperties.USE_LOCAL_PORT;
+    String localPort = RemoteEnvProperties.USE_LOCAL_PORT;
     String http;
     String portColon;
 

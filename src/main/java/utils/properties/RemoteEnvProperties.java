@@ -1,7 +1,7 @@
 package utils.properties;
 
-@FilePath(value = "./src/test/resources/env.properties")
-public class EnvProperties {
+@FilePath(value = "./src/test/resources/remoteEnv.properties")
+public class RemoteEnvProperties {
 
     @Property(value = "env.remote_url")
     public static String REMOTE_URL_KEY;

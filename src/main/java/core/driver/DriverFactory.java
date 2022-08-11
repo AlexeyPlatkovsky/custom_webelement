@@ -30,7 +30,7 @@ public class DriverFactory {
 
   public static WebDriver initDriver() {
     driverName = DriverNames.valueOf(SystemProperties.DRIVER.toUpperCase());
-    iLogger.info("Create driver " + driverName);
+    iLogger.debug("Create driver " + driverName);
     DRIVER.set(IDRIVERS.get(driverName).initBrowser().getDriver());
     return DRIVER.get();
   }
