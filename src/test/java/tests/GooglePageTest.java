@@ -29,7 +29,7 @@ public class GooglePageTest extends BaseTest {
   @Test
   public void compareCachedAndNonCachedElementsPerformanceTest() {
     GooglePage googlePage = new GooglePage(DriverFactory.initDriver());
-    String searchText = "Find firefox specification";
+    String searchText = "Compare performance of webElement implementations";
     googlePage.navigate();
     googlePage.searchForText(searchText);
     Assert.assertTrue(googlePage.getCachedElementFindTime() < googlePage.getNonCachedElementFindTime());
