@@ -43,6 +43,10 @@ public class iLogger {
     info(s, String.valueOf(checked));
   }
 
+  public static void info(Object nonString) {
+    info(String.valueOf(nonString));
+  }
+
   public static void debug(String message) {
     LOG.debug(message);
     Reporter.log(timeStamp() + "DEBUG: " + message + "</br>");

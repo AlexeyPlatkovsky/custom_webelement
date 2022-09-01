@@ -1,5 +1,8 @@
 package utils.properties;
 
+import utils.properties.annotations.FilePath;
+import utils.properties.annotations.Property;
+
 @FilePath(value = "./src/test/resources/remoteEnv.properties")
 public class RemoteEnvProperties {
 

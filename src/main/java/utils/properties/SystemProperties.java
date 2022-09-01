@@ -1,5 +1,7 @@
 package utils.properties;
 
+import utils.properties.annotations.Property;
+
 public class SystemProperties {
   @Property(value = "base_url")
   public static String BASE_URL;

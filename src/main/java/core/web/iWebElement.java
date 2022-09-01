@@ -8,6 +8,7 @@ import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import utils.logging.iLogger;
+import utils.properties.WebElementProperties;
 
 import java.time.Duration;
 import java.util.Arrays;
@@ -84,7 +85,16 @@ public class iWebElement implements WebElement {
 
   private void highlightElement(WebElement element) {
     JavascriptExecutor jsExecutor = (JavascriptExecutor) driver;
-    jsExecutor.executeScript("arguments[0].style.border='2px solid red'", element);
+    if (Boolean.parseBoolean(WebElementProperties.WEBELEMENT_BORDER_SHOULD_BE_HIGHLIGHTED)) {
+      String border = String.format("arguments[0].style.border='%s solid %s'",
+              WebElementProperties.WEBELEMENT_BORDER_WIDTH, WebElementProperties.WEBELEMENT_BORDER_COLOR);
+      jsExecutor.executeScript(border, element);
+    }
+    if (Boolean.parseBoolean(WebElementProperties.WEBELEMENT_BACKGROUND_SHOULD_BE_HIGHLIGHTED)) {
+      String background = String.format("arguments[0].style.background='%s'",
+              WebElementProperties.WEBELEMENT_BACKGROUND_COLOR);
+      jsExecutor.executeScript(background, element);
+    }
   }
 
   public void setWebElement(WebElement el) {

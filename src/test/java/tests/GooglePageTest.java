@@ -26,12 +26,16 @@ public class GooglePageTest extends BaseTest {
     Assert.assertEquals(googlePage.getTextFromSearchInput(), "searchText");
   }
 
-  @Test
+  @Test(singleThreaded = true)
   public void compareCachedAndNonCachedElementsPerformanceTest() {
     GooglePage googlePage = new GooglePage(DriverFactory.initDriver());
     String searchText = "Compare performance of webElement implementations";
     googlePage.navigate();
     googlePage.searchForText(searchText);
-    Assert.assertTrue(googlePage.getCachedElementFindTime() < googlePage.getNonCachedElementFindTime());
+    long cached = googlePage.getCachedElementFindTime();
+    googlePage.navigate();
+    googlePage.searchForText(searchText);
+    long nonCached = googlePage.getNonCachedElementFindTime();
+    Assert.assertTrue(cached < nonCached);
   }
 }

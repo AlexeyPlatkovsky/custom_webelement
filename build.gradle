@@ -90,7 +90,7 @@ task runTests(type: Test) {
     outputDirectory = file("$projectDir/build/reports/tests/testng")
     includeGroups suite
     excludeGroups exclude
-    parallel = 'methods'
+    parallel 'methods'
     threadCount = thread_count as int
   }
 }

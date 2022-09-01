@@ -1,4 +1,4 @@
-package utils.properties;
+package utils.properties.annotations;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
