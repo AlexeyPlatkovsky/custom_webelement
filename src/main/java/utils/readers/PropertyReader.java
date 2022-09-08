@@ -2,8 +2,8 @@ package utils.readers;
 
 import org.apache.commons.lang3.reflect.FieldUtils;
 import utils.logging.iLogger;
-import utils.properties.FilePath;
-import utils.properties.Property;
+import utils.properties.annotations.FilePath;
+import utils.properties.annotations.Property;
 
 import java.io.IOException;
 import java.lang.reflect.Field;

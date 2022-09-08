@@ -4,7 +4,6 @@ import core.web.annotations.CacheElement;
 import core.web.iWebElement;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import utils.logging.iLogger;
 
@@ -51,7 +50,7 @@ public class GooglePage extends AbstractPage {
     return getElementFindTime(searchInput);
   }
 
-  private long getElementFindTime(WebElement el) {
+  private long getElementFindTime(iWebElement el) {
     long withoutStartTime = System.currentTimeMillis();
     for(int i = 0; i < 1000; i ++)
     {
