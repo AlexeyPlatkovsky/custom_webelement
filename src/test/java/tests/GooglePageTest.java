@@ -2,12 +2,12 @@ package tests;
 
 import core.driver.DriverFactory;
 import org.testng.Assert;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import pages.GooglePage;
 
 @Test(groups = {"ui"})
 public class GooglePageTest extends BaseTest {
-
   @Test
   public void searchGoogleSpecificationTest() {
     GooglePage googlePage = new GooglePage(DriverFactory.initDriver());

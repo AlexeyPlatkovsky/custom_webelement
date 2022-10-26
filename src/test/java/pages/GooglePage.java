@@ -10,10 +10,10 @@ import utils.logging.iLogger;
 public class GooglePage extends AbstractPage {
   private static final String URL = "https://www.google.com/";
 
-  @FindBy(css = "[aria-label='Search']")
+  @FindBy(css = "input.gLFyf")
   private iWebElement searchInput;
 
-  @FindBy(css = "[aria-label='Search']")
+  @FindBy(css = "input.gLFyf")
   @CacheElement
   private iWebElement cachedSearchInput;
 

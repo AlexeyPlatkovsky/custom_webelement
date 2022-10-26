@@ -1,11 +1,14 @@
 package core.driver.idrivers;
 
 import core.driver.BrowserNames;
-import core.driver.DriverCapabilities;
+import core.driver.idrivers.capabilities.DriverCapabilities;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.remote.DesiredCapabilities;
 import utils.properties.SystemProperties;
+
+import java.sql.SQLOutput;
 
 public class iChrome extends iDriver {
 

@@ -1,7 +1,7 @@
 package core.driver.idrivers;
 
 import core.driver.BrowserNames;
-import core.driver.DriverCapabilities;
+import core.driver.idrivers.capabilities.DriverCapabilities;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;

@@ -1,5 +1,6 @@
-package core.driver;
+package core.driver.idrivers.capabilities;
 
+import core.driver.BrowserNames;
 import org.openqa.selenium.MutableCapabilities;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.edge.EdgeOptions;
@@ -18,8 +19,7 @@ public class DriverCapabilities {
   private static final Map<BrowserNames, MutableCapabilities> CAPS;
 
   static {
-
-    CAPS = Map.of(BrowserNames.CHROME, new ChromeOptions().addArguments("--lang=" + SystemProperties.LOCALE),
+    CAPS = Map.of(BrowserNames.CHROME, new iChromeCapabilities().options,
             BrowserNames.FIREFOX, new FirefoxOptions(),
             BrowserNames.EDGE, new EdgeOptions(),
             BrowserNames.SAFARI, new SafariOptions(),

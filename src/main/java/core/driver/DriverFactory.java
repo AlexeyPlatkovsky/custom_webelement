@@ -9,8 +9,6 @@ import org.openqa.selenium.WebDriver;
 import utils.logging.iLogger;
 import utils.properties.SystemProperties;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 public class DriverFactory {
@@ -20,12 +18,13 @@ public class DriverFactory {
   private static final Map<DriverNames, BrowserFactory> IDRIVERS;
 
   static {
-    final Map<DriverNames, BrowserFactory> factories = new HashMap<>();
-    factories.put(DriverNames.CHROME, new iChromeFactory());
-    factories.put(DriverNames.FIREFOX, new iFireFoxFactory());
-    factories.put(DriverNames.REMOTE, new iRemoteFactory());
 
-    IDRIVERS = Collections.unmodifiableMap(factories);
+    IDRIVERS = Map.of(DriverNames.CHROME,
+            new iChromeFactory(),
+            DriverNames.FIREFOX,
+            new iFireFoxFactory(),
+            DriverNames.REMOTE,
+            new iRemoteFactory());
   }
 
   public static WebDriver initDriver() {

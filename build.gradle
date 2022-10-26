@@ -62,7 +62,7 @@ task runTests(type: Test) {
   def driver = project.hasProperty('driver') ? project.driver : 'CHROME'
   systemProperty 'driver', driver
 
-  def locale = project.hasProperty('locale') ? project.locale : 'en-RU'
+  def locale = project.hasProperty('locale') ? project.locale : 'en-US'
   systemProperty 'locale', locale
 
   def platform = project.hasProperty('platform') ? project.platform : 'Windows 10'

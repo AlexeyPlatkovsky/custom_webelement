@@ -1,7 +1,7 @@
 package core.driver.idrivers;
 
 import core.driver.BrowserNames;
-import core.driver.DriverCapabilities;
+import core.driver.idrivers.capabilities.DriverCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.testng.Assert;
 import utils.logging.iLogger;
