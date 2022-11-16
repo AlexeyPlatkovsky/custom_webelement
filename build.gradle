@@ -62,17 +62,17 @@ task runTests(type: Test) {
   def driver = project.hasProperty('driver') ? project.driver : 'CHROME'
   systemProperty 'driver', driver
 
+  def lambda_key = project.hasProperty('lambda_key') ? project.remote_key : ''
+  systemProperty 'lambda_key', lambda_key
+
+  def lambda_username = project.hasProperty('lambda_username') ? project.remote_username : ''
+  systemProperty 'lambda_username', lambda_username
+
   def locale = project.hasProperty('locale') ? project.locale : 'en-US'
   systemProperty 'locale', locale
 
   def platform = project.hasProperty('platform') ? project.platform : 'Windows 10'
   systemProperty 'platform', platform
-
-  def remote_key = project.hasProperty('remote_key') ? project.remote_key : ''
-  systemProperty 'remote_key', remote_key
-
-  def remote_username = project.hasProperty('remote_username') ? project.remote_username : ''
-  systemProperty 'remote_username', remote_username
 
   def screen_resolution = project.hasProperty('screen_resolution') ? project.screen_resolution : '1920x1080'
   systemProperty 'screen_resolution', screen_resolution
@@ -80,9 +80,9 @@ task runTests(type: Test) {
   def suite = project.hasProperty('suite') ? project.suite : 'ui'
   systemProperty 'suite', suite
 
-  def thread_count = project.hasProperty('thread_count') ? project.thread_count : 2
-
+//testNG settings
   def exclude = project.hasProperty('exclude') ? project.exclude : 'disabled'
+  def thread_count = project.hasProperty('thread_count') ? project.thread_count : 2
 
   useTestNG() {
     testLogging.showStandardStreams = true

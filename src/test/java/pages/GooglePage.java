@@ -20,7 +20,7 @@ public class GooglePage extends AbstractPage {
   public GooglePage(WebDriver driver) {
     super(driver);
   }
-
+//TODO: move to abstract class and read URL from custom class annotation
   public void navigate() {
     driver.navigate().to(URL);
   }

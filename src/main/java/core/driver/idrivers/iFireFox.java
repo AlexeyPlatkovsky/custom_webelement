@@ -1,6 +1,5 @@
 package core.driver.idrivers;
 
-import core.driver.BrowserNames;
 import core.driver.idrivers.capabilities.DriverCapabilities;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.firefox.FirefoxDriver;
@@ -15,6 +14,6 @@ public class iFireFox extends iDriver {
   @Override
   public void initDriver() {
     WebDriverManager.firefoxdriver().setup();
-    driver = new FirefoxDriver((FirefoxOptions) (new DriverCapabilities(BrowserNames.FIREFOX)).getCapabilities());
+    driver = new FirefoxDriver((FirefoxOptions) (new DriverCapabilities(DriverNames.FIREFOX)).getCapabilities());
   }
 }

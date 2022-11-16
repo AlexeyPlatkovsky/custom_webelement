@@ -15,11 +15,10 @@ public class DriverFactory {
 
   private static final ThreadLocal<WebDriver> DRIVER = new ThreadLocal<>();
   private static DriverNames driverName;
-  private static final Map<DriverNames, BrowserFactory> IDRIVERS;
+  private static final Map<DriverNames, BrowserFactory> DRIVERS;
 
   static {
-
-    IDRIVERS = Map.of(DriverNames.CHROME,
+    DRIVERS = Map.of(DriverNames.CHROME,
             new iChromeFactory(),
             DriverNames.FIREFOX,
             new iFireFoxFactory(),
@@ -30,7 +29,7 @@ public class DriverFactory {
   public static WebDriver initDriver() {
     driverName = DriverNames.valueOf(SystemProperties.DRIVER.toUpperCase());
     iLogger.debug("Create driver " + driverName);
-    DRIVER.set(IDRIVERS.get(driverName).initBrowser().getDriver());
+    DRIVER.set(DRIVERS.get(driverName).initBrowser().getDriver());
     return DRIVER.get();
   }
 
