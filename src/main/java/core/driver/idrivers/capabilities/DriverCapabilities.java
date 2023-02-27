@@ -30,8 +30,8 @@ public class DriverCapabilities {
   }
 
   public void setRemoteOptions(String buildNumber) {
-    capabilities.setCapability("version", SystemProperties.BROWSER);
-    capabilities.setCapability("version", SystemProperties.BROWSER_VERSION);
+    capabilities.setCapability("browser", SystemProperties.REMOTE_BROWSER);
+    capabilities.setCapability("version", SystemProperties.REMOTE_BROWSER_VERSION);
     capabilities.setCapability("platform", SystemProperties.PLATFORM);
     capabilities.setCapability("resolution", SystemProperties.SCREEN_RESOLUTION);
     capabilities.setCapability("user", SystemProperties.REMOTE_USERNAME);

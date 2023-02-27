@@ -6,12 +6,6 @@ public class SystemProperties {
   @Property(value = "base_url")
   public static String BASE_URL;
 
-  @Property(value = "browser")
-  public static String BROWSER;
-
-  @Property(value = "browser_version")
-  public static String BROWSER_VERSION;
-
   @Property(value = "build_number")
   public static String BUILD_NUMBER;
 
@@ -23,6 +17,12 @@ public class SystemProperties {
 
   @Property(value = "platform")
   public static String PLATFORM;
+
+  @Property(value = "remote_browser")
+  public static String REMOTE_BROWSER;
+
+  @Property(value = "remote_browser_version")
+  public static String REMOTE_BROWSER_VERSION;
 
   @Property(value = "remote_key")
   public static String REMOTE_KEY;

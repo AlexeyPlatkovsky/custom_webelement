@@ -13,7 +13,7 @@ public class iChrome extends iDriver {
 
   @Override
   public void initDriver() {
-    WebDriverManager.chromedriver().driverVersion(SystemProperties.BROWSER_VERSION).setup();
+    WebDriverManager.chromedriver().driverVersion(SystemProperties.REMOTE_BROWSER_VERSION).setup();
     driver = new ChromeDriver((ChromeOptions) (new DriverCapabilities(DriverNames.CHROME)).getCapabilities());
   }
 }

@@ -1,7 +1,6 @@
 package core.driver.idrivers;
 
 import core.driver.idrivers.capabilities.DriverCapabilities;
-import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 
@@ -13,7 +12,7 @@ public class iFireFox extends iDriver {
 
   @Override
   public void initDriver() {
-    WebDriverManager.firefoxdriver().setup();
+    System.setProperty("webdriver.gecko.driver","./src/main/resources/geckodriver.exe" );
     driver = new FirefoxDriver((FirefoxOptions) (new DriverCapabilities(DriverNames.FIREFOX)).getCapabilities());
   }
 }

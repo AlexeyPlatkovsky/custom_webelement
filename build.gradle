@@ -33,8 +33,8 @@ dependencies {
           [group: 'io.github.bonigarcia', name: 'webdrivermanager', version: '4.0.0'],
           [group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.13.3'],
           [group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.13.3'],
-          [group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '4.3.0'],
-          [group: 'org.seleniumhq.selenium', name: 'selenium-remote-driver', version: '4.3.0'],
+          [group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '4.8.0'],
+          [group: 'org.seleniumhq.selenium', name: 'selenium-remote-driver', version: '4.8.0'],
           [group: 'org.testng', name: 'testng', version: '7.3.0']
   )
   compileOnly 'org.projectlombok:lombok:1.18.24'
@@ -49,12 +49,6 @@ dependencies {
 task runTests(type: Test) {
   def base_url = project.hasProperty('base_url') ? project.base_url : ''
   systemProperty 'base_url', base_url
-
-  def browser = project.hasProperty('browser') ? project.browser : 'CHROME'
-  systemProperty 'browser', browser
-
-  def browser_version = project.hasProperty('browser_version') ? project.browser_version : 'latest'
-  systemProperty 'browser_version', browser_version
 
   def build_number = project.hasProperty('build_number') ? project.build_number : new Date().format('MMddyyhhmmss')
   systemProperty 'build_number', build_number
@@ -73,6 +67,12 @@ task runTests(type: Test) {
 
   def platform = project.hasProperty('platform') ? project.platform : 'Windows 10'
   systemProperty 'platform', platform
+
+  def remote_browser = project.hasProperty('remote_browser') ? project.browser : 'CHROME'
+  systemProperty 'remote_browser', remote_browser
+
+  def remote_browser_version = project.hasProperty('remote_browser_version') ? project.browser_version : 'latest'
+  systemProperty 'remote_browser_version', remote_browser_version
 
   def screen_resolution = project.hasProperty('screen_resolution') ? project.screen_resolution : '1920x1080'
   systemProperty 'screen_resolution', screen_resolution

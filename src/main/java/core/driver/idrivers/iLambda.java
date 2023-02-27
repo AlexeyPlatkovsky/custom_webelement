@@ -16,7 +16,7 @@ public class iLambda extends iDriver {
 
   @Override
   public void initDriver() {
-    DriverCapabilities options = new DriverCapabilities(DriverNames.valueOf(SystemProperties.BROWSER.toUpperCase()));
+    DriverCapabilities options = new DriverCapabilities(DriverNames.valueOf(SystemProperties.REMOTE_BROWSER.toUpperCase()));
     options.setRemoteOptions(SystemProperties.BUILD_NUMBER);
     String accessUrl = RemoteEnvProperties.REMOTE_URL_KEY;
 
