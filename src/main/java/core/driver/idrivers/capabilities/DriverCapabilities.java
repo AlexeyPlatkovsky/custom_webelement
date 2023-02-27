@@ -25,7 +25,7 @@ public class DriverCapabilities {
   }
 
   public MutableCapabilities getCapabilities() {
-    iLogger.debug("Browser options are : {}", capabilities.toString());
+    iLogger.info("Browser options are : {}", capabilities.toString());
     return capabilities;
   }
 

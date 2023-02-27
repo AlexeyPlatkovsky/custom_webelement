@@ -74,7 +74,10 @@ task runTests(type: Test) {
   def remote_browser_version = project.hasProperty('remote_browser_version') ? project.browser_version : 'latest'
   systemProperty 'remote_browser_version', remote_browser_version
 
-  def screen_resolution = project.hasProperty('screen_resolution') ? project.screen_resolution : '1920x1080'
+  def screen_maximize = project.hasProperty('screen_maximize') ? project.screen_maximize : true
+  systemProperty 'screen_maximize', screen_maximize
+
+  def screen_resolution = project.hasProperty('screen_resolution') ? project.screen_resolution : '1920,1080'
   systemProperty 'screen_resolution', screen_resolution
 
   def suite = project.hasProperty('suite') ? project.suite : 'ui'

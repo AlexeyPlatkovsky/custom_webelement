@@ -33,14 +33,27 @@ public class PropertyReader {
       }
       for (Field field : fields) {
         String key = field.getAnnotation(Property.class).value();
+        String value = PROPERTIES.getProperty(key);
+
         try {
-          String value = PROPERTIES.getProperty(key);
-          field.set(String.class, value);
+          Field classField = clazz.getDeclaredField(field.getName());
+          classField.setAccessible(true);
+          Object convertedValue = convertValue(value, classField.getType());
+          classField.set(null, convertedValue);
           iLogger.info("Set property " + clazz.getName() + "::" + field.getName() + " with value " + value);
-        } catch (IllegalAccessException e) {
+        } catch (NoSuchFieldException | IllegalAccessException | IllegalArgumentException e) {
           iLogger.error("Couldn't set field " + field.getName() + " for property class " + clazz.getName(), e);
         }
       }
     }
+  }
+
+  private static Object convertValue(String value, Class<?> type) {
+    return switch (type.getSimpleName()) {
+      case "String" -> value;
+      case "Integer" -> Integer.parseInt(value);
+      case "Boolean" -> Boolean.parseBoolean(value);
+      default -> null;
+    };
   }
 }

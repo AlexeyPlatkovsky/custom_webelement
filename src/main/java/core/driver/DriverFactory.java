@@ -28,8 +28,10 @@ public class DriverFactory {
 
   public static WebDriver initDriver() {
     driverName = DriverNames.valueOf(SystemProperties.DRIVER.toUpperCase());
-    iLogger.debug("Create driver " + driverName);
+    iLogger.info("Create driver " + driverName);
     DRIVER.set(DRIVERS.get(driverName).initBrowser().getDriver());
+    if (SystemProperties.SCREEN_MAXIMIZE)
+      DRIVER.get().manage().window().maximize();
     return DRIVER.get();
   }
 
