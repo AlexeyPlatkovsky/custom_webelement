@@ -1,6 +1,5 @@
 package core.driver.idrivers;
 
-import core.driver.BrowserNames;
 import core.driver.idrivers.capabilities.DriverCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.testng.Assert;
@@ -10,17 +9,17 @@ import utils.properties.SystemProperties;
 
 import java.net.URL;
 
-public class iRemote extends iDriver {
+public class iLambda extends iDriver {
 
-  public iRemote() {
+  public iLambda() {
   }
 
   @Override
   public void initDriver() {
-    DriverCapabilities options = new DriverCapabilities(BrowserNames.valueOf(SystemProperties.BROWSER.toUpperCase()));
-    options.setRemoteOptions();
+    DriverCapabilities options = new DriverCapabilities(DriverNames.valueOf(SystemProperties.REMOTE_BROWSER.toUpperCase()));
+    options.setRemoteOptions(SystemProperties.BUILD_NUMBER);
     String accessUrl = RemoteEnvProperties.REMOTE_URL_KEY;
-    options.setRemoteTestOptions(SystemProperties.BUILD_NUMBER);
+
     try {
       driver = new RemoteWebDriver(new URL(accessUrl), options.getCapabilities());
       iLogger.info("Driver created. Remote session starting.");
