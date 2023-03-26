@@ -50,6 +50,9 @@ task runTests(type: Test) {
   def base_url = project.hasProperty('base_url') ? project.base_url : ''
   systemProperty 'base_url', base_url
 
+  def browser_version = project.hasProperty('browser_version') ? project.browser_version : 'latest'
+  systemProperty 'browser_version', browser_version
+
   def build_number = project.hasProperty('build_number') ? project.build_number : new Date().format('MMddyyhhmmss')
   systemProperty 'build_number', build_number
 
@@ -70,9 +73,6 @@ task runTests(type: Test) {
 
   def remote_browser = project.hasProperty('remote_browser') ? project.browser : 'CHROME'
   systemProperty 'remote_browser', remote_browser
-
-  def remote_browser_version = project.hasProperty('remote_browser_version') ? project.browser_version : 'latest'
-  systemProperty 'remote_browser_version', remote_browser_version
 
   def screen_maximize = project.hasProperty('screen_maximize') ? project.screen_maximize : true
   systemProperty 'screen_maximize', screen_maximize

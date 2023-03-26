@@ -8,8 +8,8 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface Waiter {
-  /**
-   * Wait in seconds, by default = 1 second
-   */
-  long waitFor() default 1;
+    /**
+     * Wait in seconds, by default = 1 second
+     */
+    long waitFor() default 1;
 }

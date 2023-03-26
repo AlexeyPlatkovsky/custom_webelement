@@ -5,26 +5,27 @@ import utils.logging.iLogger;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ClassLoader {
 
-  public List<Class<?>> loadClassesInPackage(String packageName) {
-    List<Class<?>> classes = new ArrayList();
-    try {
-      for (ClassPath.ClassInfo classInfo
-              : ClassPath.from(getClass().getClassLoader()).getTopLevelClasses(packageName)) {
-        Class<?> cls;
+    public List<Class<?>> loadClassesInPackage(String packageName) {
+        List<Class<?>> classes = new ArrayList<>(Collections.unmodifiableList(new ArrayList<>()));
+        try {
+            for (ClassPath.ClassInfo classInfo
+                    : ClassPath.from(getClass().getClassLoader()).getTopLevelClasses(packageName)) {
+                Class<?> cls;
 
-        cls = classInfo.load();
+                cls = classInfo.load();
 
-        if (!cls.isInterface()) {
-          classes.add(cls);
+                if (!cls.isInterface()) {
+                    classes.add(cls);
+                }
+            }
+        } catch (IOException e) {
+            iLogger.error("Couldn't load class ", e);
         }
-      }
-    } catch (IOException e) {
-      iLogger.error("Couldn't load class ", e);
+        return classes;
     }
-    return classes;
-  }
 }

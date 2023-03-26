@@ -1,45 +1,68 @@
 package core.driver;
 
-import core.driver.idrivers.*;
-import core.driver.idrivers.factories.BrowserFactory;
-import core.driver.idrivers.factories.iChromeFactory;
-import core.driver.idrivers.factories.iFireFoxFactory;
-import core.driver.idrivers.factories.iRemoteFactory;
+import io.github.bonigarcia.wdm.WebDriverManager;
+import org.openqa.selenium.MutableCapabilities;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.remote.RemoteWebDriver;
+import org.testng.Assert;
 import utils.logging.iLogger;
+import utils.properties.RemoteEnvProperties;
 import utils.properties.SystemProperties;
 
-import java.util.Map;
+import java.net.URL;
 
 public class DriverFactory {
+    private static final ThreadLocal<WebDriver> DRIVER = new ThreadLocal<>();
+    private static DriverNames driverName;
 
-  private static final ThreadLocal<WebDriver> DRIVER = new ThreadLocal<>();
-  private static DriverNames driverName;
-  private static final Map<DriverNames, BrowserFactory> DRIVERS;
+    public static WebDriver initDriver() {
+        driverName = DriverNames.valueOf(SystemProperties.DRIVER.toUpperCase());
+        iLogger.info("Create driver " + driverName);
 
-  static {
-    DRIVERS = Map.of(DriverNames.CHROME,
-            new iChromeFactory(),
-            DriverNames.FIREFOX,
-            new iFireFoxFactory(),
-            DriverNames.REMOTE,
-            new iRemoteFactory());
-  }
+        switch (driverName) {
+            case CHROME -> createChromeDriver();
+            case FIREFOX -> createFirefoxDriver();
+            case LAMBDA -> createLambdaDriver();
+            default -> throw new IllegalArgumentException("Invalid driver name: " + driverName);
+        }
 
-  public static WebDriver initDriver() {
-    driverName = DriverNames.valueOf(SystemProperties.DRIVER.toUpperCase());
-    iLogger.info("Create driver " + driverName);
-    DRIVER.set(DRIVERS.get(driverName).initBrowser().getDriver());
-    if (SystemProperties.SCREEN_MAXIMIZE)
-      DRIVER.get().manage().window().maximize();
-    return DRIVER.get();
-  }
+        if (SystemProperties.SCREEN_MAXIMIZE)
+            DRIVER.get().manage().window().maximize();
 
-  public static WebDriver getCurrentDriver() {
-    return DRIVER.get();
-  }
+        return DRIVER.get();
+    }
 
-  public static DriverNames driverName() {
-    return driverName;
-  }
+    private static void createChromeDriver() {
+        WebDriverManager.chromedriver().driverVersion(SystemProperties.BROWSER_VERSION).setup();
+        DRIVER.set(new ChromeDriver((ChromeOptions) DriverCaps.getCaps(DriverNames.CHROME)));
+    }
+
+    private static void createFirefoxDriver() {
+        WebDriverManager.firefoxdriver().setup();
+        DRIVER.set(new FirefoxDriver((FirefoxOptions) (DriverCaps.getCaps(DriverNames.FIREFOX))));
+    }
+
+    private static void createLambdaDriver() {
+        MutableCapabilities capabilities = DriverCaps.getCaps(DriverNames.LAMBDA);
+        String accessUrl = RemoteEnvProperties.REMOTE_URL_KEY;
+
+        try {
+            DRIVER.set(new RemoteWebDriver(new URL(accessUrl), capabilities));
+            iLogger.info("Remote Lambda Driver is created. Remote session is starting.");
+        } catch (Exception e) {
+            Assert.fail("Remote Web Driver creation failed. " + e);
+        }
+    }
+
+    public static DriverNames driverName() {
+        return driverName;
+    }
+
+    public static WebDriver getCurrentDriver() {
+        return DRIVER.get();
+    }
 }

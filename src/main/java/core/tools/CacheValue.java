@@ -4,46 +4,46 @@ import core.tools.func.JFunc;
 
 public class CacheValue<T> {
 
-  private final static ThreadLocal<Long> globalCache = new ThreadLocal<>();
-  public long elementCache = 0;
-  private T value;
-  private final JFunc<T> getRule = () -> null;
+    private final static ThreadLocal<Long> globalCache = new ThreadLocal<>();
+    public long elementCache = 0;
+    private T value;
+    private final JFunc<T> getRule = () -> null;
 
-  public CacheValue() {
-  }
-
-  private static Long getGlobalCache() {
-    if (globalCache.get() == null) {
-      globalCache.set(0L);
+    public CacheValue() {
     }
-    return globalCache.get();
-  }
 
-  public T get() {
-    return get(getRule);
-  }
-
-  public T get(JFunc<T> defaultResult) {
-    if (!isUseCache()) {
-      return defaultResult.execute();
+    private static Long getGlobalCache() {
+        if (globalCache.get() == null) {
+            globalCache.set(0L);
+        }
+        return globalCache.get();
     }
-    if (elementCache < getGlobalCache() || value == null) {
-      this.value = getRule.execute();
-      elementCache = getGlobalCache();
+
+    public T get() {
+        return get(getRule);
     }
-    return value;
-  }
 
-  public void setForce(T value) {
-    elementCache = getGlobalCache();
-    this.value = value;
-  }
+    public T get(JFunc<T> defaultResult) {
+        if (!isUseCache()) {
+            return defaultResult.execute();
+        }
+        if (elementCache < getGlobalCache() || value == null) {
+            this.value = getRule.execute();
+            elementCache = getGlobalCache();
+        }
+        return value;
+    }
 
-  public boolean hasValue() {
-    return isUseCache() && value != null && elementCache == getGlobalCache();
-  }
+    public void setForce(T value) {
+        elementCache = getGlobalCache();
+        this.value = value;
+    }
 
-  public boolean isUseCache() {
-    return elementCache > -1;
-  }
+    public boolean hasValue() {
+        return isUseCache() && value != null && elementCache == getGlobalCache();
+    }
+
+    public boolean isUseCache() {
+        return elementCache > -1;
+    }
 }
