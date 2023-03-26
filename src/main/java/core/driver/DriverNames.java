@@ -1,7 +1,7 @@
-package core.driver.idrivers;
+package core.driver;
 
 public enum DriverNames {
     CHROME,
     FIREFOX,
-    REMOTE
+    LAMBDA
 }

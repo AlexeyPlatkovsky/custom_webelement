@@ -10,30 +10,30 @@ import utils.logging.iLogger;
 
 public class HiddenElementCondition implements ExpectedCondition {
 
-  WebElement element;
+    WebElement element;
 
-  public HiddenElementCondition(WebElement element) {
-    iLogger.info("Try to click element with JS");
-    this.element = element;
-  }
-
-  @Override
-  public Boolean apply(Object input) {
-    try {
-      executeScript("arguments[0].scrollIntoView(true);", element);
-      executeScript("arguments[0].focus();", element);
-      try {
-        element.click();
-      } catch (WebDriverException ex) {
-        element.sendKeys(Keys.RETURN);
-      }
-      return true;
-    } catch (WebDriverException e) {
-      return false;
+    public HiddenElementCondition(WebElement element) {
+        iLogger.info("Try to click element with JS");
+        this.element = element;
     }
-  }
 
-  private void executeScript(String s, WebElement element) {
-    ((JavascriptExecutor) DriverFactory.getCurrentDriver()).executeScript(s, element);
-  }
+    @Override
+    public Boolean apply(Object input) {
+        try {
+            executeScript("arguments[0].scrollIntoView(true);", element);
+            executeScript("arguments[0].focus();", element);
+            try {
+                element.click();
+            } catch (WebDriverException ex) {
+                element.sendKeys(Keys.RETURN);
+            }
+            return true;
+        } catch (WebDriverException e) {
+            return false;
+        }
+    }
+
+    private void executeScript(String s, WebElement element) {
+        ((JavascriptExecutor) DriverFactory.getCurrentDriver()).executeScript(s, element);
+    }
 }

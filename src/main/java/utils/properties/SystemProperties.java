@@ -21,8 +21,8 @@ public class SystemProperties {
     @Property(value = "remote_browser")
     public static String REMOTE_BROWSER;
 
-    @Property(value = "remote_browser_version")
-    public static String REMOTE_BROWSER_VERSION;
+    @Property(value = "browser_version")
+    public static String BROWSER_VERSION;
 
     @Property(value = "remote_key")
     public static String REMOTE_KEY;
