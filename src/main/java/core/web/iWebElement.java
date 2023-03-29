@@ -277,23 +277,20 @@ public class iWebElement implements WebElement {
         if (copiedByLocator == null) {
             copiedByLocator = byLocator.toString();
         }
-        String locator = String.format(copiedByLocator, text).replaceAll("(By\\.)(\\w+)(: )", "").trim();
-        if (ById.class.equals(byLocator.getClass())) {
-            byLocator = new ById(locator);
-        } else if (ByLinkText.class.equals(byLocator.getClass())) {
-            byLocator = new ByLinkText(locator);
-        } else if (ByPartialLinkText.class.equals(byLocator.getClass())) {
-            byLocator = new ByPartialLinkText(locator);
-        } else if (ByName.class.equals(byLocator.getClass())) {
-            byLocator = new ByName(locator);
-        } else if (ByTagName.class.equals(byLocator.getClass())) {
-            byLocator = new ByTagName(locator);
-        } else if (ByXPath.class.equals(byLocator.getClass())) {
-            byLocator = new ByXPath(locator);
-        } else if (ByClassName.class.equals(byLocator.getClass())) {
-            byLocator = new ByClassName(locator);
-        } else if (ByCssSelector.class.equals(byLocator.getClass())) {
-            byLocator = new ByCssSelector(locator);
+        String locator = copiedByLocator.replace("%s", text).replaceAll("(By\\.)(\\w+)(: )", "").trim();
+        switch (byLocator.getClass().getSimpleName()) {
+            case "ById" -> byLocator = new ById(locator);
+            case "ByLinkText" -> byLocator = new ByLinkText(locator);
+            case "ByPartialLinkText" -> byLocator = new ByPartialLinkText(locator);
+            case "ByName" -> byLocator = new ByName(locator);
+            case "ByTagName" -> byLocator = new ByTagName(locator);
+            case "ByXPath" -> byLocator = new ByXPath(locator);
+            case "ByClassName" -> byLocator = new ByClassName(locator);
+            case "ByCssSelector" -> byLocator = new ByCssSelector(locator);
+            default -> {
+                iLogger.error("Unknown By class: " + byLocator.getClass().getSimpleName());
+                throw new IllegalArgumentException("Unknown By class: " + byLocator.getClass().getSimpleName());
+            }
         }
     }
 
