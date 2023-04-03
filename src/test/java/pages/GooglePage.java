@@ -1,15 +1,15 @@
 package pages;
 
 import core.web.annotations.CacheElement;
+import core.web.annotations.RelativeURL;
 import core.web.iWebElement;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.FindBy;
 import utils.logging.iLogger;
 
+@RelativeURL(relativeUrl = "https://www.google.com/")
 public class GooglePage extends AbstractPage {
-    private static final String URL = "https://www.google.com/";
-
     @FindBy(css = "input.gLFyf")
     private iWebElement searchInput;
 
@@ -19,11 +19,6 @@ public class GooglePage extends AbstractPage {
 
     public GooglePage(WebDriver driver) {
         super(driver);
-    }
-
-    //TODO: move to abstract class and read URL from custom class annotation
-    public void navigate() {
-        driver.navigate().to(URL);
     }
 
     public void inputSearchText(String searchText) {

@@ -47,7 +47,7 @@ dependencies {
 //=================================== Test =====================================
 
 task runTests(type: Test) {
-  def base_url = project.hasProperty('base_url') ? project.base_url : ''
+  def base_url = project.hasProperty('base_url') ? project.base_url : 'https://journal.tinkoff.ru/'
   systemProperty 'base_url', base_url
 
   def browser_version = project.hasProperty('browser_version') ? project.browser_version : 'latest'
