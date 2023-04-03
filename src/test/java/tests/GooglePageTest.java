@@ -11,7 +11,7 @@ public class GooglePageTest extends BaseTest {
     public void searchGoogleSpecificationTest() {
         GooglePage googlePage = new GooglePage(DriverFactory.initDriver());
         String searchText = "Find chrome specification";
-        googlePage.navigate();
+        googlePage.openPage();
         googlePage.searchForText(searchText);
         Assert.assertEquals(googlePage.getTextFromSearchInput(), searchText);
     }
@@ -20,7 +20,7 @@ public class GooglePageTest extends BaseTest {
     public void failSearchFireFoxSpecificationTest() {
         GooglePage googlePage = new GooglePage(DriverFactory.initDriver());
         String searchText = "Find firefox specification";
-        googlePage.navigate();
+        googlePage.openPage();
         googlePage.searchForText(searchText);
         Assert.assertEquals(googlePage.getTextFromSearchInput(), "searchText");
     }
@@ -29,10 +29,10 @@ public class GooglePageTest extends BaseTest {
     public void compareCachedAndNonCachedElementsPerformanceTest() {
         GooglePage googlePage = new GooglePage(DriverFactory.initDriver());
         String searchText = "Compare performance of webElement implementations";
-        googlePage.navigate();
+        googlePage.openPage();
         googlePage.searchForText(searchText);
         long cached = googlePage.getCachedElementFindTime();
-        googlePage.navigate();
+        googlePage.openPage();
         googlePage.searchForText(searchText);
         long nonCached = googlePage.getNonCachedElementFindTime();
         Assert.assertTrue(cached < nonCached);

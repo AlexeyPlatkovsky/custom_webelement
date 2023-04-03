@@ -1,5 +1,6 @@
 package core;
 
+import utils.StringUtil;
 import utils.logging.iLogger;
 import utils.properties.RemoteEnvProperties;
 import utils.properties.SystemProperties;
@@ -10,15 +11,15 @@ import java.util.regex.Pattern;
 public class Environment {
 
     public static String getBaseUrl() {
-        Pattern p = Pattern.compile("^\\w+\\.([\\w.-]+)(?::\\d+)?$");
-        Matcher m = p.matcher(SystemProperties.BASE_URL);
+        String baseUrl = SystemProperties.BASE_URL;
+
+        Pattern p = Pattern.compile("^\\w+\\.([\\w.-]+)(?::\\d+)?/?$");
+        Matcher m = p.matcher(baseUrl);
         if (m.find()) {
-            iLogger.info("Get base URL: " + m.group(1));
-            return m.group(1);
-        } else {
-            iLogger.info("Get base URL: No match");
-            return SystemProperties.BASE_URL;
+            baseUrl = m.group(1);
+            iLogger.info("Get base URL: " + baseUrl);
         }
+        return StringUtil.cutExtraEndSlashes(baseUrl);
     }
 
     public static String getSiteUrl(String property) {
