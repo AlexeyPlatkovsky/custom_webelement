@@ -228,8 +228,10 @@ public class iWebElement implements WebElement {
     public boolean isDisplayed() {
         try {
             WebElement el = getWebElement();
+            iLogger.debug("Element " + name + " is displayed = " + el.isDisplayed());
             return el.isDisplayed();
         } catch (Exception ex) {
+            iLogger.debug("Element " + name + " is displayed = " + false);
             return false;
         }
     }

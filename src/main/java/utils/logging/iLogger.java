@@ -21,6 +21,7 @@ import java.util.Date;
 public class iLogger {
     private static final Logger LOG = LogManager.getLogger(iLogger.class);
     private static boolean logOnlyInfo = false;
+    private static boolean consoleLogOnlyInfo = false;
 
     public static void info(String message) {
         LOG.info(message);
@@ -36,9 +37,12 @@ public class iLogger {
             throw new IllegalArgumentException("Incorrect replacement pattern for string: " + s
                     + ", please, use {} as a placeholder");
         }
-        Arrays.stream(replacement).forEach(r -> s.replace("{}", r));
+        for (var r : replacement) {
+            s = s.replaceFirst("\\{}", r);
+        }
         info(s);
     }
+
 
     public static void info(String s, int replacement) {
         info(s, String.valueOf(replacement));
@@ -53,7 +57,8 @@ public class iLogger {
     }
 
     public static void debug(String message) {
-        LOG.debug(message);
+        if (!consoleLogOnlyInfo)
+            LOG.debug(message);
         if (!logOnlyInfo)
             Reporter.log(timeStamp() + "DEBUG: " + message + "</br>");
     }
@@ -130,5 +135,9 @@ public class iLogger {
 
     public static void setLogOnlyInfo(boolean b) {
         logOnlyInfo = b;
+    }
+
+    public static void setConsoleLogOnlyInfo(boolean b) {
+        consoleLogOnlyInfo = b;
     }
 }

@@ -18,7 +18,7 @@ public class BaseTest {
     @BeforeSuite(alwaysRun = true)
     public void setupTestClass() {
         PropertyReader.readProperties();
-        iLogger.setLogOnlyInfo(true);
+        iLogger.setConsoleLogOnlyInfo(true);
     }
 
     @AfterMethod(alwaysRun = true)
