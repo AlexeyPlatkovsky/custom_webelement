@@ -15,6 +15,9 @@ ext {
   archivesBaseName = 'autotests'
 }
 
+sourceCompatibility = JavaVersion.VERSION_14
+targetCompatibility = JavaVersion.VERSION_14
+
 idea {
   module {
     outputDir = file("${project.buildDir}/classes/java/main")
