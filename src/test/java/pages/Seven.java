@@ -1,9 +1,9 @@
 package pages;
 
-import core.web.annotations.RelativeURL;
+import core.web.annotations.PageURL;
 import org.openqa.selenium.WebDriver;
 
-@RelativeURL(relativeUrl = "/#seven")
+@PageURL(value = "/#seven")
 public class Seven extends Farewell {
     public Seven(WebDriver driver) {
         super(driver);

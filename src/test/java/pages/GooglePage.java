@@ -1,19 +1,19 @@
 package pages;
 
 import core.web.annotations.CacheElement;
-import core.web.annotations.RelativeURL;
+import core.web.annotations.PageURL;
 import core.web.iWebElement;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.FindBy;
 import utils.logging.iLogger;
 
-@RelativeURL(relativeUrl = "https://www.google.com/")
+@PageURL(value = "https://www.google.com/")
 public class GooglePage extends AbstractPage {
-    @FindBy(css = "input.gLFyf")
+    @FindBy(css = ".gLFyf[type='search']")
     private iWebElement searchInput;
 
-    @FindBy(css = "input.gLFyf")
+    @FindBy(css = ".gLFyf[type='search']")
     @CacheElement
     private iWebElement cachedSearchInput;
 
