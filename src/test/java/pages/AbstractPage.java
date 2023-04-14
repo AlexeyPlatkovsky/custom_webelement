@@ -1,7 +1,7 @@
 package pages;
 
 import core.Environment;
-import core.web.annotations.RelativeURL;
+import core.web.annotations.PageURL;
 import core.web.iPageFactory;
 import org.openqa.selenium.WebDriver;
 import utils.StringUtil;
@@ -11,6 +11,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 public abstract class AbstractPage {
+    public static final String RELATIVE_URL_ANNOTATION_NOT_SPECIFIED = "Page URL is not specified in @RelativeURL annotation for class ";
     public WebDriver driver;
 
     public AbstractPage(WebDriver driver) {
@@ -20,28 +21,33 @@ public abstract class AbstractPage {
 
     public void openPage() {
         String absoluteUrl = getAbsoluteURL();
-        if (!absoluteUrl.isEmpty()) {
-            navigateToUrl(absoluteUrl);
-            iLogger.info("Page " + getClass().getSimpleName() + " with absolute URL" + absoluteUrl + " is opened");
-        } else {
-            throw new RuntimeException("Page URL is not specified in @RelativeURL annotation");
-        }
+        navigateToUrl(getAbsoluteURL());
+        iLogger.info("Page " + getClass().getSimpleName() + " with absolute URL " + absoluteUrl + " is opened");
     }
 
     private String getAbsoluteURL() {
-        StringBuilder relativeUrl = new StringBuilder();
         Class<?> pageClass = getClass();
-        while (pageClass != AbstractPage.class) {
-            RelativeURL annotation = pageClass.getAnnotation(RelativeURL.class);
-            if (annotation != null) {
-                relativeUrl.insert(0, StringUtil.formatRelativeURL(annotation.relativeUrl()));
-            } else
-                throw new RuntimeException("Page URL is not specified in @RelativeURL annotation for class "
-                        + pageClass.getName() + " or its parent");
-
-            pageClass = pageClass.getSuperclass();
+        PageURL pageURL = pageClass.getAnnotation(PageURL.class);
+        if (pageURL == null) {
+            throw new RuntimeException(RELATIVE_URL_ANNOTATION_NOT_SPECIFIED + pageClass.getName());
         }
-        return Environment.getBaseUrl() + relativeUrl;
+
+        if (pageURL.value().startsWith("http")) {
+            return pageURL.value();
+        }
+
+        StringBuilder relativeUrl = new StringBuilder();
+        do {
+            PageURL annotation = pageClass.getAnnotation(PageURL.class);
+            if (annotation != null) {
+                relativeUrl.insert(0, StringUtil.formatRelativeURL(annotation.value()));
+            } else
+                throw new RuntimeException(RELATIVE_URL_ANNOTATION_NOT_SPECIFIED + pageClass.getName()
+                        + " or its parent");
+            pageClass = pageClass.getSuperclass();
+        } while (pageClass != AbstractPage.class);
+
+        return Environment.getRootUrl() + relativeUrl;
     }
 
     private void navigateToUrl(String url) {
@@ -52,5 +58,4 @@ public abstract class AbstractPage {
             throw new RuntimeException("Invalid URL: " + url, e);
         }
     }
-
 }

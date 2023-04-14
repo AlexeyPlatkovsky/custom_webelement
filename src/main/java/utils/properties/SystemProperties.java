@@ -4,7 +4,7 @@ import utils.properties.annotations.Property;
 
 public class SystemProperties {
     @Property(value = "base_url")
-    public static String BASE_URL;
+    public static String ROOT_URL;
 
     @Property(value = "build_number")
     public static String BUILD_NUMBER;

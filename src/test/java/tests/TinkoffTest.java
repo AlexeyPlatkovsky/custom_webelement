@@ -8,7 +8,7 @@ import pages.Seven;
 public class TinkoffTest extends BaseTest {
     @Test
     public void openPageTest() {
-        Seven seven = new Seven((DriverFactory.initDriver()));
+        Seven seven = new Seven(DriverFactory.initDriver());
         seven.openPage();
     }
 }
