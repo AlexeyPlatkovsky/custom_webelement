@@ -19,6 +19,13 @@ public class DriverFactory {
     private static final ThreadLocal<WebDriver> DRIVER = new ThreadLocal<>();
     private static DriverNames driverName;
 
+
+    public static WebDriver getCurrentDriver() {
+        if (DRIVER.get() != null)
+            return DRIVER.get();
+        else return initDriver();
+    }
+
     public static WebDriver initDriver() {
         driverName = DriverNames.valueOf(SystemProperties.DRIVER.toUpperCase());
         iLogger.info("Create driver " + driverName);
@@ -60,9 +67,5 @@ public class DriverFactory {
 
     public static DriverNames driverName() {
         return driverName;
-    }
-
-    public static WebDriver getCurrentDriver() {
-        return DRIVER.get();
     }
 }
