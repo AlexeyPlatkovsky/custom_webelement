@@ -1,6 +1,5 @@
 package tests;
 
-import core.driver.DriverFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import pages.GooglePage;
@@ -9,7 +8,7 @@ import pages.GooglePage;
 public class GooglePageTest extends BaseTest {
     @Test
     public void searchGoogleSpecificationTest() {
-        GooglePage googlePage = new GooglePage(DriverFactory.initDriver());
+        GooglePage googlePage = new GooglePage();
         String searchText = "Find chrome specification";
         googlePage.openPage();
         googlePage.searchForText(searchText);
@@ -18,7 +17,7 @@ public class GooglePageTest extends BaseTest {
 
     @Test
     public void failSearchFireFoxSpecificationTest() {
-        GooglePage googlePage = new GooglePage(DriverFactory.initDriver());
+        GooglePage googlePage = new GooglePage();
         String searchText = "Find firefox specification";
         googlePage.openPage();
         googlePage.searchForText(searchText);
@@ -27,7 +26,7 @@ public class GooglePageTest extends BaseTest {
 
     @Test(singleThreaded = true)
     public void compareCachedAndNonCachedElementsPerformanceTest() {
-        GooglePage googlePage = new GooglePage(DriverFactory.initDriver());
+        GooglePage googlePage = new GooglePage();
         String searchText = "Compare performance of webElement implementations";
         googlePage.openPage();
         googlePage.searchForText(searchText);

@@ -1,22 +1,29 @@
 package pages;
 
 import core.Environment;
+import core.driver.DriverFactory;
 import core.web.annotations.PageURL;
 import core.web.iPageFactory;
+import lombok.Setter;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import utils.StringUtil;
 import utils.logging.iLogger;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.Duration;
 
 public abstract class AbstractPage {
-    public static final String RELATIVE_URL_ANNOTATION_NOT_SPECIFIED = "Page URL is not specified in @RelativeURL annotation for class ";
-    public WebDriver driver;
+    private static final String RELATIVE_URL_ANNOTATION_NOT_SPECIFIED = "Page URL is not specified in @RelativeURL annotation for class ";
+    protected WebDriver driver;
+    @Setter
+    protected WebDriverWait wait;
 
-    public AbstractPage(WebDriver driver) {
-        this.driver = driver;
+    public AbstractPage() {
+        this.driver = DriverFactory.initDriver();
         iPageFactory.initElements(this.driver, this);
+        wait = new WebDriverWait(this.driver, Duration.ofSeconds(10));
     }
 
     public void openPage() {

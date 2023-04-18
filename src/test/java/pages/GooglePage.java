@@ -4,7 +4,6 @@ import core.web.annotations.CacheElement;
 import core.web.annotations.PageURL;
 import core.web.iWebElement;
 import org.openqa.selenium.Keys;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.FindBy;
 import utils.logging.iLogger;
 
@@ -16,10 +15,6 @@ public class GooglePage extends AbstractPage {
     @FindBy(css = ".gLFyf[type='search']")
     @CacheElement
     private iWebElement cachedSearchInput;
-
-    public GooglePage(WebDriver driver) {
-        super(driver);
-    }
 
     public void inputSearchText(String searchText) {
         searchInput.setText(searchText);
