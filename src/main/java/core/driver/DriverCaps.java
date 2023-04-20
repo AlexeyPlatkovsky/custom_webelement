@@ -28,6 +28,9 @@ public class DriverCaps {
                 .addArguments("--disable-gpu")
                 .addArguments("--no-sandbox")
                 .addArguments("--disable-dev-shm-usage")
+                .addArguments("--remote-debugging-port=9222")
+                .addArguments("--remote-debugging-address=0.0.0.0")
+                .addArguments("--whitelisted-ips")
                 .addArguments("--remote-allow-origins=*");
         return options;
     }
