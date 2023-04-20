@@ -1,36 +1,36 @@
-name: Java CI
-on:
-  pull_request:
-    types: [ edited, opened, reopened ]
-  push:
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    container:
-      image: selenium/standalone-chrome:latest
-
-    steps:
-      - run: echo "The job was automatically triggered by a ${{ github.event_name }} event."
-      - run: echo "The name of your branch is ${{ github.ref }}"
-      - name: Check out repository code
-        uses: actions/checkout@v3
-      - name: Install Google Chrome
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y google-chrome-stable
-          sudo chmod +x /usr/bin/google-chrome
-      - run: echo "The ${{ github.repository }} repository has been cloned to the runner."
-      - run: echo "Setup JDK 17"
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
-        with:
-          java-version: '17'
-          distribution: temurin
-      - name: Run chmod to make gradlew executable
-        run: chmod +x ./gradlew
-      - name: Setup and execute Gradle 'runTests' task
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: runTests
-      - run: echo "This job's status is ${{ job.status }}."
+#name: Java CI
+#on:
+#  pull_request:
+#    types: [ edited, opened, reopened ]
+#  push:
+#
+#jobs:
+#  build:
+#    runs-on: ubuntu-latest
+#    container:
+#      image: selenium/standalone-chrome:latest
+#
+#    steps:
+#      - run: echo "The job was automatically triggered by a ${{ github.event_name }} event."
+#      - run: echo "The name of your branch is ${{ github.ref }}"
+#      - name: Check out repository code
+#        uses: actions/checkout@v3
+#      - name: Install Google Chrome
+#        run: |
+#          sudo apt-get update
+#          sudo apt-get install -y google-chrome-stable
+#          sudo chmod +x /usr/bin/google-chrome
+#      - run: echo "The ${{ github.repository }} repository has been cloned to the runner."
+#      - run: echo "Setup JDK 17"
+#      - name: Set up JDK 17
+#        uses: actions/setup-java@v3
+#        with:
+#          java-version: '17'
+#          distribution: temurin
+#      - name: Run chmod to make gradlew executable
+#        run: chmod +x ./gradlew
+#      - name: Setup and execute Gradle 'runTests' task
+#        uses: gradle/gradle-build-action@v2
+#        with:
+#          arguments: runTests
+#      - run: echo "This job's status is ${{ job.status }}."
