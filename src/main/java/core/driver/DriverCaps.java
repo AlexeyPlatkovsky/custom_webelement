@@ -20,11 +20,14 @@ public class DriverCaps {
         iLogger.info("Driver options are : {}", capabilities.toString());
         return capabilities;
     }
-
+    //TODO: add read from properties files
     public static MutableCapabilities getChromeCaps() {
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--window-size=" + SystemProperties.SCREEN_RESOLUTION)
-                .addArguments("--lang=ru-RU")
+                .addArguments("--headless")
+                .addArguments("--disable-gpu")
+                .addArguments("--no-sandbox")
+                .addArguments("--disable-dev-shm-usage")
                 .addArguments("--remote-allow-origins=*");
         return options;
     }
