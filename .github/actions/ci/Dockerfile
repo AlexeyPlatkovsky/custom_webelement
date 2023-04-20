@@ -16,7 +16,7 @@ RUN sudo apt-get update && \
     sudo apt-get clean && \
     sudo rm -rf /var/lib/apt/lists/* && \
     export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 && \
-    export PATH=$JAVA_HOME/bin:$PATH && \
+    export PATH=$JAVA_HOME/bin:$PATH
 
 #copy entrypoint script
 COPY entrypoint.sh /home/entrypoint.sh
