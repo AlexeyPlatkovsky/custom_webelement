@@ -7,6 +7,11 @@ import utils.logging.iLogger;
 import utils.properties.RemoteEnvProperties;
 import utils.properties.SystemProperties;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
 public class DriverCaps {
     private static MutableCapabilities capabilities;
 
@@ -22,6 +27,14 @@ public class DriverCaps {
     }
     //TODO: add read from properties files
     public static MutableCapabilities getChromeCaps() {
+        Properties properties = new Properties();
+        try {
+            InputStream inputStream = new FileInputStream(SystemProperties.CHROME_OPTIONS_FILE);
+            properties.load(inputStream);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--window-size=" + SystemProperties.SCREEN_RESOLUTION)
                 .addArguments("--headless")
@@ -31,10 +44,13 @@ public class DriverCaps {
                 .addArguments("--remote-debugging-port=9222")
                 .addArguments("--remote-debugging-address=0.0.0.0")
                 .addArguments("--whitelisted-ips")
+                .addArguments("--ignore-certificate-errors")
+                .addArguments("--disable-extensions")
                 .addArguments("--remote-allow-origins=*");
         return options;
     }
 
+    //TODO: add read from properties files
     public static MutableCapabilities getFirefoxCas() {
         FirefoxOptions options = new FirefoxOptions();
         options.addArguments("--window-size=" + SystemProperties.SCREEN_RESOLUTION)

@@ -34,13 +34,6 @@ public class iWebElement implements WebElement {
         this.name = name;
     }
 
-    public iWebElement(WebDriver driver, String name, String locator) {
-        this.driver = driver;
-        wait = new WebDriverWait(this.driver, Duration.ofSeconds(WAIT_TIMEOUT_SEC), Duration.ofSeconds(SLEEP_TIMEOUT_MS));
-        this.name = name;
-        this.byLocator = By.xpath(locator);
-    }
-
     public iWebElement(WebDriver driver, String name, By locator, WebElement el) {
         this.driver = driver;
         wait = new WebDriverWait(this.driver, Duration.ofSeconds(WAIT_TIMEOUT_SEC), Duration.ofSeconds(SLEEP_TIMEOUT_MS));
@@ -79,6 +72,10 @@ public class iWebElement implements WebElement {
         }
     }
 
+    public void setWebElement(WebElement el) {
+        cachedWebElement.setForce(el);
+    }
+
     private void highlightElement() {
         highlightElement(cachedWebElement.get());
     }
@@ -95,10 +92,6 @@ public class iWebElement implements WebElement {
                     WebElementProperties.WEBELEMENT_BACKGROUND_COLOR);
             jsExecutor.executeScript(background, element);
         }
-    }
-
-    public void setWebElement(WebElement el) {
-        cachedWebElement.setForce(el);
     }
 
     public void click() {
@@ -201,10 +194,6 @@ public class iWebElement implements WebElement {
         }
     }
 
-    public void setText(CharSequence... value) {
-        sendKeys(value);
-    }
-
     public List<WebElement> findElements(By by) {
         return getWebElement().findElements(by);
     }
@@ -266,6 +255,10 @@ public class iWebElement implements WebElement {
         return getWebElement().getAttribute(attribute);
     }
 
+    public String getHref() {
+        return getAttribute("href");
+    }
+
     private void executeScript(String s, WebElement element) {
         ((JavascriptExecutor) driver).executeScript(s, element);
     }
@@ -303,10 +296,6 @@ public class iWebElement implements WebElement {
 
     public void setWaiter(Long waiter) {
         wait.withTimeout(Duration.ofSeconds(waiter));
-    }
-
-    public String getHref() {
-        return getAttribute("href");
     }
 
     public void setFocus() {

@@ -9,6 +9,9 @@ public class SystemProperties {
     @Property(value = "build_number")
     public static String BUILD_NUMBER;
 
+    @Property(value = "chrome_options_file")
+    public static String CHROME_OPTIONS_FILE;
+
     @Property(value = "driver")
     public static String DRIVER;
 
