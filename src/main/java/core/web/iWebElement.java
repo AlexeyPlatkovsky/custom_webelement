@@ -108,6 +108,10 @@ public class iWebElement implements WebElement {
         wait.until(ExpectedConditions.visibilityOf(this)).submit();
     }
 
+    public void setText(CharSequence... value) {
+        sendKeys(value);
+    }
+
     public void sendKeys(CharSequence... values) {
         String valueString = Arrays.stream(values).map(Object::toString).collect(Collectors.joining(", "));
         iLogger.debug("Send keys [{}] to {}", valueString, name);
