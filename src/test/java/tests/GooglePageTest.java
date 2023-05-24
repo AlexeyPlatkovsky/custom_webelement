@@ -15,7 +15,7 @@ public class GooglePageTest extends BaseTest {
         Assert.assertEquals(googlePage.getTextFromSearchInput(), searchText);
     }
 
-    @Test
+    @Test(description = "Check that screenshot is attached to test report if test is failed")
     public void failSearchFireFoxSpecificationTest() {
         GooglePage googlePage = new GooglePage();
         String searchText = "Find firefox specification";
@@ -24,7 +24,8 @@ public class GooglePageTest extends BaseTest {
         Assert.assertEquals(googlePage.getTextFromSearchInput(), "searchText");
     }
 
-    @Test(singleThreaded = true)
+    @Test(singleThreaded = true,
+            description = "Compare performance of cached and non-cached elements")
     public void compareCachedAndNonCachedElementsPerformanceTest() {
         GooglePage googlePage = new GooglePage();
         String searchText = "Compare performance of webElement implementations";
@@ -35,5 +36,14 @@ public class GooglePageTest extends BaseTest {
         googlePage.searchForText(searchText);
         long nonCached = googlePage.getNonCachedElementFindTime();
         Assert.assertTrue(cached < nonCached);
+    }
+
+    @Test(description = "Check that iWebElementsList works correctly")
+    public void checkWorkOfIWebElementsListTest() {
+        GooglePage googlePage = new GooglePage();
+        String searchText = "chromebook";
+        googlePage.openPage();
+        googlePage.searchForText(searchText);
+        Assert.assertTrue(googlePage.checkThatAllSearchResultsAreUnique());
     }
 }

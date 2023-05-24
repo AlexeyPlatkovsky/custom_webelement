@@ -19,7 +19,6 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class iWebElement implements WebElement {
     private static final int WAIT_TIMEOUT_SEC = 5;
-    private static final int SLEEP_TIMEOUT_MS = 100;
     protected final WebDriver driver;
     protected final String name;
     protected final WebDriverWait wait;
@@ -27,23 +26,27 @@ public class iWebElement implements WebElement {
     protected By byLocator;
     protected String copiedByLocator;
     private boolean shouldBeCached = false;
+    private final JavascriptExecutor jsExecutor;
 
     public iWebElement(WebDriver driver, String name) {
         this.driver = driver;
-        wait = new WebDriverWait(this.driver, Duration.ofSeconds(WAIT_TIMEOUT_SEC), Duration.ofSeconds(SLEEP_TIMEOUT_MS));
+        wait = new WebDriverWait(this.driver, Duration.ofSeconds(WAIT_TIMEOUT_SEC));
+        jsExecutor = (JavascriptExecutor) driver;
         this.name = name;
     }
 
-    public iWebElement(WebDriver driver, String name, String locator) {
+    public iWebElement(WebDriver driver, String name, By byLocator) {
         this.driver = driver;
-        wait = new WebDriverWait(this.driver, Duration.ofSeconds(WAIT_TIMEOUT_SEC), Duration.ofSeconds(SLEEP_TIMEOUT_MS));
+        wait = new WebDriverWait(this.driver, Duration.ofSeconds(WAIT_TIMEOUT_SEC));
+        jsExecutor = (JavascriptExecutor) driver;
+        this.byLocator = byLocator;
         this.name = name;
-        this.byLocator = By.xpath(locator);
     }
 
     public iWebElement(WebDriver driver, String name, By locator, WebElement el) {
         this.driver = driver;
-        wait = new WebDriverWait(this.driver, Duration.ofSeconds(WAIT_TIMEOUT_SEC), Duration.ofSeconds(SLEEP_TIMEOUT_MS));
+        wait = new WebDriverWait(this.driver, Duration.ofSeconds(WAIT_TIMEOUT_SEC));
+        jsExecutor = (JavascriptExecutor) driver;
         this.name = name;
         this.byLocator = locator;
         this.setWebElement(el);
@@ -79,26 +82,28 @@ public class iWebElement implements WebElement {
         }
     }
 
+    public void setWebElement(WebElement el) {
+        cachedWebElement.setForce(el);
+    }
+
     private void highlightElement() {
         highlightElement(cachedWebElement.get());
     }
 
     private void highlightElement(WebElement element) {
-        JavascriptExecutor jsExecutor = (JavascriptExecutor) driver;
-        if (Boolean.parseBoolean(WebElementProperties.WEBELEMENT_BORDER_SHOULD_BE_HIGHLIGHTED)) {
+        boolean shouldBeHighlighted = Boolean.parseBoolean(WebElementProperties.WEBELEMENT_BORDER_SHOULD_BE_HIGHLIGHTED);
+        if (shouldBeHighlighted) {
             String border = String.format("arguments[0].style.border='%s solid %s'",
                     WebElementProperties.WEBELEMENT_BORDER_WIDTH, WebElementProperties.WEBELEMENT_BORDER_COLOR);
             jsExecutor.executeScript(border, element);
         }
-        if (Boolean.parseBoolean(WebElementProperties.WEBELEMENT_BACKGROUND_SHOULD_BE_HIGHLIGHTED)) {
-            String background = String.format("arguments[0].style.background='%s'",
-                    WebElementProperties.WEBELEMENT_BACKGROUND_COLOR);
-            jsExecutor.executeScript(background, element);
-        }
     }
 
-    public void setWebElement(WebElement el) {
-        cachedWebElement.setForce(el);
+    private void stopHighlight(WebElement element) {
+        try {
+            jsExecutor.executeScript("arguments[0].style.border=''", element);
+        } catch (Exception ignored) {
+        }
     }
 
     public void click() {
@@ -106,7 +111,7 @@ public class iWebElement implements WebElement {
     }
 
     public void click(int timeout) {
-        click(new WebDriverWait(this.driver, Duration.ofSeconds(timeout), Duration.ofSeconds(SLEEP_TIMEOUT_MS)));
+        click(new WebDriverWait(this.driver, Duration.ofSeconds(timeout)));
     }
 
     private void click(WebDriverWait waitForClick) {
@@ -123,6 +128,8 @@ public class iWebElement implements WebElement {
                 }
                 throw new TimeoutException("Failed to click with JS on " + this);
             }
+        } finally {
+            stopHighlight(element);
         }
     }
 
@@ -142,24 +149,27 @@ public class iWebElement implements WebElement {
     }
 
     private void sendText(CharSequence... charSequences) {
+        WebElement element = getWebElement();
         try {
-            WebElement element = getWebElement();
             wait.until(ExpectedConditions.elementToBeClickable(element));
             element.sendKeys(charSequences);
         } catch (TimeoutException e) {
             throw new TimeoutException("Failed to send keys to " + name + " with locator " + byLocator);
+        } finally {
+            stopHighlight(element);
         }
     }
 
     public void clear() {
         iLogger.debug("Clear field {}", name);
+        WebElement element = getWebElement();
         try {
-            WebElement element = getWebElement();
-            ((JavascriptExecutor) driver)
-                    .executeScript("arguments[0].value = '';", element);
+            jsExecutor.executeScript("arguments[0].value = '';", element);
             wait.until(ExpectedConditions.elementToBeClickable(element)).clear();
         } catch (TimeoutException e) {
             throw new TimeoutException("Failed to clean " + name + " with locator " + byLocator);
+        } finally {
+            stopHighlight(element);
         }
     }
 
@@ -169,14 +179,18 @@ public class iWebElement implements WebElement {
     }
 
     public boolean isSelected() {
-        boolean result = getWebElement().isSelected();
+        WebElement el = getWebElement();
+        boolean result = el.isSelected();
         iLogger.debug("Element " + name + " is selected = " + result);
+        stopHighlight(el);
         return result;
     }
 
     public boolean isEnabled() {
-        boolean result = getWebElement().isEnabled();
+        WebElement el = getWebElement();
+        boolean result = el.isEnabled();
         iLogger.debug("Element " + name + " is enabled = " + result);
+        stopHighlight(el);
         return result;
     }
 
@@ -185,24 +199,21 @@ public class iWebElement implements WebElement {
         WebElement el = getWebElement();
         String text = el.getText();
         String value = el.getAttribute("value");
+        String returnText;
         if (!isBlank(text)) {
             iLogger.debug("Get inner text -->" + text + "<-- from " + name);
-            return text;
-        }
-
-        if (!isBlank(value)) {
+            returnText = text;
+        } else if (!isBlank(value)) {
             iLogger.debug("Get value text -->" + value + "<-- from " + name);
-            return value;
+            returnText = value;
         } else {
             el = getWebElement();
             text = el.getText();
             iLogger.debug("Get inner text -->" + text + "<-- from " + name);
-            return text;
+            returnText = text;
         }
-    }
-
-    public void setText(CharSequence... value) {
-        sendKeys(value);
+        stopHighlight(el);
+        return returnText;
     }
 
     public List<WebElement> findElements(By by) {
@@ -226,48 +237,66 @@ public class iWebElement implements WebElement {
     }
 
     public boolean isDisplayed() {
+        WebElement el = getWebElement();
         try {
-            WebElement el = getWebElement();
             iLogger.debug("Element " + name + " is displayed = " + el.isDisplayed());
             return el.isDisplayed();
         } catch (Exception ex) {
             iLogger.debug("Element " + name + " is displayed = " + false);
             return false;
+        } finally {
+            stopHighlight(el);
         }
     }
 
     public Point getLocation() {
         iLogger.debug("Get location for " + name);
-        return getWebElement().getLocation();
+        WebElement el = getWebElement();
+        stopHighlight(el);
+        return el.getLocation();
     }
 
     public Dimension getSize() {
         iLogger.debug("Get size for " + name);
-        return getWebElement().getSize();
+        WebElement el = getWebElement();
+        stopHighlight(el);
+        return el.getSize();
     }
 
     public Rectangle getRect() {
         iLogger.debug("Get Rect for " + name);
-        return getWebElement().getRect();
+        WebElement el = getWebElement();
+        stopHighlight(el);
+        return el.getRect();
     }
 
     public String getCssValue(String s) {
         iLogger.debug("Get CSS value " + s + " for " + name);
-        return getWebElement().getCssValue(s);
+        WebElement el = getWebElement();
+        stopHighlight(el);
+        return el.getCssValue(s);
     }
 
     public <X> X getScreenshotAs(OutputType<X> outputType) throws WebDriverException {
         iLogger.debug("Get screenshot for " + name);
-        return getWebElement().getScreenshotAs(outputType);
+        WebElement el = getWebElement();
+        stopHighlight(el);
+        return el.getScreenshotAs(outputType);
     }
 
     public String getAttribute(String attribute) {
         iLogger.debug("Get attribute " + attribute + "  for " + name);
-        return getWebElement().getAttribute(attribute);
+        WebElement el = getWebElement();
+        stopHighlight(el);
+        return el.getAttribute(attribute);
+    }
+
+    public String getHref() {
+        return getAttribute("href");
     }
 
     private void executeScript(String s, WebElement element) {
-        ((JavascriptExecutor) driver).executeScript(s, element);
+        jsExecutor.executeScript(s, element);
     }
 
     public iWebElement template(String text) {
@@ -305,10 +334,6 @@ public class iWebElement implements WebElement {
         wait.withTimeout(Duration.ofSeconds(waiter));
     }
 
-    public String getHref() {
-        return getAttribute("href");
-    }
-
     public void setFocus() {
         iLogger.debug("Set focus on element {}", toString());
         executeScript("arguments[0].scrollIntoView(true);", this.getWebElement());
@@ -333,7 +358,9 @@ public class iWebElement implements WebElement {
 
     public void hover() {
         Actions actions = new Actions(driver);
-        actions.moveToElement(getWebElement()).perform();
+        WebElement el = getWebElement();
+        actions.moveToElement(el).perform();
+        stopHighlight(el);
     }
 
     public void setShouldBeCached(boolean shouldBeCached) {

@@ -17,7 +17,7 @@ public class iWebElementsList extends iWebElement implements List<iWebElement> {
 
     public int size() {
         int size = getAll().size();
-        iLogger.info("Size of list {} is " + size, name);
+        iLogger.info("Size of list {} = {}", name, String.valueOf(size));
         return size;
     }
 
@@ -92,8 +92,13 @@ public class iWebElementsList extends iWebElement implements List<iWebElement> {
     }
 
     public List<String> getTexts() {
+        return getTexts(false);
+    }
+
+    public List<String> getTexts(boolean allElementShouldBeVisible) {
         List<iWebElement> allElements = getAll();
-        allElements.forEach(iWebElement::waitToBeVisible);
+        if (allElementShouldBeVisible)
+            allElements.forEach(iWebElement::waitToBeVisible);
         return allElements.stream().map(iWebElement::getText).collect(Collectors.toList());
     }
 
@@ -149,9 +154,29 @@ public class iWebElementsList extends iWebElement implements List<iWebElement> {
         } catch (Exception e) {
             iLogger.info("No webelements with locator {}", getLocator().toString());
         }
-        getDriver().findElements(getLocator())
-                .forEach(el -> elElements.add(new iWebElement(driver, name, getLocator(), el)));
+
+        for (int i = 0; i < getDriver().findElements(getLocator()).size(); i++) {
+            elElements.add(new iWebElement(driver, name, getNewLocator(getLocator(), i + 1)));
+        }
         return elElements;
+    }
+
+    private By getNewLocator(By byLocator, int index) {
+        String locator = getLocator().toString().replaceAll("(By\\.)(\\w+)(: )", "").trim();
+        switch (byLocator.getClass().getSimpleName()) {
+            case "ByXPath" -> {
+                locator = "(" + locator + ")[" + index + "]";
+                return new By.ByXPath(locator);
+            }
+            case "ByCssSelector" -> {
+                locator = locator + ":nth-child(" + index + ")";
+                return new By.ByCssSelector(locator);
+            }
+            default -> {
+                iLogger.error("iWebElementList works only with CSS and XPATH selectors");
+                throw new IllegalArgumentException("iWebElementList works only with CSS and XPATH selectors");
+            }
+        }
     }
 
     public iWebElement getChildWithText(String expectedText) {
@@ -165,5 +190,10 @@ public class iWebElementsList extends iWebElement implements List<iWebElement> {
 
     public void clickAll() {
         getAll().forEach(iWebElement::click);
+    }
+
+    public List<String> getTextForVisibleElements() {
+        List<iWebElement> allElements = getAll();
+        return allElements.stream().filter(iWebElement::isDisplayed).map(iWebElement::getText).collect(Collectors.toList());
     }
 }

@@ -51,7 +51,7 @@ dependencies {
 
 //=================================== Test =====================================
 
-task runTests(type: Test) {
+test {
   def base_url = project.hasProperty('base_url') ? project.base_url : ''
   systemProperty 'base_url', base_url
 
