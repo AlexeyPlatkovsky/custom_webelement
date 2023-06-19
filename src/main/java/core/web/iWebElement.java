@@ -2,11 +2,13 @@ package core.web;
 
 import core.tools.CacheValue;
 import core.web.conditions.HiddenElementCondition;
+import lombok.Getter;
 import org.openqa.selenium.*;
 import org.openqa.selenium.By.*;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.SkipException;
 import utils.logging.iLogger;
 import utils.properties.WebElementProperties;
 
@@ -17,6 +19,7 @@ import java.util.NoSuchElementException;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
+@Getter
 public class iWebElement implements WebElement {
     private static final int WAIT_TIMEOUT_SEC = 5;
     protected final WebDriver driver;
@@ -56,34 +59,42 @@ public class iWebElement implements WebElement {
         return byLocator;
     }
 
-    public void setLocator(By locator) {
-        byLocator = locator;
-    }
-
     public String getLocatorValue() {
         return byLocator.toString().replaceAll("(By\\.)(\\w+)(: )", "").trim();
+    }
+
+    public void setLocator(By locator) {
+        byLocator = locator;
     }
 
     public WebDriver getDriver() {
         return driver;
     }
 
-    public WebElement getWebElement() {
+    public WebElement getWebElement(boolean isHighlight) {
         if (shouldBeCached && cachedWebElement.hasValue()) {
-            highlightElement();
+            if (isHighlight) {
+                highlightElement();
+            }
             return cachedWebElement.get();
         } else {
             try {
                 WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(byLocator));
-                highlightElement(element);
+                if (isHighlight) {
+                    highlightElement(element);
+                }
                 if (shouldBeCached) {
                     cachedWebElement.setForce(element);
                 }
                 return element;
             } catch (TimeoutException e) {
-                throw new TimeoutException("Don't see " + this);
+                throw new SkipException("Don't see " + this);
             }
         }
+    }
+
+    public WebElement getWebElement() {
+        return getWebElement(true);
     }
 
     public void setWebElement(WebElement el) {
@@ -95,24 +106,30 @@ public class iWebElement implements WebElement {
     }
 
     private void highlightElement(WebElement element) {
+        JavascriptExecutor jsExecutor = (JavascriptExecutor) driver;
         boolean shouldBeHighlighted = Boolean.parseBoolean(WebElementProperties.WEBELEMENT_BORDER_SHOULD_BE_HIGHLIGHTED);
         if (shouldBeHighlighted) {
             String border = String.format("arguments[0].style.border='%s solid %s'",
                     WebElementProperties.WEBELEMENT_BORDER_WIDTH, WebElementProperties.WEBELEMENT_BORDER_COLOR);
-            jsExecutor.executeScript(border, element);
+            try {
+                executeScript(border, element);
+            } catch (Exception ignore) {
+            }
         }
     }
 
     private void stopHighlight(WebElement element) {
         try {
-            System.out.println("Stop highlight " + this);
-            jsExecutor.executeScript("arguments[0].style.border=''", element);
+            executeScript("arguments[0].style.border=''", element);
         } catch (Exception ignored) {
         }
     }
 
     private void stopHighlight() {
-        stopHighlight(getWebElement());
+        try {
+            executeScript("arguments[0].style.border=''", getWebElement(false));
+        } catch (Exception ignored) {
+        }
     }
 
     public void click() {
@@ -138,7 +155,7 @@ public class iWebElement implements WebElement {
                 throw new TimeoutException("Failed to click with JS on " + this);
             }
         } finally {
-            stopHighlight();
+            stopHighlight(element);
         }
     }
 
@@ -147,7 +164,6 @@ public class iWebElement implements WebElement {
         wait.until(ExpectedConditions.visibilityOf(this)).submit();
     }
 
-    @Override
     public void sendKeys(CharSequence... value) {
         iLogger.debug("Send keys " + Arrays.toString(value) + " to " + name);
         sendText(value);
@@ -161,26 +177,20 @@ public class iWebElement implements WebElement {
 
     public void sendText(CharSequence... charSequences) {
         WebElement element = getWebElement();
-        try {
-            wait.until(ExpectedConditions.elementToBeClickable(element));
-            element.sendKeys(charSequences);
-        } catch (TimeoutException e) {
-            throw new TimeoutException("Failed to send keys to " + name + " with locator " + byLocator);
-        } finally {
-            stopHighlight();
-        }
+        element.sendKeys(charSequences);
+        stopHighlight(element);
     }
 
     public void clear() {
         iLogger.debug("Clear field {}", name);
         WebElement element = getWebElement();
         try {
-            jsExecutor.executeScript("arguments[0].value = '';", element);
+            executeScript("arguments[0].value = '';", element);
             wait.until(ExpectedConditions.elementToBeClickable(element)).clear();
         } catch (TimeoutException e) {
             throw new TimeoutException("Failed to clean " + name + " with locator " + byLocator);
         } finally {
-            stopHighlight();
+            stopHighlight(element);
         }
     }
 
@@ -193,7 +203,7 @@ public class iWebElement implements WebElement {
         WebElement el = getWebElement();
         boolean result = el.isSelected();
         iLogger.debug("Element " + name + " is selected = " + result);
-        stopHighlight();
+        stopHighlight(el);
         return result;
     }
 
@@ -201,7 +211,7 @@ public class iWebElement implements WebElement {
         WebElement el = getWebElement();
         boolean result = el.isEnabled();
         iLogger.debug("Element " + name + " is enabled = " + result);
-        stopHighlight();
+        stopHighlight(el);
         return result;
     }
 
@@ -223,7 +233,7 @@ public class iWebElement implements WebElement {
             iLogger.debug("Get inner text -->" + text + "<-- from " + name);
             returnText = text;
         }
-        stopHighlight();
+        stopHighlight(el);
         return returnText;
     }
 
@@ -232,7 +242,7 @@ public class iWebElement implements WebElement {
     }
 
     public iWebElement findElement(By by) {
-        return new iWebElement(driver, String.format("Child of %s", name), by, getWebElement().findElement(by));
+        return new iWebElement(driver, String.format("Child of %s", name), by, getWebElement(false).findElement(by));
     }
 
     public iWebElement getChild(iWebElement webElement) {
@@ -256,50 +266,49 @@ public class iWebElement implements WebElement {
             iLogger.debug("Element " + name + " is displayed = " + false);
             return false;
         } finally {
-            stopHighlight();
+            stopHighlight(el);
         }
     }
 
     public Point getLocation() {
+        iLogger.debug("Get location for " + name);
         WebElement el = getWebElement();
-        Point point = el.getLocation();
-        iLogger.debug("Get location for " + name + " as " + point.toString());
-        stopHighlight();
-        return point;
+        stopHighlight(el);
+        return el.getLocation();
     }
 
     public Dimension getSize() {
         iLogger.debug("Get size for " + name);
         WebElement el = getWebElement();
-        stopHighlight();
+        stopHighlight(el);
         return el.getSize();
     }
 
     public Rectangle getRect() {
         iLogger.debug("Get Rect for " + name);
         WebElement el = getWebElement();
-        stopHighlight();
+        stopHighlight(el);
         return el.getRect();
     }
 
     public String getCssValue(String s) {
         iLogger.debug("Get CSS value " + s + " for " + name);
         WebElement el = getWebElement();
-        stopHighlight();
+        stopHighlight(el);
         return el.getCssValue(s);
     }
 
     public <X> X getScreenshotAs(OutputType<X> outputType) throws WebDriverException {
         iLogger.debug("Get screenshot for " + name);
         WebElement el = getWebElement();
-        stopHighlight();
+        stopHighlight(el);
         return el.getScreenshotAs(outputType);
     }
 
     public String getAttribute(String attribute) {
         iLogger.debug("Get attribute " + attribute + "  for " + name);
         WebElement el = getWebElement();
-        stopHighlight();
+        stopHighlight(el);
         return el.getAttribute(attribute);
     }
 
@@ -308,15 +317,19 @@ public class iWebElement implements WebElement {
     }
 
     private Object executeScript(String s) {
-        return jsExecutor.executeScript(s, getWebElement());
+        return jsExecutor.executeScript(s);
     }
 
     private Object executeScript(String s, WebElement element) {
         return jsExecutor.executeScript(s, element);
     }
 
-    private Object executeScript(String s, WebElement source, WebElement target) {
-        return jsExecutor.executeScript(s, source, target);
+    private Object executeScript(String s, WebElement element, WebElement targetElement) {
+        return jsExecutor.executeScript(s, element, targetElement);
+    }
+
+    private Object executeScript(String s, WebElement webElement, int cursorPosition) {
+        return jsExecutor.executeScript(s, webElement, cursorPosition);
     }
 
     public iWebElement template(String text) {
@@ -356,13 +369,14 @@ public class iWebElement implements WebElement {
 
     public void setFocus() {
         iLogger.debug("Set focus on element {}", toString());
-        executeScript("arguments[0].scrollIntoView(true);");
-        executeScript("arguments[0].focus();");
+        executeScript("arguments[0].scrollIntoView(true);", this.getWebElement());
+        executeScript("arguments[0].focus();", this.getWebElement());
     }
 
     public boolean hasChild(iWebElement child) {
         boolean hasChild = findElements(child.getLocator()).size() > 0;
         iLogger.debug(String.format("Element %s has %s as child = %s", name, child.getLocator(), hasChild));
+        stopHighlight();
         return hasChild;
     }
 
@@ -380,7 +394,7 @@ public class iWebElement implements WebElement {
         Actions actions = new Actions(driver);
         WebElement el = getWebElement();
         actions.moveToElement(el).perform();
-        stopHighlight();
+        stopHighlight(el);
     }
 
     public void setShouldBeCached(boolean shouldBeCached) {
@@ -389,7 +403,8 @@ public class iWebElement implements WebElement {
 
     public void selectTextInElement() {
         iLogger.debug("Select text in element {}", toString());
-        executeScript("let element = document.querySelector(\"" + getLocatorValue() + "\");\n" +
+        executeScript("let element = document.evaluate(\"" + getLocatorValue() + "\", " +
+                "document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;\n" +
                 "let range = document.createRange();\n" +
                 "range.selectNodeContents(element);\n" +
                 "let selection = window.getSelection();\n" +
@@ -402,10 +417,27 @@ public class iWebElement implements WebElement {
     public void actions(Keys key, char keyChar) {
         iLogger.debug("Send keys {} + {} to element {}", key.name(), String.valueOf(keyChar), toString());
         Actions actions = new Actions(driver);
-        actions.keyDown(key).sendKeys(String.valueOf(keyChar)).keyUp(key).build().perform();
+        actions.keyDown(key).keyDown(String.valueOf(keyChar)).keyUp(key).build().perform();
     }
 
     public boolean isScrollPresented() {
-        return (boolean) executeScript("return arguments[0].scrollHeight > arguments[0].clientHeight;", getWebElement());
+        boolean isScrollPresented = (boolean) executeScript("return arguments[0].scrollHeight > arguments[0].clientHeight;", getWebElement());
+        stopHighlight();
+        return isScrollPresented;
+    }
+
+    public void setCursorAtPosition(int cursorPosition) {
+        executeScript(
+                "var range = document.createRange();" +
+                        "var textNode = arguments[0].firstChild;" +
+                        "range.setStart(textNode, arguments[1]);" +
+                        "range.setEnd(textNode, arguments[1]);" +
+                        "var sel = window.getSelection();" +
+                        "sel.removeAllRanges();" +
+                        "sel.addRange(range);",
+                getWebElement(),
+                cursorPosition
+        );
+        stopHighlight();
     }
 }
