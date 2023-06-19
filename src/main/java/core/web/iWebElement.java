@@ -2,11 +2,13 @@ package core.web;
 
 import core.tools.CacheValue;
 import core.web.conditions.HiddenElementCondition;
+import lombok.Getter;
 import org.openqa.selenium.*;
 import org.openqa.selenium.By.*;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.SkipException;
 import utils.logging.iLogger;
 import utils.properties.WebElementProperties;
 
@@ -17,6 +19,7 @@ import java.util.NoSuchElementException;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
+@Getter
 public class iWebElement implements WebElement {
     private static final int WAIT_TIMEOUT_SEC = 5;
     protected final WebDriver driver;
@@ -56,6 +59,10 @@ public class iWebElement implements WebElement {
         return byLocator;
     }
 
+    public String getLocatorValue() {
+        return byLocator.toString().replaceAll("(By\\.)(\\w+)(: )", "").trim();
+    }
+
     public void setLocator(By locator) {
         byLocator = locator;
     }
@@ -64,22 +71,30 @@ public class iWebElement implements WebElement {
         return driver;
     }
 
-    public WebElement getWebElement() {
+    public WebElement getWebElement(boolean isHighlight) {
         if (shouldBeCached && cachedWebElement.hasValue()) {
-            highlightElement();
+            if (isHighlight) {
+                highlightElement();
+            }
             return cachedWebElement.get();
         } else {
             try {
                 WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(byLocator));
-                highlightElement(element);
+                if (isHighlight) {
+                    highlightElement(element);
+                }
                 if (shouldBeCached) {
                     cachedWebElement.setForce(element);
                 }
                 return element;
             } catch (TimeoutException e) {
-                throw new TimeoutException("Don't see " + this);
+                throw new SkipException("Don't see " + this);
             }
         }
+    }
+
+    public WebElement getWebElement() {
+        return getWebElement(true);
     }
 
     public void setWebElement(WebElement el) {
@@ -91,17 +106,28 @@ public class iWebElement implements WebElement {
     }
 
     private void highlightElement(WebElement element) {
+        JavascriptExecutor jsExecutor = (JavascriptExecutor) driver;
         boolean shouldBeHighlighted = Boolean.parseBoolean(WebElementProperties.WEBELEMENT_BORDER_SHOULD_BE_HIGHLIGHTED);
         if (shouldBeHighlighted) {
             String border = String.format("arguments[0].style.border='%s solid %s'",
                     WebElementProperties.WEBELEMENT_BORDER_WIDTH, WebElementProperties.WEBELEMENT_BORDER_COLOR);
-            jsExecutor.executeScript(border, element);
+            try {
+                executeScript(border, element);
+            } catch (Exception ignore) {
+            }
         }
     }
 
     private void stopHighlight(WebElement element) {
         try {
-            jsExecutor.executeScript("arguments[0].style.border=''", element);
+            executeScript("arguments[0].style.border=''", element);
+        } catch (Exception ignored) {
+        }
+    }
+
+    private void stopHighlight() {
+        try {
+            executeScript("arguments[0].style.border=''", getWebElement(false));
         } catch (Exception ignored) {
         }
     }
@@ -145,26 +171,21 @@ public class iWebElement implements WebElement {
 
     public void sendKeys(Keys value) {
         iLogger.debug("Send keys " + value.name() + " to " + name);
-        sendText(value);
+        Actions actions = new Actions(driver);
+        actions.sendKeys(value).perform();
     }
 
-    private void sendText(CharSequence... charSequences) {
+    public void sendText(CharSequence... charSequences) {
         WebElement element = getWebElement();
-        try {
-            wait.until(ExpectedConditions.elementToBeClickable(element));
-            element.sendKeys(charSequences);
-        } catch (TimeoutException e) {
-            throw new TimeoutException("Failed to send keys to " + name + " with locator " + byLocator);
-        } finally {
-            stopHighlight(element);
-        }
+        element.sendKeys(charSequences);
+        stopHighlight(element);
     }
 
     public void clear() {
         iLogger.debug("Clear field {}", name);
         WebElement element = getWebElement();
         try {
-            jsExecutor.executeScript("arguments[0].value = '';", element);
+            executeScript("arguments[0].value = '';", element);
             wait.until(ExpectedConditions.elementToBeClickable(element)).clear();
         } catch (TimeoutException e) {
             throw new TimeoutException("Failed to clean " + name + " with locator " + byLocator);
@@ -221,7 +242,7 @@ public class iWebElement implements WebElement {
     }
 
     public iWebElement findElement(By by) {
-        return new iWebElement(driver, String.format("Child of %s", name), by, getWebElement().findElement(by));
+        return new iWebElement(driver, String.format("Child of %s", name), by, getWebElement(false).findElement(by));
     }
 
     public iWebElement getChild(iWebElement webElement) {
@@ -295,8 +316,20 @@ public class iWebElement implements WebElement {
         return getAttribute("href");
     }
 
-    private void executeScript(String s, WebElement element) {
-        jsExecutor.executeScript(s, element);
+    private Object executeScript(String s) {
+        return jsExecutor.executeScript(s);
+    }
+
+    private Object executeScript(String s, WebElement element) {
+        return jsExecutor.executeScript(s, element);
+    }
+
+    private Object executeScript(String s, WebElement element, WebElement targetElement) {
+        return jsExecutor.executeScript(s, element, targetElement);
+    }
+
+    private Object executeScript(String s, WebElement webElement, int cursorPosition) {
+        return jsExecutor.executeScript(s, webElement, cursorPosition);
     }
 
     public iWebElement template(String text) {
@@ -343,6 +376,7 @@ public class iWebElement implements WebElement {
     public boolean hasChild(iWebElement child) {
         boolean hasChild = findElements(child.getLocator()).size() > 0;
         iLogger.debug(String.format("Element %s has %s as child = %s", name, child.getLocator(), hasChild));
+        stopHighlight();
         return hasChild;
     }
 
@@ -365,5 +399,45 @@ public class iWebElement implements WebElement {
 
     public void setShouldBeCached(boolean shouldBeCached) {
         this.shouldBeCached = shouldBeCached;
+    }
+
+    public void selectTextInElement() {
+        iLogger.debug("Select text in element {}", toString());
+        executeScript("let element = document.evaluate(\"" + getLocatorValue() + "\", " +
+                "document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;\n" +
+                "let range = document.createRange();\n" +
+                "range.selectNodeContents(element);\n" +
+                "let selection = window.getSelection();\n" +
+                "selection.removeAllRanges();\n" +
+                "selection.addRange(range);"
+        );
+        stopHighlight();
+    }
+
+    public void actions(Keys key, char keyChar) {
+        iLogger.debug("Send keys {} + {} to element {}", key.name(), String.valueOf(keyChar), toString());
+        Actions actions = new Actions(driver);
+        actions.keyDown(key).keyDown(String.valueOf(keyChar)).keyUp(key).build().perform();
+    }
+
+    public boolean isScrollPresented() {
+        boolean isScrollPresented = (boolean) executeScript("return arguments[0].scrollHeight > arguments[0].clientHeight;", getWebElement());
+        stopHighlight();
+        return isScrollPresented;
+    }
+
+    public void setCursorAtPosition(int cursorPosition) {
+        executeScript(
+                "var range = document.createRange();" +
+                        "var textNode = arguments[0].firstChild;" +
+                        "range.setStart(textNode, arguments[1]);" +
+                        "range.setEnd(textNode, arguments[1]);" +
+                        "var sel = window.getSelection();" +
+                        "sel.removeAllRanges();" +
+                        "sel.addRange(range);",
+                getWebElement(),
+                cursorPosition
+        );
+        stopHighlight();
     }
 }
