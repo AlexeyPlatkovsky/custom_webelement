@@ -1,5 +1,6 @@
-package core.web;
+package core.web.conditions;
 
+import core.web.iWebElement;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import utils.logging.iLogger;

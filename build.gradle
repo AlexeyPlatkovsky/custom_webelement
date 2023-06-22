@@ -85,7 +85,7 @@ test {
   def screen_resolution = project.hasProperty('screen_resolution') ? project.screen_resolution : '1920,1080'
   systemProperty 'screen_resolution', screen_resolution
 
-  def suite = project.hasProperty('suite') ? project.suite : 'ui'
+  def suite = project.hasProperty('suite') ? project.suite : 'ui, unit'
   systemProperty 'suite', suite
 
 //testNG settings

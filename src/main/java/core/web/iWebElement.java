@@ -2,6 +2,7 @@ package core.web;
 
 import core.tools.CacheValue;
 import core.web.conditions.HiddenElementCondition;
+import core.web.conditions.TextCondition;
 import lombok.Getter;
 import org.openqa.selenium.*;
 import org.openqa.selenium.By.*;
