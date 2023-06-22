@@ -28,7 +28,6 @@ public class StringUtil {
 
     /**
      * Converts css selector to xpath
-     *
      * @param css
      * @return xpath
      */
