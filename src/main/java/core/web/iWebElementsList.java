@@ -156,12 +156,12 @@ public class iWebElementsList extends iWebElement implements List<iWebElement> {
         }
 
         for (int i = 0; i < getDriver().findElements(getLocator()).size(); i++) {
-            elElements.add(new iWebElement(driver, name, getNewLocator(getLocator(), i + 1)));
+            elElements.add(new iWebElement(driver, name, getLocatorWithId(getLocator(), i + 1)));
         }
         return elElements;
     }
 
-    private By getNewLocator(By byLocator, int index) {
+    private By getLocatorWithId(By byLocator, int index) {
         String locator = getLocator().toString().replaceAll("(By\\.)(\\w+)(: )", "").trim();
         switch (byLocator.getClass().getSimpleName()) {
             case "ByXPath" -> {
