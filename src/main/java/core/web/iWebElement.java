@@ -100,6 +100,7 @@ public class iWebElement implements WebElement {
 
     public void setWebElement(WebElement el) {
         cachedWebElement.setForce(el);
+        shouldBeCached = true;
     }
 
     private void highlightElement() {
@@ -440,5 +441,9 @@ public class iWebElement implements WebElement {
                 cursorPosition
         );
         stopHighlight();
+    }
+
+    public iWebElement getParent() {
+        return this.findElement(By.xpath("./.."));
     }
 }
