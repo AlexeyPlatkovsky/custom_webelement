@@ -1,7 +1,11 @@
 name: Pull requests runs
 on:
+  push:
+    branches:
+      - master
   pull_request:
-    types: [ edited, opened, reopened ]
+    branches:
+      - master
 
 jobs:
   build:
