@@ -11,9 +11,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    env:
-      os: unix
-
     steps:
       - run: echo "The job was automatically triggered by a ${{ github.event_name }} event."
       - run: echo "The name of the branch is ${{ github.ref }}"
@@ -25,21 +22,13 @@ jobs:
         with:
           java-version: '17'
           distribution: temurin
-      - name: Install Allure
-        run: |
-          wget https://repo.maven.apache.org/maven2/io/qameta/allure/allure-commandline/2.15.0/allure-commandline-2.15.0.zip
-          unzip allure-commandline-2.15.0.zip
-          sudo cp -r allure-2.15.0/bin /usr/local/bin
-        working-directory: ${{ github.workspace }}
 
       - name: Run chmod to make gradlew executable
         run: chmod +x ./gradlew
 
-      - name: Generate Allure Report
+      - name: Run tests
         run: |
           ./gradlew clean test -Dos=unix
-          allure generate build/allure-results --clean -o build/allure-report
-        working-directory: ${{ github.workspace }}
 
       - name: Publish TestNG Reports
         uses: actions/upload-artifact@v2
