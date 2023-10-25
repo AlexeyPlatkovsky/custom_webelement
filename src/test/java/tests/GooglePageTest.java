@@ -15,7 +15,8 @@ public class GooglePageTest extends BaseTest {
         Assert.assertEquals(googlePage.getTextFromSearchInput(), searchText);
     }
 
-    @Test(description = "Check that screenshot is attached to test report if test is failed")
+    @Test(description = "Check that screenshot is attached to test report if test is failed." +
+            "This test should fail")
     public void failSearchFireFoxSpecificationTest() {
         GooglePage googlePage = new GooglePage();
         String searchText = "Find firefox specification";
