@@ -19,8 +19,8 @@ jobs:
           distribution: temurin
       - name: Run chmod to make gradlew executable
         run: chmod +x ./gradlew
-      - name: Setup and execute Gradle 'runTests' task
+      - name: Setup and execute Gradle 'test' task
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: runTests
+          arguments: test
       - run: echo "This job's status is ${{ job.status }}."
