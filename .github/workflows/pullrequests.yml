@@ -25,14 +25,21 @@ jobs:
         with:
           java-version: '17'
           distribution: temurin
+      - name: Install Allure
+        run: |
+          wget https://repo.maven.apache.org/maven2/io/qameta/allure/allure-commandline/2.15.0/allure-commandline-2.15.0.zip
+          unzip allure-commandline-2.15.0.zip
+          sudo cp -r allure-2.15.0/bin /usr/local/bin
+        working-directory: ${{ github.workspace }}
 
       - name: Run chmod to make gradlew executable
         run: chmod +x ./gradlew
 
-      - name: Setup and execute Gradle 'test' task
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: test -Dos=unix
+      - name: Generate Allure Report
+        run: |
+          ./gradlew clean test -Dos=unix
+          allure generate build/allure-results --clean -o build/allure-report
+        working-directory: ${{ github.workspace }}
 
       - name: Publish TestNG Reports
         uses: actions/upload-artifact@v2

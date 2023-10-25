@@ -9,6 +9,7 @@ plugins {
     id 'checkstyle'
     id 'java'
     id 'idea'
+    id 'io.qameta.allure' version '2.11.2'
 }
 
 ext {
@@ -26,6 +27,18 @@ idea {
     }
 }
 
+def allureVersion = "2.13.6"
+
+allure {
+    autoconfigure = true
+    aspectjweaver = true
+    version = allureVersion
+
+    useTestNG {
+        version = allureVersion
+    }
+}
+
 repositories {
     mavenCentral()
     mavenLocal()
@@ -40,7 +53,8 @@ dependencies {
             [group: 'org.junit.jupiter', name: 'junit-jupiter', version: '5.9.2'],
             [group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '4.8.0'],
             [group: 'org.seleniumhq.selenium', name: 'selenium-remote-driver', version: '4.8.0'],
-            [group: 'org.testng', name: 'testng', version: '7.3.0']
+            [group: 'org.testng', name: 'testng', version: '7.3.0'],
+            [group: 'io.qameta.allure', name: 'allure-testng', version: '2.19.0']
     )
     implementation 'org.jetbrains:annotations:24.0.1'
     compileOnly 'org.projectlombok:lombok:1.18.26'
@@ -104,5 +118,12 @@ test {
         excludeGroups exclude
         parallel 'methods'
         threadCount = thread_count as int
+
+        testLogging {
+            events "PASSED", "FAILED", "SKIPPED"
+            exceptionFormat = 'full'
+        }
+
+        finalizedBy('allureReport')
     }
 }
