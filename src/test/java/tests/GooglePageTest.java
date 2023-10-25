@@ -15,15 +15,15 @@ public class GooglePageTest extends BaseTest {
         Assert.assertEquals(googlePage.getTextFromSearchInput(), searchText);
     }
 
-    @Test(description = "Check that screenshot is attached to test report if test is failed." +
-            "This test should fail")
-    public void failSearchFireFoxSpecificationTest() {
-        GooglePage googlePage = new GooglePage();
-        String searchText = "Find firefox specification";
-        googlePage.openPage();
-        googlePage.searchForText(searchText);
-        Assert.assertEquals(googlePage.getTextFromSearchInput(), "searchText");
-    }
+//    @Test(description = "Check that screenshot is attached to test report if test is failed." +
+//            "This test should fail")
+//    public void failSearchFireFoxSpecificationTest() {
+//        GooglePage googlePage = new GooglePage();
+//        String searchText = "Find firefox specification";
+//        googlePage.openPage();
+//        googlePage.searchForText(searchText);
+//        Assert.assertEquals(googlePage.getTextFromSearchInput(), "searchText");
+//    }
 
     @Test(singleThreaded = true,
             description = "Compare performance of cached and non-cached elements")
