@@ -25,7 +25,15 @@ public class DriverCaps {
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--window-size=" + SystemProperties.SCREEN_RESOLUTION)
                 .addArguments("--lang=ru-RU")
+                .addArguments("--ignore-certificate-errors")
+                .addArguments("--disable-extensions")
+                .addArguments("--no-sandbox")
                 .addArguments("--remote-allow-origins=*");
+
+        if (SystemProperties.OS.equalsIgnoreCase("unix")) {
+            options.addArguments("--headless")
+                    .addArguments("--disable-gpu");
+        }
         return options;
     }
 

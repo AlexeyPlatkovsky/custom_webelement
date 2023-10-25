@@ -1,9 +1,8 @@
 package utils.logging;
 
 import core.driver.DriverFactory;
-import org.apache.commons.codec.binary.Base64;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.hc.client5.http.utils.Base64;
 import org.jetbrains.annotations.NotNull;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
@@ -18,13 +17,13 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 
+@Slf4j
 public class iLogger {
-    private static final Logger LOG = LogManager.getLogger(iLogger.class);
     private static boolean logOnlyInfo = false;
     private static boolean consoleLogOnlyInfo = false;
 
     public static void info(String message) {
-        LOG.info(message);
+        log.info(message);
         Reporter.log(timeStamp() + "INFO: " + message + "</br>");
     }
 
@@ -58,7 +57,7 @@ public class iLogger {
 
     public static void debug(String message) {
         if (!consoleLogOnlyInfo)
-            LOG.debug(message);
+            log.debug(message);
         if (!logOnlyInfo)
             Reporter.log(timeStamp() + "DEBUG: " + message + "</br>");
     }
@@ -85,12 +84,12 @@ public class iLogger {
     }
 
     public static void error(String message) {
-        LOG.error(message);
+        log.error(message);
         Reporter.log(timeStamp() + "ERROR: " + message + "</br>");
     }
 
     public static void error(String s, Throwable e) {
-        LOG.error(s, e);
+        log.error(s, e);
         Reporter.log(timeStamp() + "ERROR: " + s + "</br>" + e);
     }
 
@@ -131,10 +130,6 @@ public class iLogger {
         }
 
         return encodedFile;
-    }
-
-    public static void setLogOnlyInfo(boolean b) {
-        logOnlyInfo = b;
     }
 
     public static void setConsoleLogOnlyInfo(boolean b) {

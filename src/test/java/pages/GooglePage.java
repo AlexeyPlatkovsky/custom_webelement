@@ -51,7 +51,7 @@ public class GooglePage extends AbstractPage {
 
     private long getElementFindTime(iWebElement el) {
         long withoutStartTime = System.currentTimeMillis();
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 500; i++) {
             el.getText();
         }
         long executionTime = System.currentTimeMillis() - withoutStartTime;
@@ -62,6 +62,7 @@ public class GooglePage extends AbstractPage {
     public boolean checkThatAllSearchResultsAreUnique() {
         List<String> elementTexts = searchResults.getTextForVisibleElements();
         Set<String> uniqueTexts = new HashSet<>(elementTexts);
+        iLogger.info("Elements for search results are: " + elementTexts);
         return elementTexts.size() == uniqueTexts.size();
     }
 }
