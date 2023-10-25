@@ -73,6 +73,9 @@ test {
   def locale = project.hasProperty('locale') ? project.locale : 'en-US'
   systemProperty 'locale', locale
 
+  def os = project.hasProperty('os') ? project.suite : 'windows'
+  systemProperty 'os', os
+
   def platform = project.hasProperty('platform') ? project.platform : 'Windows 10'
   systemProperty 'platform', platform
 
