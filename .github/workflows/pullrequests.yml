@@ -34,10 +34,9 @@ jobs:
         with:
           arguments: test -Dos=unix
 
-      - name: Create new check report
-        uses: starburstdata/action-testng-report@master
-        if: github.ref == 'refs/heads/master'
+      - name: Publish TestNG Reports
+        uses: actions/upload-artifact@v2
+        if: always()
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          check_name: new check name
-          report_paths: "**/testng-results.xml"
+          name: testng-reports
+          path: build/reports/tests/testng
