@@ -55,6 +55,14 @@ In addition, this framework offers several additional features. For example, you
     Assert.assertTrue(label.isScrollPresented());
     ```
 
+4. use cached Webelement to speed up your tests:
+
+    ```java
+    @FindBy(css = ".gLFyf[type='search']")
+    @CacheElement
+    private iWebElement cachedSearchInput;
+    ```
+
 You can find some example of tests in demo test class: 
 
     src/test/java/tests/GooglePageTest.java

@@ -108,7 +108,7 @@ test {
 
 //testNG settings
     def exclude = System.properties.containsKey('exclude') ? System.getProperty('exclude') : 'disabled'
-    def thread_count = System.properties.containsKey('thread_count') ? System.getProperty('thread_count') : 2
+    def thread_count = System.properties.containsKey('thread_count') ? System.getProperty('thread_count') : 4
 
     useTestNG() {
         testLogging.showStandardStreams = true

@@ -4,7 +4,6 @@ import core.Environment;
 import core.driver.DriverFactory;
 import core.web.annotations.PageURL;
 import core.web.iPageFactory;
-import lombok.Setter;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import utils.StringUtil;
@@ -17,11 +16,10 @@ import java.time.Duration;
 public abstract class AbstractPage {
     private static final String RELATIVE_URL_ANNOTATION_NOT_SPECIFIED = "Page URL is not specified in @RelativeURL annotation for class ";
     protected WebDriver driver;
-    @Setter
     protected WebDriverWait wait;
 
     public AbstractPage() {
-        this.driver = DriverFactory.initDriver();
+        this.driver = DriverFactory.getCurrentDriver();
         iPageFactory.initElements(this.driver, this);
         wait = new WebDriverWait(this.driver, Duration.ofSeconds(10));
     }
