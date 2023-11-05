@@ -42,7 +42,7 @@ public class GooglePageTest extends BaseTest {
     @Test(description = "Check that iWebElementsList works correctly")
     public void checkWorkOfIWebElementsListTest() {
         GooglePage googlePage = new GooglePage();
-        String searchText = "chromebook";
+        String searchText = "chromebook lenovo";
         googlePage.openPage();
         googlePage.searchForText(searchText);
         Assert.assertTrue(googlePage.checkThatAllSearchResultsAreUnique());
