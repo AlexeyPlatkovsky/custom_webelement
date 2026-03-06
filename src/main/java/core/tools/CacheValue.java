@@ -1,13 +1,13 @@
 package core.tools;
 
-import core.tools.func.JFunc;
+import java.util.function.Supplier;
 
 public class CacheValue<T> {
 
     private final static ThreadLocal<Long> globalCache = new ThreadLocal<>();
     public long elementCache = 0;
     private T value;
-    private final JFunc<T> getRule = () -> null;
+    private final Supplier<T> getRule = () -> null;
 
     public CacheValue() {
     }
@@ -23,12 +23,12 @@ public class CacheValue<T> {
         return get(getRule);
     }
 
-    public T get(JFunc<T> defaultResult) {
+    public T get(Supplier<T> defaultResult) {
         if (!isUseCache()) {
-            return defaultResult.execute();
+            return defaultResult.get();
         }
         if (elementCache < getGlobalCache() || value == null) {
-            this.value = getRule.execute();
+            this.value = getRule.get();
             elementCache = getGlobalCache();
         }
         return value;
