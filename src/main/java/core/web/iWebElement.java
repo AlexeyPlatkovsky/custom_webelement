@@ -25,7 +25,7 @@ public class iWebElement implements WebElement {
     private static final int WAIT_TIMEOUT_SEC = 5;
     protected final WebDriver driver;
     protected final String name;
-    protected final WebDriverWait wait;
+    protected WebDriverWait wait;
     private final CacheValue<WebElement> cachedWebElement = new CacheValue<>();
     protected By byLocator;
     protected String copiedByLocator;
@@ -89,6 +89,7 @@ public class iWebElement implements WebElement {
                 }
                 return element;
             } catch (TimeoutException e) {
+                iLogger.error("Timed out waiting for element {} with locator {}: {}", name, byLocator, e.getMessage());
                 throw new SkipException("Don't see " + this);
             }
         }
@@ -108,7 +109,6 @@ public class iWebElement implements WebElement {
     }
 
     private void highlightElement(WebElement element) {
-        JavascriptExecutor jsExecutor = (JavascriptExecutor) driver;
         boolean shouldBeHighlighted = Boolean.parseBoolean(WebElementProperties.WEBELEMENT_BORDER_SHOULD_BE_HIGHLIGHTED);
         if (shouldBeHighlighted) {
             String border = String.format("arguments[0].style.border='%s solid %s'",
@@ -230,7 +230,6 @@ public class iWebElement implements WebElement {
             iLogger.debug("Get value text -->" + value + "<-- from " + name);
             returnText = value;
         } else {
-            el = getWebElement();
             text = el.getText();
             iLogger.debug("Get inner text -->" + text + "<-- from " + name);
             returnText = text;
@@ -366,7 +365,7 @@ public class iWebElement implements WebElement {
     }
 
     public void setWaiter(Long waiter) {
-        wait.withTimeout(Duration.ofSeconds(waiter));
+        wait = new WebDriverWait(driver, Duration.ofSeconds(waiter));
     }
 
     public void setFocus() {

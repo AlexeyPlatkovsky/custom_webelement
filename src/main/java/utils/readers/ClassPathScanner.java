@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class ClassLoader {
+public class ClassPathScanner {
 
     public List<Class<?>> loadClassesInPackage(String packageName) {
         List<Class<?>> classes = new ArrayList<>(Collections.unmodifiableList(new ArrayList<>()));

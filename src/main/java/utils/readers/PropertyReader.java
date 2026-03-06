@@ -19,7 +19,7 @@ public class PropertyReader {
     public static void readProperties() {
         PROPERTIES.putAll(System.getProperties());
 
-        List<Class<?>> classesList = new ClassLoader().loadClassesInPackage("utils.properties");
+        List<Class<?>> classesList = new ClassPathScanner().loadClassesInPackage("utils.properties");
         String filePath;
         for (Class<?> clazz : classesList) {
             Field[] fields = FieldUtils.getFieldsWithAnnotation(clazz, Property.class);
