@@ -89,7 +89,7 @@ public class iWebElement implements WebElement {
                 }
                 return element;
             } catch (TimeoutException e) {
-                iLogger.error("Timed out waiting for element {} with locator {}: {}", name, byLocator, e.getMessage());
+                iLogger.error(String.format("Timed out waiting for element %s with locator %s: %s", name, byLocator, e.getMessage()));
                 throw new SkipException("Don't see " + this);
             }
         }
