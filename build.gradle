@@ -114,8 +114,8 @@ test {
         testLogging.showStandardStreams = true
         useDefaultListeners = true
         outputDirectory = file("$projectDir/build/reports/tests/testng")
-        includeGroups suite
-        excludeGroups exclude
+        includeGroups(*suite.split(',\\s*'))
+        excludeGroups(*exclude.split(',\\s*'))
         parallel 'methods'
         threadCount = thread_count as int
 
