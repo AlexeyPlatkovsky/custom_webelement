@@ -165,10 +165,10 @@ jobs:
 
           def status(outcome: str):
               mapping = {
-                  "success": "Passed",
-                  "failure": "Failed",
-                  "cancelled": "Cancelled",
-                  "skipped": "Skipped",
+                  "success": "Passed ✅",
+                  "failure": "Failed ❌",
+                  "cancelled": "Cancelled 🕒",
+                  "skipped": "Skipped ⏩",
               }
               return mapping.get(outcome, "Unknown")
 
