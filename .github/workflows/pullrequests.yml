@@ -30,6 +30,26 @@ jobs:
         run: |
           ./gradlew clean test -Dos=unix
 
+      - name: Check for non-passing tests
+        if: always()
+        run: |
+          python3 - <<'EOF'
+          import glob, sys
+          from xml.etree import ElementTree as ET
+          failed = skipped = total = 0
+          for f in glob.glob('build/test-results/**/*.xml', recursive=True):
+              root = ET.parse(f).getroot()
+              suites = [root] if root.tag == 'testsuite' else root.findall('testsuite')
+              for ts in suites:
+                  failed  += int(ts.get('failures', 0)) + int(ts.get('errors', 0))
+                  skipped += int(ts.get('skipped', 0))
+                  total   += int(ts.get('tests', 0))
+          print(f"Total: {total}, Failed: {failed}, Skipped: {skipped}")
+          if failed > 0 or skipped > 0:
+              print(f"ERROR: {failed} test(s) failed and {skipped} test(s) skipped — all tests must pass.")
+              sys.exit(1)
+          EOF
+
       - name: Publish TestNG Reports
         uses: actions/upload-artifact@v4
         if: always()
