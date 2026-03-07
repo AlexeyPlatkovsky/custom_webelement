@@ -91,8 +91,7 @@ public class CustomArtifactsReporterSupportTest {
         }
 
         String html = CustomArtifactsReporterSupport.renderScreenshotCell(Optional.of("screenshots/file.png"), outputDir);
-        String expectedHrefPrefix = outputDir.resolve("screenshots/file.png").toUri().toString();
-        iAssert.contains(html, "href='" + expectedHrefPrefix + "'", "rendered screenshot cell contains expected href");
+        iAssert.contains(html, "href='screenshots/file.png'", "rendered screenshot cell contains relative href");
         iAssert.contains(html, "Open Screenshot", "rendered screenshot cell contains open link label");
     }
 

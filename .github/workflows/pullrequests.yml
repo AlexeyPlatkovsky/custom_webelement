@@ -17,7 +17,14 @@ jobs:
 
     steps:
       - run: echo "The job was automatically triggered by a ${{ github.event_name }} event."
-      - run: echo "The name of the branch is ${{ github.ref }}"
+      - name: Print source info
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "PR title: ${{ github.event.pull_request.title }}"
+          else
+            echo "Branch name: ${{ github.ref_name }}"
+          fi
       - name: Check out repository code
         uses: actions/checkout@v3
 
@@ -35,22 +42,31 @@ jobs:
         continue-on-error: true
         shell: bash
         run: |
+          mkdir -p artifacts/unit
           start_ts=$(date +%s)
           set +e
-          ./gradlew clean test -Dos=unix -Dsuite=unit
-          exit_code=$?
+          set -o pipefail
+          ./gradlew clean test -Dos=unix -Dsuite=unit 2>&1 | tee artifacts/unit/gradle-test.log
+          exit_code=${PIPESTATUS[0]}
+          set +o pipefail
           set -e
           end_ts=$(date +%s)
           duration=$((end_ts - start_ts))
           echo "duration_seconds=$duration" >> "$GITHUB_OUTPUT"
           echo "exit_code=$exit_code" >> "$GITHUB_OUTPUT"
 
-          mkdir -p artifacts/unit/testng artifacts/unit/test-results
+          mkdir -p artifacts/unit/testng artifacts/unit/test-results artifacts/unit/allure-results artifacts/unit/allure-report
           if [ -d build/reports/tests/testng ]; then
             cp -R build/reports/tests/testng/. artifacts/unit/testng/
           fi
           if [ -d build/test-results/test ]; then
             cp -R build/test-results/test/. artifacts/unit/test-results/
+          fi
+          if [ -d build/allure-results ]; then
+            cp -R build/allure-results/. artifacts/unit/allure-results/
+          fi
+          if [ -d build/reports/allure-report/allureReport ]; then
+            cp -R build/reports/allure-report/allureReport/. artifacts/unit/allure-report/
           fi
 
           exit $exit_code
@@ -60,22 +76,31 @@ jobs:
         continue-on-error: true
         shell: bash
         run: |
+          mkdir -p artifacts/ui
           start_ts=$(date +%s)
           set +e
-          ./gradlew test -Dos=unix -Dsuite=ui
-          exit_code=$?
+          set -o pipefail
+          ./gradlew test -Dos=unix -Dsuite=ui 2>&1 | tee artifacts/ui/gradle-test.log
+          exit_code=${PIPESTATUS[0]}
+          set +o pipefail
           set -e
           end_ts=$(date +%s)
           duration=$((end_ts - start_ts))
           echo "duration_seconds=$duration" >> "$GITHUB_OUTPUT"
           echo "exit_code=$exit_code" >> "$GITHUB_OUTPUT"
 
-          mkdir -p artifacts/ui/testng artifacts/ui/test-results
+          mkdir -p artifacts/ui/testng artifacts/ui/test-results artifacts/ui/allure-results artifacts/ui/allure-report
           if [ -d build/reports/tests/testng ]; then
             cp -R build/reports/tests/testng/. artifacts/ui/testng/
           fi
           if [ -d build/test-results/test ]; then
             cp -R build/test-results/test/. artifacts/ui/test-results/
+          fi
+          if [ -d build/allure-results ]; then
+            cp -R build/allure-results/. artifacts/ui/allure-results/
+          fi
+          if [ -d build/reports/allure-report/allureReport ]; then
+            cp -R build/reports/allure-report/allureReport/. artifacts/ui/allure-report/
           fi
 
           exit $exit_code
@@ -86,7 +111,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: testng-unit-report-${{ github.run_id }}
-          path: artifacts/unit/testng
+          path: artifacts/unit
           if-no-files-found: warn
 
       - name: Publish UI TestNG Reports
@@ -95,7 +120,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: testng-ui-report-${{ github.run_id }}
-          path: artifacts/ui/testng
+          path: artifacts/ui
           if-no-files-found: warn
 
       - name: Build PR test comment
@@ -149,7 +174,7 @@ jobs:
 
           def report_link(artifact_url: str):
               if artifact_url:
-                  return f"[Archive (contains `custom-artifacts.html`)]({artifact_url})"
+                  return f"[Archive (open `testng/custom-artifacts.html` after unzip)]({artifact_url})"
               return "n/a"
 
           unit = parse_testng(Path("artifacts/unit/testng/testng-results.xml"))

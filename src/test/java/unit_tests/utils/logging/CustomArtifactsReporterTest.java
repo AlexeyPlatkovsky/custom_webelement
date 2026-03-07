@@ -70,8 +70,7 @@ public class CustomArtifactsReporterTest {
         iAssert.contains(html, "tests.SmokeTest", "report contains class name");
         iAssert.contains(html, "openPageTest", "report contains failed method name");
         iAssert.contains(html, "FAILED", "report contains failed status");
-        String expectedScreenshotHref = outputDir.resolve("screenshots/failure.png").toUri().toString();
-        iAssert.contains(html, "href='" + expectedScreenshotHref + "'", "report contains screenshot href");
+        iAssert.contains(html, "href='screenshots/failure.png'", "report contains screenshot href");
         iAssert.contains(html, "Something bad happened", "report contains failure details");
         iAssert.contains(html, "Business step", "report contains info log from passed test");
         iAssert.notContains(html, "Internal details", "DEBUG logs should be hidden for passed tests");

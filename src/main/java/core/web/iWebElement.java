@@ -201,6 +201,7 @@ public class iWebElement implements WebElement {
 
     @Override
     public void submit() {
+        iLogger.info("Submit form with element {}", name);
         wait.until(ExpectedConditions.visibilityOf(this)).submit();
     }
 
@@ -222,7 +223,7 @@ public class iWebElement implements WebElement {
     }
 
     public void clear() {
-        iLogger.debug("Clear field {}", name);
+        iLogger.info("Clear field {}", name);
         WebElement element = getWebElement();
         try {
             executeScript("arguments[0].value = '';", element);

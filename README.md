@@ -79,11 +79,13 @@ This policy is applied in:
 ## Test-step logging recommendations
 
 Use `INFO` for business-visible test steps and user journey actions:
-
-1. Open page.
-2. Click element.
-3. Send keys / submit form.
-4. Assertion checks.
+Some elementary actions already have built-in `INFO` level logging:
+1. Click element (`iWebElement.click()`).
+2. Send keys (`iWebElement.sendKeys(...)`).
+3. Assertion checks via `utils.assertions.iAssert`.
+4. Submit a form (`iWebElement.submit()`).
+5. Clear a field (`iWebElement.clear()`).
+5. Page navigation when your page object logs it (for example, `openPage()` in the demo `AbstractPage`).
 
 Use `DEBUG` for technical diagnostics that do not represent user/business flow.
 

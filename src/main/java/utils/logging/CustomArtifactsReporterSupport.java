@@ -179,8 +179,6 @@ public final class CustomArtifactsReporterSupport {
             return Path.of(normalizedPath).toUri().toString();
         }
 
-        String relativePath = normalizedPath.startsWith("./") ? normalizedPath.substring(2) : normalizedPath;
-        Path absolutePath = outputDirectory.resolve(relativePath).normalize();
-        return absolutePath.toUri().toString();
+        return normalizedPath.startsWith("./") ? normalizedPath.substring(2) : normalizedPath;
     }
 }
