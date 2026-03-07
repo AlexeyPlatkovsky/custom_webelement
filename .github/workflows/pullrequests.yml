@@ -7,6 +7,10 @@ on:
     branches:
       - master
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -17,22 +21,207 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v3
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         uses: actions/setup-java@v3
         with:
-          java-version: '17'
+          java-version: '21'
           distribution: temurin
 
       - name: Run chmod to make gradlew executable
         run: chmod +x ./gradlew
 
-      - name: Run tests
+      - name: Run unit tests
+        id: unit_tests
+        continue-on-error: true
+        shell: bash
         run: |
-          ./gradlew clean test -Dos=unix
+          start_ts=$(date +%s)
+          set +e
+          ./gradlew clean test -Dos=unix -Dsuite=unit
+          exit_code=$?
+          set -e
+          end_ts=$(date +%s)
+          duration=$((end_ts - start_ts))
+          echo "duration_seconds=$duration" >> "$GITHUB_OUTPUT"
+          echo "exit_code=$exit_code" >> "$GITHUB_OUTPUT"
 
-      - name: Publish TestNG Reports
-        uses: actions/upload-artifact@v4
+          mkdir -p artifacts/unit/testng artifacts/unit/test-results
+          if [ -d build/reports/tests/testng ]; then
+            cp -R build/reports/tests/testng/. artifacts/unit/testng/
+          fi
+          if [ -d build/test-results/test ]; then
+            cp -R build/test-results/test/. artifacts/unit/test-results/
+          fi
+
+          exit $exit_code
+
+      - name: Run UI tests
+        id: ui_tests
+        continue-on-error: true
+        shell: bash
+        run: |
+          start_ts=$(date +%s)
+          set +e
+          ./gradlew test -Dos=unix -Dsuite=ui
+          exit_code=$?
+          set -e
+          end_ts=$(date +%s)
+          duration=$((end_ts - start_ts))
+          echo "duration_seconds=$duration" >> "$GITHUB_OUTPUT"
+          echo "exit_code=$exit_code" >> "$GITHUB_OUTPUT"
+
+          mkdir -p artifacts/ui/testng artifacts/ui/test-results
+          if [ -d build/reports/tests/testng ]; then
+            cp -R build/reports/tests/testng/. artifacts/ui/testng/
+          fi
+          if [ -d build/test-results/test ]; then
+            cp -R build/test-results/test/. artifacts/ui/test-results/
+          fi
+
+          exit $exit_code
+
+      - name: Publish Unit TestNG Reports
+        id: upload_unit_report
         if: always()
+        uses: actions/upload-artifact@v4
         with:
-          name: testng-reports
-          path: build/reports/tests/testng
+          name: testng-unit-report-${{ github.run_id }}
+          path: artifacts/unit/testng
+          if-no-files-found: warn
+
+      - name: Publish UI TestNG Reports
+        id: upload_ui_report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: testng-ui-report-${{ github.run_id }}
+          path: artifacts/ui/testng
+          if-no-files-found: warn
+
+      - name: Build PR test comment
+        id: build_pr_comment
+        if: always() && github.event_name == 'pull_request'
+        shell: bash
+        env:
+          UNIT_DURATION: ${{ steps.unit_tests.outputs.duration_seconds }}
+          UI_DURATION: ${{ steps.ui_tests.outputs.duration_seconds }}
+          UNIT_OUTCOME: ${{ steps.unit_tests.outcome }}
+          UI_OUTCOME: ${{ steps.ui_tests.outcome }}
+          UNIT_ARTIFACT_URL: ${{ steps.upload_unit_report.outputs.artifact-url }}
+          UI_ARTIFACT_URL: ${{ steps.upload_ui_report.outputs.artifact-url }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          python3 <<'PY'
+          import os
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+
+          def parse_testng(xml_path: Path):
+              if not xml_path.exists():
+                  return {"total": 0, "passed": 0, "failed": 0, "skipped": 0}
+              try:
+                  root = ET.parse(xml_path).getroot()
+                  return {
+                      "total": int(root.attrib.get("total", 0)),
+                      "passed": int(root.attrib.get("passed", 0)),
+                      "failed": int(root.attrib.get("failed", 0)),
+                      "skipped": int(root.attrib.get("skipped", 0)),
+                  }
+              except Exception:
+                  return {"total": 0, "passed": 0, "failed": 0, "skipped": 0}
+
+          def fmt_duration(raw_value: str):
+              try:
+                  seconds = int(raw_value)
+              except (TypeError, ValueError):
+                  return "n/a"
+              minutes, sec = divmod(seconds, 60)
+              return f"{minutes}m {sec}s"
+
+          def status(outcome: str):
+              mapping = {
+                  "success": "Passed",
+                  "failure": "Failed",
+                  "cancelled": "Cancelled",
+                  "skipped": "Skipped",
+              }
+              return mapping.get(outcome, "Unknown")
+
+          def report_link(artifact_url: str):
+              if artifact_url:
+                  return f"[Archive (contains `custom-artifacts.html`)]({artifact_url})"
+              return "n/a"
+
+          unit = parse_testng(Path("artifacts/unit/testng/testng-results.xml"))
+          ui = parse_testng(Path("artifacts/ui/testng/testng-results.xml"))
+
+          rows = [
+              {
+                  "suite": "Unit tests",
+                  "outcome": status(os.getenv("UNIT_OUTCOME", "")),
+                  "duration": fmt_duration(os.getenv("UNIT_DURATION", "")),
+                  "artifact": report_link(os.getenv("UNIT_ARTIFACT_URL", "")),
+                  **unit,
+              },
+              {
+                  "suite": "UI tests",
+                  "outcome": status(os.getenv("UI_OUTCOME", "")),
+                  "duration": fmt_duration(os.getenv("UI_DURATION", "")),
+                  "artifact": report_link(os.getenv("UI_ARTIFACT_URL", "")),
+                  **ui,
+              },
+          ]
+
+          body_lines = [
+              "## Test Results",
+              "",
+              "| Suite | Status | Passed | Failed | Skipped | Total | Execution time | Custom TestNG report |",
+              "|---|---:|---:|---:|---:|---:|---:|---|",
+          ]
+
+          for r in rows:
+              body_lines.append(
+                  f"| {r['suite']} | {r['outcome']} | {r['passed']} | {r['failed']} | {r['skipped']} | {r['total']} | {r['duration']} | {r['artifact']} |"
+              )
+
+          body_lines.extend(
+              [
+                  "",
+                  f"Workflow run: [{os.getenv('RUN_URL')}]({os.getenv('RUN_URL')})",
+                  "",
+                  "_Direct HTML links from private GitHub artifacts are not supported; archive links include `custom-artifacts.html`._",
+              ]
+          )
+
+          comment_body = "\n".join(body_lines)
+          github_output = Path(os.environ["GITHUB_OUTPUT"])
+          with github_output.open("a", encoding="utf-8") as f:
+              f.write("comment_body<<EOF\n")
+              f.write(comment_body)
+              f.write("\nEOF\n")
+          PY
+
+      - name: Comment PR with test results
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        env:
+          COMMENT_BODY: ${{ steps.build_pr_comment.outputs.comment_body }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const prNumber = context.payload.pull_request.number;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body: process.env.COMMENT_BODY
+            });
+
+      - name: Fail if any suite failed
+        if: always()
+        shell: bash
+        run: |
+          if [ "${{ steps.unit_tests.outcome }}" != "success" ] || [ "${{ steps.ui_tests.outcome }}" != "success" ]; then
+            echo "At least one test suite failed."
+            exit 1
+          fi

@@ -5,7 +5,6 @@ buildscript {
 }
 
 plugins {
-    id 'io.franzbecker.gradle-lombok' version '4.0.0'
     id 'checkstyle'
     id 'java'
     id 'idea'
@@ -17,8 +16,8 @@ ext {
 }
 
 compileJava.options.fork = true
-sourceCompatibility = JavaVersion.VERSION_17
-targetCompatibility = JavaVersion.VERSION_17
+sourceCompatibility = JavaVersion.VERSION_21
+targetCompatibility = JavaVersion.VERSION_21
 
 idea {
     module {
@@ -50,23 +49,43 @@ dependencies {
             [group: 'io.github.bonigarcia', name: 'webdrivermanager', version: '5.5.3'],
             [group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.24.3'],
             [group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.24.3'],
-            [group: 'org.junit.jupiter', name: 'junit-jupiter', version: '5.9.2'],
             [group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '4.8.0'],
             [group: 'org.seleniumhq.selenium', name: 'selenium-remote-driver', version: '4.8.0'],
             [group: 'org.testng', name: 'testng', version: '7.3.0'],
             [group: 'io.qameta.allure', name: 'allure-testng', version: '2.19.0']
     )
     implementation 'org.jetbrains:annotations:24.0.1'
-    compileOnly 'org.projectlombok:lombok:1.18.26'
-    annotationProcessor 'org.projectlombok:lombok:1.18.26'
+    compileOnly 'org.projectlombok:lombok:1.18.34'
+    annotationProcessor 'org.projectlombok:lombok:1.18.34'
 
-    testCompileOnly 'org.projectlombok:lombok:1.18.26'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.26'
+    testCompileOnly 'org.projectlombok:lombok:1.18.34'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.34'
+    testImplementation 'org.mockito:mockito-core:5.14.2'
+    testRuntimeOnly 'org.slf4j:slf4j-simple:2.0.16'
 }
 
 //=================================== Test =====================================
 
 test {
+    finalizedBy('allureReport')
+    ignoreFailures = false
+    doFirst {
+        delete(file("${buildDir}/allure-results"))
+        delete(file("${buildDir}/reports/tests/testng"))
+    }
+    testLogging {
+        showStandardStreams = true
+        events "PASSED", "FAILED", "SKIPPED"
+        exceptionFormat = 'full'
+    }
+    systemProperty 'org.slf4j.simpleLogger.logFile', 'System.out'
+    systemProperty 'org.slf4j.simpleLogger.defaultLogLevel', 'info'
+    systemProperty 'org.slf4j.simpleLogger.showDateTime', 'true'
+    systemProperty 'org.slf4j.simpleLogger.dateTimeFormat', 'yyyy-MM-dd HH:mm:ss.SSS'
+    systemProperty 'org.slf4j.simpleLogger.showThreadName', 'true'
+    systemProperty 'org.slf4j.simpleLogger.showLogName', 'false'
+    systemProperty 'testng.show.stack.frames', 'true'
+
     def base_url = System.properties.containsKey('base_url') ? System.getProperty('base_url') : ''
     systemProperty 'base_url', base_url
 
@@ -79,10 +98,12 @@ test {
     def driver = System.properties.containsKey('driver') ? System.getProperty('driver') : 'CHROME'
     systemProperty 'driver', driver
 
-    def lambda_key = System.properties.containsKey('lambda_key') ? System.getProperty('remote_key') : ''
+    def lambda_key = System.properties.containsKey('lambda_key') ? System.getProperty('lambda_key') : ''
+    systemProperty 'remote_key', lambda_key
     systemProperty 'lambda_key', lambda_key
 
-    def lambda_username = System.properties.containsKey('lambda_username') ? System.getProperty('remote_username') : ''
+    def lambda_username = System.properties.containsKey('lambda_username') ? System.getProperty('lambda_username') : ''
+    systemProperty 'remote_username', lambda_username
     systemProperty 'lambda_username', lambda_username
 
     def locale = System.properties.containsKey('locale') ? System.getProperty('locale') : 'en-US'
@@ -94,7 +115,7 @@ test {
     def platform = System.properties.containsKey('platform') ? System.getProperty('platform') : 'Windows 10'
     systemProperty 'platform', platform
 
-    def remote_browser = System.properties.containsKey('remote_browser') ? System.getProperty('browser') : 'CHROME'
+    def remote_browser = System.properties.containsKey('remote_browser') ? System.getProperty('remote_browser') : 'CHROME'
     systemProperty 'remote_browser', remote_browser
 
     def screen_maximize = System.properties.containsKey('screen_maximize') ? System.getProperty('screen_maximize') : true
@@ -103,27 +124,57 @@ test {
     def screen_resolution = System.properties.containsKey('screen_resolution') ? System.getProperty('screen_resolution') : '1920,1080'
     systemProperty 'screen_resolution', screen_resolution
 
-    def suite = System.properties.containsKey('suite') ? System.getProperty('suite') : 'ui, unit'
+    def suite = System.properties.containsKey('suite') ? System.getProperty('suite') : 'ui,unit'
     systemProperty 'suite', suite
 
+    def suiteGroups = suite.split(',')*.trim().findAll { it }
 //testNG settings
     def exclude = System.properties.containsKey('exclude') ? System.getProperty('exclude') : 'disabled'
     def thread_count = System.properties.containsKey('thread_count') ? System.getProperty('thread_count') : 4
 
     useTestNG() {
-        testLogging.showStandardStreams = true
         useDefaultListeners = true
+        listeners << 'utils.logging.CustomArtifactsReporter'
         outputDirectory = file("$projectDir/build/reports/tests/testng")
-        includeGroups suite
+        includeGroups suiteGroups as String[]
         excludeGroups exclude
         parallel 'methods'
         threadCount = thread_count as int
-
-        testLogging {
-            events "PASSED", "FAILED", "SKIPPED"
-            exceptionFormat = 'full'
-        }
-
-        finalizedBy('allureReport')
     }
+
+    afterSuite { suiteDescription, suiteResult ->
+        if (suiteDescription.parent == null) {
+            if (suiteResult.testCount == 0) {
+                throw new GradleException("No tests were executed for suite '${suite}'. Check suite filtering.")
+            }
+
+            int failed = suiteResult.failedTestCount + suiteResult.skippedTestCount
+            if (failed > 0) {
+                throw new GradleException("Tests did not pass: failed=${suiteResult.failedTestCount}, skipped=${suiteResult.skippedTestCount}, total=${suiteResult.testCount}")
+            }
+        }
+    }
+}
+
+tasks.named('allureReport') {
+    doFirst {
+        delete(file("${buildDir}/reports/allure-report/allureReport"))
+    }
+}
+
+gradle.buildFinished {
+    def testNgEmailablePath = file("${buildDir}/reports/tests/testng/emailable-report.html").absolutePath.replace('\\', '/')
+    def testNgPath = file("${buildDir}/reports/tests/testng/index.html").absolutePath.replace('\\', '/')
+    def testNgArtifactsPath = file("${buildDir}/reports/tests/testng/custom-artifacts.html").absolutePath.replace('\\', '/')
+    def allurePath = file("${buildDir}/reports/allure-report/allureReport/index.html").absolutePath.replace('\\', '/')
+    def testNgEmailable = "file:///${testNgEmailablePath}"
+    def testNgIndex = "file:///${testNgPath}"
+    def testNgArtifacts = "file:///${testNgArtifactsPath}"
+    def allureIndex = "file:///${allurePath}"
+    println ""
+    println "TestNG emailable report: ${testNgEmailable}"
+    println "TestNG report: ${testNgIndex}"
+    println "TestNG artifacts report: ${testNgArtifacts}"
+    println "Allure report: ${allureIndex}"
+    println "If Allure opens blank from file:///, run: ./gradlew allureServe"
 }

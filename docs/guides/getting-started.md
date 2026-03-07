@@ -4,7 +4,7 @@
 
 | Requirement | Version | Notes |
 |-------------|---------|-------|
-| Java | 17+ | `JAVA_HOME` must be set |
+| Java | 21+ | `JAVA_HOME` must be set |
 | Gradle | 7+ | Use the included `./gradlew` wrapper |
 | Chrome or Firefox | Latest | For local test runs |
 | Git | Any | — |

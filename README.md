@@ -1,6 +1,6 @@
 # custom_webelement
 
-This is an open-source framework for automating UI tests using Java 17 and Selenium. The primary distinction from native Selenium is the built-in capability to log all actions by default, such as finding elements, performing clicks, retrieving text, and more.
+This is an open-source framework for automating UI tests using Java 21 and Selenium. The primary distinction from native Selenium is the built-in capability to log all actions by default, such as finding elements, performing clicks, retrieving text, and more.
 
 You can easily integrate this framework into your project if you are already using plain Selenium and following the Page Factory Pattern. To do this, you need to change the default PageFactory initialization to use "iPageFactory" as shown below:
 
@@ -63,8 +63,45 @@ In addition, this framework offers several additional features. For example, you
     private iWebElement cachedSearchInput;
     ```
 
+## Logging policy (test reports)
+
+The framework now applies a status-aware logging policy for test reports:
+
+1. For successful tests, only `INFO` level lines are shown in report log blocks.
+2. For failed or skipped tests, full logs are shown (`INFO`, `DEBUG`, `ERROR`).
+3. Screenshot references are preserved in reports.
+
+This policy is applied in:
+
+1. Allure `Execution log` attachment.
+2. Custom TestNG artifacts report (`build/reports/tests/testng/custom-artifacts.html`).
+
+## Test-step logging recommendations
+
+Use `INFO` for business-visible test steps and user journey actions:
+
+1. Open page.
+2. Click element.
+3. Send keys / submit form.
+4. Assertion checks.
+
+Use `DEBUG` for technical diagnostics that do not represent user/business flow.
+
+## Custom assertions with built-in logs
+
+Yes, this is a good idea if the wrapper stays thin and readable.
+
+Use `utils.assertions.iAssert` for checks with automatic readable logs, for example:
+
+```java
+iAssert.equalsTo(actualText, expectedText, "search input contains entered query");
+iAssert.isTrue(resultsAreUnique, "search results list contains unique entries");
+```
+
+This keeps test code concise and guarantees assertion intent is always visible in logs.
+
 You can find some example of tests in demo test class: 
 
-    src/test/java/tests/GooglePageTest.java
+    src/test/java/tests/DuckDuckGoPageTest.java
     
 Feel free to use and contribute to this open-source framework to enhance your UI testing capabilities.

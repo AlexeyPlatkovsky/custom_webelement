@@ -13,7 +13,9 @@ import utils.logging.iLogger;
 import utils.properties.RemoteEnvProperties;
 import utils.properties.SystemProperties;
 
+import java.io.File;
 import java.net.URL;
+import java.util.Objects;
 
 public class DriverFactory {
     private static final ThreadLocal<WebDriver> DRIVER = new ThreadLocal<>();
@@ -26,9 +28,14 @@ public class DriverFactory {
         else return initDriver();
     }
 
+    public static WebDriver getCurrentDriverOrNull() {
+        return DRIVER.get();
+    }
+
     public static WebDriver initDriver() {
         driverName = DriverNames.valueOf(SystemProperties.DRIVER.toUpperCase());
         iLogger.info("Create driver " + driverName);
+        configureWebDriverManagerCache();
 
         switch (driverName) {
             case CHROME -> createChromeDriver();
@@ -67,5 +74,28 @@ public class DriverFactory {
 
     public static DriverNames driverName() {
         return driverName;
+    }
+
+    public static void disposeCurrentDriver() {
+        WebDriver driver = DRIVER.get();
+        if (Objects.isNull(driver)) {
+            return;
+        }
+
+        try {
+            driver.quit();
+        } finally {
+            DRIVER.remove();
+        }
+    }
+
+    private static void configureWebDriverManagerCache() {
+        String cacheDirectory = System.getProperty("java.io.tmpdir") + File.separator + "wdm-cache";
+        File cacheDir = new File(cacheDirectory);
+        if (!cacheDir.exists()) {
+            cacheDir.mkdirs();
+        }
+        System.setProperty("wdm.cachePath", cacheDirectory);
+        System.setProperty("wdm.targetPath", cacheDirectory);
     }
 }
