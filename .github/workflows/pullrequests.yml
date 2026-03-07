@@ -26,12 +26,89 @@ jobs:
       - name: Run chmod to make gradlew executable
         run: chmod +x ./gradlew
 
+      - name: Record test start time
+        run: echo "TEST_START=$(date +%s)" >> $GITHUB_ENV
+
       - name: Run tests
         run: |
           ./gradlew clean test -Dos=unix
 
-      - name: Check for non-passing tests
-        if: always()
+      - name: Check for non-passing tests and post PR comment
+        if: always() && github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          python3 - <<'EOF'
+          import glob, sys, os, subprocess
+          from xml.etree import ElementTree as ET
+
+          # Parse results
+          failed = skipped = total = 0
+          for f in glob.glob('build/test-results/**/*.xml', recursive=True):
+              root = ET.parse(f).getroot()
+              suites = [root] if root.tag == 'testsuite' else root.findall('testsuite')
+              for ts in suites:
+                  failed  += int(ts.get('failures', 0)) + int(ts.get('errors', 0))
+                  skipped += int(ts.get('skipped', 0))
+                  total   += int(ts.get('tests', 0))
+
+          passed = total - failed - skipped
+
+          # Calculate execution time
+          import time
+          start = int(os.environ.get('TEST_START', 0))
+          duration = int(time.time()) - start if start else 0
+          mins, secs = divmod(duration, 60)
+          duration_str = f"{mins}m {secs}s" if mins else f"{secs}s"
+
+          # Build comment
+          if failed == 0 and skipped == 0:
+              status_icon = "✅"
+              status_text = "All tests passed"
+              overall = "success"
+          else:
+              status_icon = "❌"
+              parts = []
+              if failed:  parts.append(f"{failed} failed")
+              if skipped: parts.append(f"{skipped} skipped")
+              status_text = "Tests " + " and ".join(parts)
+              overall = "failure"
+
+          body = f"""{status_icon} **Test run {overall}** — `{duration_str}`
+
+          | Status | Count |
+          |--------|-------|
+          | ✅ Passed  | {passed} |
+          | ❌ Failed  | {failed} |
+          | ⏭️ Skipped | {skipped} |
+          | **Total**  | **{total}** |
+
+          > {status_text} in {duration_str}"""
+
+          # Post comment
+          import json, urllib.request
+          pr = os.environ['PR_NUMBER']
+          repo = os.environ['REPO']
+          token = os.environ['GH_TOKEN']
+          url = f"https://api.github.com/repos/{repo}/issues/{pr}/comments"
+          data = json.dumps({"body": body}).encode()
+          req = urllib.request.Request(url, data=data, headers={
+              "Authorization": f"Bearer {token}",
+              "Accept": "application/vnd.github+json",
+              "Content-Type": "application/json",
+          })
+          urllib.request.urlopen(req)
+
+          # Fail build if needed
+          if failed > 0 or skipped > 0:
+              print(f"ERROR: {failed} test(s) failed, {skipped} test(s) skipped — all tests must pass.")
+              sys.exit(1)
+          EOF
+
+      - name: Check for non-passing tests (push event)
+        if: always() && github.event_name != 'pull_request'
         run: |
           python3 - <<'EOF'
           import glob, sys
