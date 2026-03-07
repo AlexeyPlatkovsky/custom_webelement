@@ -49,7 +49,6 @@ dependencies {
             [group: 'io.github.bonigarcia', name: 'webdrivermanager', version: '5.5.3'],
             [group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.24.3'],
             [group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.24.3'],
-            [group: 'org.junit.jupiter', name: 'junit-jupiter', version: '5.9.2'],
             [group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '4.8.0'],
             [group: 'org.seleniumhq.selenium', name: 'selenium-remote-driver', version: '4.8.0'],
             [group: 'org.testng', name: 'testng', version: '7.3.0'],
@@ -61,6 +60,7 @@ dependencies {
 
     testCompileOnly 'org.projectlombok:lombok:1.18.34'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.34'
+    testImplementation 'org.mockito:mockito-core:5.14.2'
     testRuntimeOnly 'org.slf4j:slf4j-simple:2.0.16'
 }
 
@@ -71,6 +71,7 @@ test {
     ignoreFailures = false
     doFirst {
         delete(file("${buildDir}/allure-results"))
+        delete(file("${buildDir}/reports/tests/testng"))
     }
     testLogging {
         showStandardStreams = true
@@ -133,6 +134,7 @@ test {
 
     useTestNG() {
         useDefaultListeners = true
+        listeners << 'utils.logging.CustomArtifactsReporter'
         outputDirectory = file("$projectDir/build/reports/tests/testng")
         includeGroups suiteGroups as String[]
         excludeGroups exclude
@@ -163,13 +165,16 @@ tasks.named('allureReport') {
 gradle.buildFinished {
     def testNgEmailablePath = file("${buildDir}/reports/tests/testng/emailable-report.html").absolutePath.replace('\\', '/')
     def testNgPath = file("${buildDir}/reports/tests/testng/index.html").absolutePath.replace('\\', '/')
+    def testNgArtifactsPath = file("${buildDir}/reports/tests/testng/custom-artifacts.html").absolutePath.replace('\\', '/')
     def allurePath = file("${buildDir}/reports/allure-report/allureReport/index.html").absolutePath.replace('\\', '/')
     def testNgEmailable = "file:///${testNgEmailablePath}"
     def testNgIndex = "file:///${testNgPath}"
+    def testNgArtifacts = "file:///${testNgArtifactsPath}"
     def allureIndex = "file:///${allurePath}"
     println ""
     println "TestNG emailable report: ${testNgEmailable}"
     println "TestNG report: ${testNgIndex}"
+    println "TestNG artifacts report: ${testNgArtifacts}"
     println "Allure report: ${allureIndex}"
     println "If Allure opens blank from file:///, run: ./gradlew allureServe"
 }

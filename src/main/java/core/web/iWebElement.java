@@ -181,7 +181,7 @@ public class iWebElement implements WebElement {
     }
 
     private void click(WebDriverWait waitForClick) {
-        iLogger.debug("Click on {}", toString());
+        iLogger.info("Click on {}", toString());
         WebElement element = getWebElement();
         try {
             waitForClick.until(ExpectedConditions.elementToBeClickable(element)).click();
@@ -205,12 +205,12 @@ public class iWebElement implements WebElement {
     }
 
     public void sendKeys(CharSequence... value) {
-        iLogger.debug("Send keys " + Arrays.toString(value) + " to " + name);
+        iLogger.info("Send keys " + Arrays.toString(value) + " to " + name);
         sendText(value);
     }
 
     public void sendKeys(Keys value) {
-        iLogger.debug("Send keys " + value.name() + " to " + name);
+        iLogger.info("Send keys " + value.name() + " to " + name);
         Actions actions = new Actions(driver);
         actions.sendKeys(value).perform();
     }

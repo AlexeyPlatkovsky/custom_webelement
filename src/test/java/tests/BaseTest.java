@@ -19,6 +19,7 @@ public class BaseTest {
     public void setupTestClass() {
         PropertyReader.readProperties();
         iLogger.setConsoleLogOnlyInfo(true);
+        iLogger.setLogOnlyInfo(true);
     }
 
     @AfterMethod(alwaysRun = true)

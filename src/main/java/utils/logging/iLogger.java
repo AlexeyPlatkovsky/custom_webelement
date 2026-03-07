@@ -16,16 +16,19 @@ import java.nio.charset.StandardCharsets;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 @Slf4j
 public class iLogger {
-    private static boolean logOnlyInfo = false;
+    private static boolean logOnlyInfo = true;
     private static boolean consoleLogOnlyInfo = false;
     private static final String SCREENSHOT_LINK_TEXT = " CLICK TO SEE SCREENSHOT ";
     private static final String SCREENSHOT_DIR_NAME = "screenshots";
     private static final String SCREENSHOT_RELATIVE_PREFIX = SCREENSHOT_DIR_NAME + "/";
+    private static final ThreadLocal<List<String>> DEBUG_LOG_BUFFER = ThreadLocal.withInitial(ArrayList::new);
 
     public record ScreenshotArtifact(String fileName, Path filePath, String reportRelativePath, byte[] bytes) {
     }
@@ -64,6 +67,7 @@ public class iLogger {
     }
 
     public static void debug(String message) {
+        DEBUG_LOG_BUFFER.get().add(timeStamp() + "DEBUG: " + message);
         if (!consoleLogOnlyInfo)
             log.debug(message);
         if (!logOnlyInfo)
@@ -115,8 +119,13 @@ public class iLogger {
 
     public static ScreenshotArtifact takeScreenshot() {
         WebDriver currentDriver = DriverFactory.getCurrentDriverOrNull();
+        if (currentDriver == null) {
+            log.warn("Screenshot skipped: no active WebDriver session");
+            return null;
+        }
+
         if (!(currentDriver instanceof TakesScreenshot screenshotDriver)) {
-            iLogger.error("Current driver does not support screenshots");
+            log.warn("Screenshot skipped: driver {} does not support screenshots", currentDriver.getClass().getName());
             return null;
         }
 
@@ -138,12 +147,14 @@ public class iLogger {
             Files.createDirectories(screenshotDir);
             Files.write(screenshotPath, screenshotBytes);
             Reporter.log("<br><a href='" + relativePath + "' target='_blank'>" + SCREENSHOT_LINK_TEXT + "</a></br>");
+            return new ScreenshotArtifact(screenshotName, screenshotPath, relativePath, screenshotBytes);
         } catch (IOException e) {
-            Reporter.log("<br><a href='data:image/png;base64," + encodeFileToBase64Binary(screenshotBytes)
-                    + "'>" + SCREENSHOT_LINK_TEXT + "</a></br>");
+            String inlineDataImage = "data:image/png;base64," + encodeFileToBase64Binary(screenshotBytes);
+            Reporter.log("<br><a href='" + inlineDataImage
+                    + "' target='_blank'>" + SCREENSHOT_LINK_TEXT + "</a></br>");
             iLogger.error("Failed to save screenshot to file " + screenshotPath, e);
+            return new ScreenshotArtifact(screenshotName, screenshotPath, inlineDataImage, screenshotBytes);
         }
-        return new ScreenshotArtifact(screenshotName, screenshotPath, relativePath, screenshotBytes);
     }
 
     private static String encodeFileToBase64Binary(byte[] bytes) {
@@ -175,5 +186,20 @@ public class iLogger {
 
     public static void setConsoleLogOnlyInfo(boolean b) {
         consoleLogOnlyInfo = b;
+    }
+
+    public static void setLogOnlyInfo(boolean value) {
+        logOnlyInfo = value;
+    }
+
+    public static void clearDebugBuffer() {
+        DEBUG_LOG_BUFFER.remove();
+    }
+
+    public static void flushDebugBufferToReporter() {
+        List<String> debugLines = DEBUG_LOG_BUFFER.get();
+        for (String debugLine : debugLines) {
+            Reporter.log(escapeHtml(debugLine) + "</br>");
+        }
     }
 }

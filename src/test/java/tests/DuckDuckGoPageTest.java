@@ -1,8 +1,9 @@
 package tests;
 
-import org.testng.Assert;
 import org.testng.annotations.Test;
 import pages.DuckDuckGoPage;
+import utils.assertions.iAssert;
+import utils.logging.iLogger;
 
 @Test(groups = {"ui"})
 public class DuckDuckGoPageTest extends BaseTest {
@@ -12,38 +13,40 @@ public class DuckDuckGoPageTest extends BaseTest {
         String searchText = "selenium webdriver documentation";
         duckDuckGoPage.openPage();
         duckDuckGoPage.searchForText(searchText);
-        Assert.assertEquals(duckDuckGoPage.getTextFromSearchInput(), searchText);
+        iAssert.equalsTo(
+                duckDuckGoPage.getTextFromSearchInput(),
+                searchText,
+                "search input contains entered query"
+        );
     }
-
-//    @Test(description = "Check that screenshot is attached to test report if test is failed." +
-//            "This test should fail")
-//    public void failSearchFireFoxSpecificationTest() {
-//        DuckDuckGoPage duckDuckGoPage = new DuckDuckGoPage();
-//        String searchText = "Find firefox specification";
-//        duckDuckGoPage.openPage();
-//        duckDuckGoPage.searchForText(searchText);
-//        Assert.assertEquals(duckDuckGoPage.getTextFromSearchInput(), "searchText");
-//    }
 
     @Test(description = "Compare performance of cached and non-cached elements")
     public void compareCachedAndNonCachedElementsPerformanceTest() {
         DuckDuckGoPage duckDuckGoPage = new DuckDuckGoPage();
         String searchText = "web element implementation performance";
+        iLogger.info("Step: open search page");
         duckDuckGoPage.openPage();
+        iLogger.info("Step: search with cached element");
         duckDuckGoPage.inputSearchText(searchText);
         long cached = duckDuckGoPage.getCachedElementFindTime();
+        iLogger.info("Step: rerun search with non-cached element");
         duckDuckGoPage.openPage();
         duckDuckGoPage.inputSearchText(searchText);
         long nonCached = duckDuckGoPage.getNonCachedElementFindTime();
-        Assert.assertTrue(cached < nonCached);
+        iAssert.isTrue(cached < nonCached, "cached lookup is faster than non-cached lookup");
     }
 
     @Test(description = "Check that iWebElementsList works correctly")
     public void checkWorkOfIWebElementsListTest() {
         DuckDuckGoPage duckDuckGoPage = new DuckDuckGoPage();
         String searchText = "best java testing frameworks";
+        iLogger.info("Step: open search page");
         duckDuckGoPage.openPage();
+        iLogger.info("Step: search for text '" + searchText + "'");
         duckDuckGoPage.searchForText(searchText);
-        Assert.assertTrue(duckDuckGoPage.checkThatAllSearchResultsAreUnique());
+        iAssert.isTrue(
+                duckDuckGoPage.checkThatAllSearchResultsAreUnique(),
+                "search results list contains unique entries"
+        );
     }
 }

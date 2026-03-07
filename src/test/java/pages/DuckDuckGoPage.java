@@ -33,11 +33,13 @@ public class DuckDuckGoPage extends AbstractPage {
     }
 
     public void searchForText(String searchText) {
+        iLogger.info("Search text '" + searchText + "'");
         inputSearchText(searchText);
         executeSearch();
     }
 
     public String getTextFromSearchInput() {
+        iLogger.info("Get text from search input");
         return searchInput.getText();
     }
 
