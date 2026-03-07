@@ -72,16 +72,19 @@ jobs:
               if total == 0: parts.append("no tests found")
               status_text = "Tests " + " and ".join(parts)
 
-          body = f"""{status_icon} **Test results** — `{duration_str}`
-
-| Status | Count |
-|--------|-------|
-| ✅ Passed  | {passed} |
-| ❌ Failed  | {failed} |
-| ⏭️ Skipped | {skipped} |
-| **Total**  | **{total}** |
-
-> {status_text} in {duration_str}"""
+          table = "\n".join([
+              "| Status | Count |",
+              "|--------|-------|",
+              f"| \u2705 Passed  | {passed} |",
+              f"| \u274c Failed  | {failed} |",
+              f"| \u23ed\ufe0f Skipped | {skipped} |",
+              f"| **Total**  | **{total}** |",
+          ])
+          body = (
+              f"{status_icon} **Test results** \u2014 `{duration_str}`\n\n"
+              + table
+              + f"\n\n> {status_text} in {duration_str}"
+          )
 
           # Post comment
           pr = os.environ['PR_NUMBER']
