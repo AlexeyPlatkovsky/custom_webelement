@@ -37,7 +37,7 @@ cd custom_webelement
 
 ## Code Style
 
-- **Java 17** — use records, sealed classes, pattern matching, and text blocks where they improve clarity.
+- **Java 21** — use records, sealed classes, pattern matching, and text blocks where they improve clarity.
 - **No wildcard imports** — import types explicitly.
 - **Lombok** — use `@Getter`, `@Builder`, `@Slf4j` etc. where they reduce boilerplate. Do not use `@Data` on mutable domain objects.
 - **No raw types** — parameterize all generics.
