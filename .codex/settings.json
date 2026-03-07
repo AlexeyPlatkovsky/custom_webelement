@@ -1,0 +1,15 @@
+{
+  "approved_command_prefixes": [
+    [".\\gradlew"],
+    ["gradle"],
+    ["./gradlew"],
+    ["Get-ChildItem"],
+    ["Get-Content"],
+    ["cat"],
+    ["dir"],
+    ["grep"],
+    ["ls"],
+    ["rg"],
+    ["type"]
+  ]
+}

@@ -10,6 +10,7 @@ import utils.StringUtil;
 import utils.logging.iLogger;
 
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.time.Duration;
 
@@ -26,8 +27,8 @@ public abstract class AbstractPage {
 
     public void openPage() {
         String absoluteUrl = getAbsoluteURL();
+        iLogger.info("Go to page " + getClass().getSimpleName() + " with absolute URL " + absoluteUrl);
         navigateToUrl(getAbsoluteURL());
-        iLogger.info("Page " + getClass().getSimpleName() + " with absolute URL " + absoluteUrl + " is opened");
     }
 
     private String getAbsoluteURL() {
@@ -57,9 +58,9 @@ public abstract class AbstractPage {
 
     private void navigateToUrl(String url) {
         try {
-            URL validatedUrl = new URL(url);
+            URL validatedUrl = new URI(url).toURL();
             driver.get(validatedUrl.toString());
-        } catch (MalformedURLException e) {
+        } catch (Exception e) {
             throw new RuntimeException("Invalid URL: " + url, e);
         }
     }
