@@ -71,7 +71,6 @@ test {
     def chromeBinary = System.properties.containsKey('chrome.binary') ? System.getProperty('chrome.binary') : '/root/.cache/ms-playwright/chromium-1194/chrome-linux/chrome'
     systemProperty 'chrome.binary', chromeBinary
     systemProperty 'wdm.chromeBinaryPath', chromeBinary
-    systemProperty 'wdm.chromeDriverVersion', '141.0.7390.37'
 
     def os = System.properties.containsKey('os') ? System.getProperty('os') : 'unix'
     systemProperty 'os', os
