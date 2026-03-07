@@ -10,9 +10,9 @@ public class TestListener extends TestListenerAdapter {
     @Override
     public void onTestStart(ITestResult result) {
         ITestNGMethod method = result.getMethod();
-        String link = SystemProperties.TEST_RAIL_URL + method.getDescription().replaceAll("\\D+", "");
-        iLogger.info("Start test " + method.getMethodName() + " with TestRailId " + method.getDescription());
-        iLogger.info("<a href=\"" + link + "\">Visit Test Rail</a>");
+        String description = method.getDescription();
+        String testRailId = description == null ? "" : description.replaceAll("\\D+", "");
+        iLogger.info("Start test " + method.getMethodName() + " with TestRailId " + testRailId);
         super.onTestStart(result);
     }
 
@@ -20,7 +20,11 @@ public class TestListener extends TestListenerAdapter {
     public void onTestFailure(ITestResult result) {
         if (!result.isSuccess()) {
             iLogger.error("Test failed", result.getThrowable());
-            iLogger.takeScreenshot();
+            try {
+                iLogger.takeScreenshot();
+            } catch (Throwable throwable) {
+                iLogger.error("Failed to capture screenshot", throwable);
+            }
         }
     }
 }

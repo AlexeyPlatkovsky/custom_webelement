@@ -5,7 +5,6 @@ buildscript {
 }
 
 plugins {
-    id 'io.franzbecker.gradle-lombok' version '4.0.0'
     id 'checkstyle'
     id 'java'
     id 'idea'
@@ -57,16 +56,19 @@ dependencies {
             [group: 'io.qameta.allure', name: 'allure-testng', version: '2.19.0']
     )
     implementation 'org.jetbrains:annotations:24.0.1'
-    compileOnly 'org.projectlombok:lombok:1.18.26'
-    annotationProcessor 'org.projectlombok:lombok:1.18.26'
+    compileOnly 'org.projectlombok:lombok:1.18.34'
+    annotationProcessor 'org.projectlombok:lombok:1.18.34'
 
-    testCompileOnly 'org.projectlombok:lombok:1.18.26'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.26'
+    testCompileOnly 'org.projectlombok:lombok:1.18.34'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.34'
 }
 
 //=================================== Test =====================================
 
 test {
+    finalizedBy('allureReport')
+    ignoreFailures = false
+
     def base_url = System.properties.containsKey('base_url') ? System.getProperty('base_url') : ''
     systemProperty 'base_url', base_url
 
@@ -79,10 +81,12 @@ test {
     def driver = System.properties.containsKey('driver') ? System.getProperty('driver') : 'CHROME'
     systemProperty 'driver', driver
 
-    def lambda_key = System.properties.containsKey('lambda_key') ? System.getProperty('remote_key') : ''
+    def lambda_key = System.properties.containsKey('lambda_key') ? System.getProperty('lambda_key') : ''
+    systemProperty 'remote_key', lambda_key
     systemProperty 'lambda_key', lambda_key
 
-    def lambda_username = System.properties.containsKey('lambda_username') ? System.getProperty('remote_username') : ''
+    def lambda_username = System.properties.containsKey('lambda_username') ? System.getProperty('lambda_username') : ''
+    systemProperty 'remote_username', lambda_username
     systemProperty 'lambda_username', lambda_username
 
     def locale = System.properties.containsKey('locale') ? System.getProperty('locale') : 'en-US'
@@ -94,7 +98,7 @@ test {
     def platform = System.properties.containsKey('platform') ? System.getProperty('platform') : 'Windows 10'
     systemProperty 'platform', platform
 
-    def remote_browser = System.properties.containsKey('remote_browser') ? System.getProperty('browser') : 'CHROME'
+    def remote_browser = System.properties.containsKey('remote_browser') ? System.getProperty('remote_browser') : 'CHROME'
     systemProperty 'remote_browser', remote_browser
 
     def screen_maximize = System.properties.containsKey('screen_maximize') ? System.getProperty('screen_maximize') : true
@@ -103,9 +107,10 @@ test {
     def screen_resolution = System.properties.containsKey('screen_resolution') ? System.getProperty('screen_resolution') : '1920,1080'
     systemProperty 'screen_resolution', screen_resolution
 
-    def suite = System.properties.containsKey('suite') ? System.getProperty('suite') : 'ui, unit'
+    def suite = System.properties.containsKey('suite') ? System.getProperty('suite') : 'ui,unit'
     systemProperty 'suite', suite
 
+    def suiteGroups = suite.split(',')*.trim().findAll { it }
 //testNG settings
     def exclude = System.properties.containsKey('exclude') ? System.getProperty('exclude') : 'disabled'
     def thread_count = System.properties.containsKey('thread_count') ? System.getProperty('thread_count') : 4
@@ -114,7 +119,7 @@ test {
         testLogging.showStandardStreams = true
         useDefaultListeners = true
         outputDirectory = file("$projectDir/build/reports/tests/testng")
-        includeGroups suite
+        includeGroups suiteGroups as String[]
         excludeGroups exclude
         parallel 'methods'
         threadCount = thread_count as int
@@ -123,7 +128,24 @@ test {
             events "PASSED", "FAILED", "SKIPPED"
             exceptionFormat = 'full'
         }
+    }
 
-        finalizedBy('allureReport')
+    afterSuite { suiteDescription, suiteResult ->
+        if (suiteDescription.parent == null) {
+            if (suiteResult.testCount == 0) {
+                throw new GradleException("No tests were executed for suite '${suite}'. Check suite filtering.")
+            }
+
+            int failed = suiteResult.failedTestCount + suiteResult.skippedTestCount
+            if (failed > 0) {
+                throw new GradleException("Tests did not pass: failed=${suiteResult.failedTestCount}, skipped=${suiteResult.skippedTestCount}, total=${suiteResult.testCount}")
+            }
+        }
+    }
+}
+
+tasks.named('allureReport') {
+    doFirst {
+        delete(file("${buildDir}/reports/allure-report/allureReport"))
     }
 }
