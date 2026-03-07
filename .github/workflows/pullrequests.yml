@@ -32,7 +32,9 @@ jobs:
 
       - name: Run tests
         run: |
-          ./gradlew clean test -Dos=unix -Dchrome.binary="${{ steps.setup-chrome.outputs.chrome-path }}"
+          ./gradlew clean test -Dos=unix \
+            -Dchrome.binary="${{ steps.setup-chrome.outputs.chrome-path }}" \
+            -Dwebdriver.chrome.driver="${{ steps.setup-chrome.outputs.chromedriver-path }}"
 
       - name: Check for non-passing tests and post PR comment
         if: always()

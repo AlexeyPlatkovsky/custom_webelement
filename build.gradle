@@ -72,6 +72,11 @@ test {
     systemProperty 'chrome.binary', chromeBinary
     systemProperty 'wdm.chromeBinaryPath', chromeBinary
 
+    def chromeDriver = System.getProperty('webdriver.chrome.driver', '')
+    if (!chromeDriver.isEmpty()) {
+        systemProperty 'webdriver.chrome.driver', chromeDriver
+    }
+
     def os = System.properties.containsKey('os') ? System.getProperty('os') : 'unix'
     systemProperty 'os', os
 
