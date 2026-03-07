@@ -8,7 +8,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import pages.LocalPage;
-import utils.readers.PropertyReader;
+import utils.properties.SystemProperties;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -53,9 +53,7 @@ public class LocalServerTest extends BaseTest {
         });
         server.start();
         int port = server.getAddress().getPort();
-        System.setProperty("base_url", "http://127.0.0.1:" + port);
-        // Re-read properties so SystemProperties.ROOT_URL is updated with the live port
-        PropertyReader.readProperties();
+        SystemProperties.ROOT_URL = "http://127.0.0.1:" + port;
     }
 
     /**
@@ -73,7 +71,7 @@ public class LocalServerTest extends BaseTest {
         if (server != null) {
             server.stop(0);
         }
-        System.clearProperty("base_url");
+        SystemProperties.ROOT_URL = "";
         // Quit the shared browser session now that all methods are done
         DriverFactory.getCurrentDriver().quit();
     }

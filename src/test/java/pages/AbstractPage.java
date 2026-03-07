@@ -52,7 +52,8 @@ public abstract class AbstractPage {
             pageClass = pageClass.getSuperclass();
         } while (pageClass != AbstractPage.class);
 
-        return Environment.getRootUrl() + relativeUrl;
+        String builtUrl = relativeUrl.toString();
+        return builtUrl.startsWith("http") ? builtUrl : Environment.getRootUrl() + builtUrl;
     }
 
     private void navigateToUrl(String url) {
