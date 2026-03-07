@@ -216,8 +216,10 @@ public final class iAssert {
     private static void logCheckWithExpectedActual(String description, Object expected, Object actual) {
         iLogger.info(
                 "Check that " + description
-                        + "\\n expected: " + String.valueOf(expected)
-                        + "\\n actual: " + String.valueOf(actual)
+                        + System.lineSeparator()
+                        + " expected: " + String.valueOf(expected)
+                        + System.lineSeparator()
+                        + " actual: " + String.valueOf(actual)
         );
     }
 }
