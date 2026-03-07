@@ -1,15 +1,7 @@
-buildscript {
-    dependencies {
-        classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.8'
-    }
-}
-
 plugins {
-    id 'io.franzbecker.gradle-lombok' version '4.0.0'
     id 'checkstyle'
     id 'java'
     id 'idea'
-    id 'io.qameta.allure' version '2.11.2'
 }
 
 ext {
@@ -22,20 +14,8 @@ targetCompatibility = JavaVersion.VERSION_17
 
 idea {
     module {
-        outputDir = file("${project.buildDir}/classes/java/main")
-        testOutputDir = file("${project.buildDir}/classes/java/test")
-    }
-}
-
-def allureVersion = "2.13.6"
-
-allure {
-    autoconfigure = true
-    aspectjweaver = true
-    version = allureVersion
-
-    useTestNG {
-        version = allureVersion
+        outputDir = file("${project.layout.buildDirectory.get().asFile}/classes/java/main")
+        testOutputDir = file("${project.layout.buildDirectory.get().asFile}/classes/java/test")
     }
 }
 
@@ -47,7 +27,7 @@ repositories {
 dependencies {
     implementation(
             [group: 'com.sun.mail', name: 'javax.mail', version: '1.6.2'],
-            [group: 'io.github.bonigarcia', name: 'webdrivermanager', version: '5.5.3'],
+            [group: 'io.github.bonigarcia', name: 'webdrivermanager', version: '5.9.2'],
             [group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.24.3'],
             [group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.24.3'],
             [group: 'org.junit.jupiter', name: 'junit-jupiter', version: '5.9.2'],
@@ -57,11 +37,11 @@ dependencies {
             [group: 'io.qameta.allure', name: 'allure-testng', version: '2.19.0']
     )
     implementation 'org.jetbrains:annotations:24.0.1'
-    compileOnly 'org.projectlombok:lombok:1.18.26'
-    annotationProcessor 'org.projectlombok:lombok:1.18.26'
+    compileOnly 'org.projectlombok:lombok:1.18.34'
+    annotationProcessor 'org.projectlombok:lombok:1.18.34'
 
-    testCompileOnly 'org.projectlombok:lombok:1.18.26'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.26'
+    testCompileOnly 'org.projectlombok:lombok:1.18.34'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.34'
 }
 
 //=================================== Test =====================================
@@ -88,7 +68,16 @@ test {
     def locale = System.properties.containsKey('locale') ? System.getProperty('locale') : 'en-US'
     systemProperty 'locale', locale
 
-    def os = System.properties.containsKey('os') ? System.getProperty('os') : 'windows'
+    def chromeBinary = System.properties.containsKey('chrome.binary') ? System.getProperty('chrome.binary') : '/root/.cache/ms-playwright/chromium-1194/chrome-linux/chrome'
+    systemProperty 'chrome.binary', chromeBinary
+    systemProperty 'wdm.chromeBinaryPath', chromeBinary
+
+    def chromeDriver = System.getProperty('webdriver.chrome.driver', '')
+    if (!chromeDriver.isEmpty()) {
+        systemProperty 'webdriver.chrome.driver', chromeDriver
+    }
+
+    def os = System.properties.containsKey('os') ? System.getProperty('os') : 'unix'
     systemProperty 'os', os
 
     def platform = System.properties.containsKey('platform') ? System.getProperty('platform') : 'Windows 10'
@@ -114,8 +103,8 @@ test {
         testLogging.showStandardStreams = true
         useDefaultListeners = true
         outputDirectory = file("$projectDir/build/reports/tests/testng")
-        includeGroups suite
-        excludeGroups exclude
+        includeGroups(*suite.split(',\\s*'))
+        excludeGroups(*exclude.split(',\\s*'))
         parallel 'methods'
         threadCount = thread_count as int
 
@@ -123,7 +112,5 @@ test {
             events "PASSED", "FAILED", "SKIPPED"
             exceptionFormat = 'full'
         }
-
-        finalizedBy('allureReport')
     }
 }

@@ -44,7 +44,14 @@ public class DriverFactory {
     }
 
     private static void createChromeDriver() {
-        WebDriverManager.chromedriver().driverVersion(SystemProperties.BROWSER_VERSION).setup();
+        String driverPath = System.getProperty("webdriver.chrome.driver");
+        if (driverPath == null || driverPath.isEmpty()) {
+            WebDriverManager wdm = WebDriverManager.chromedriver();
+            if (!"latest".equalsIgnoreCase(SystemProperties.BROWSER_VERSION)) {
+                wdm.driverVersion(SystemProperties.BROWSER_VERSION);
+            }
+            wdm.setup();
+        }
         DRIVER.set(new ChromeDriver((ChromeOptions) DriverCaps.getCaps(DriverNames.CHROME)));
     }
 
