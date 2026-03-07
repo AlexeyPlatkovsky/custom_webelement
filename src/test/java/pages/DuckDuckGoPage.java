@@ -12,16 +12,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@PageURL(value = "https://www.google.com/")
-public class GooglePage extends AbstractPage {
-    @FindBy(css = ".gLFyf[type='search']")
+@PageURL(value = "https://duckduckgo.com/")
+public class DuckDuckGoPage extends AbstractPage {
+    @FindBy(css = "textarea[name='q'], input[name='q']")
     private iWebElement searchInput;
 
-    @FindBy(css = ".gLFyf[type='search']")
+    @FindBy(css = "textarea[name='q'], input[name='q']")
     @CacheElement
     private iWebElement cachedSearchInput;
 
-    @FindBy(xpath = "//h3[@class='LC20lb MBeuO DKV0Md']")
+    @FindBy(xpath = "//article//h2//a")
     private iWebElementsList searchResults;
 
     public void inputSearchText(String searchText) {

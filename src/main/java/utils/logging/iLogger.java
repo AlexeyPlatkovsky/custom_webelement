@@ -6,13 +6,15 @@ import org.apache.hc.client5.http.utils.Base64;
 import org.jetbrains.annotations.NotNull;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.WebDriver;
 import org.testng.Reporter;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.charset.StandardCharsets;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -21,6 +23,12 @@ import java.util.Date;
 public class iLogger {
     private static boolean logOnlyInfo = false;
     private static boolean consoleLogOnlyInfo = false;
+    private static final String SCREENSHOT_LINK_TEXT = " CLICK TO SEE SCREENSHOT ";
+    private static final String SCREENSHOT_DIR_NAME = "screenshots";
+    private static final String SCREENSHOT_RELATIVE_PREFIX = SCREENSHOT_DIR_NAME + "/";
+
+    public record ScreenshotArtifact(String fileName, Path filePath, String reportRelativePath, byte[] bytes) {
+    }
 
     public static void info(String message) {
         log.info(message);
@@ -90,7 +98,7 @@ public class iLogger {
 
     public static void error(String s, Throwable e) {
         log.error(s, e);
-        Reporter.log(timeStamp() + "ERROR: " + s + "</br>" + e);
+        Reporter.log(timeStamp() + "ERROR: " + escapeHtml(s) + "</br><pre>" + escapeHtml(stackTraceToString(e)) + "</pre>");
     }
 
     public static void error(@NotNull String s, String replacement, Throwable e) {
@@ -105,31 +113,64 @@ public class iLogger {
         return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date()) + ": ";
     }
 
-    public static void takeScreenshot() {
-        File scrFile = ((TakesScreenshot) DriverFactory.getCurrentDriver()).getScreenshotAs(OutputType.FILE);
-        Reporter.log("<br><a href='data:image/png;base64," + encodeFileToBase64Binary(scrFile)
-                + "'> CLICK TO SEE SCREENSHOT </a></br>");
-    }
-
-    public static void takeScreenshot(String message) {
-        iLogger.info(message);
-        takeScreenshot();
-    }
-
-    private static String encodeFileToBase64Binary(File file) {
-        String encodedFile = null;
-        try {
-            FileInputStream fileInputStreamReader = new FileInputStream(file);
-            byte[] bytes = new byte[(int) file.length()];
-            fileInputStreamReader.read(bytes);
-            encodedFile = new String(Base64.encodeBase64(bytes), StandardCharsets.UTF_8);
-        } catch (FileNotFoundException e) {
-            iLogger.error("Incorrect file {} path", file.getAbsolutePath(), e);
-        } catch (IOException e) {
-            iLogger.error("Error during file {} reading", file.getAbsolutePath(), e);
+    public static ScreenshotArtifact takeScreenshot() {
+        WebDriver currentDriver = DriverFactory.getCurrentDriverOrNull();
+        if (!(currentDriver instanceof TakesScreenshot screenshotDriver)) {
+            iLogger.error("Current driver does not support screenshots");
+            return null;
         }
 
-        return encodedFile;
+        byte[] screenshotBytes;
+        try {
+            screenshotBytes = screenshotDriver.getScreenshotAs(OutputType.BYTES);
+        } catch (Throwable throwable) {
+            iLogger.error("Failed to capture screenshot bytes", throwable);
+            return null;
+        }
+
+        String screenshotName = "screenshot_" + new SimpleDateFormat("yyyyMMdd_HHmmss_SSS").format(new Date())
+                + "_" + Thread.currentThread().threadId() + ".png";
+        Path screenshotDir = Path.of(System.getProperty("user.dir"), "build", "reports", "tests", "testng", SCREENSHOT_DIR_NAME);
+        Path screenshotPath = screenshotDir.resolve(screenshotName);
+        String relativePath = SCREENSHOT_RELATIVE_PREFIX + screenshotName;
+
+        try {
+            Files.createDirectories(screenshotDir);
+            Files.write(screenshotPath, screenshotBytes);
+            Reporter.log("<br><a href='" + relativePath + "' target='_blank'>" + SCREENSHOT_LINK_TEXT + "</a></br>");
+        } catch (IOException e) {
+            Reporter.log("<br><a href='data:image/png;base64," + encodeFileToBase64Binary(screenshotBytes)
+                    + "'>" + SCREENSHOT_LINK_TEXT + "</a></br>");
+            iLogger.error("Failed to save screenshot to file " + screenshotPath, e);
+        }
+        return new ScreenshotArtifact(screenshotName, screenshotPath, relativePath, screenshotBytes);
+    }
+
+    private static String encodeFileToBase64Binary(byte[] bytes) {
+        return new String(Base64.encodeBase64(bytes), StandardCharsets.UTF_8);
+    }
+
+    public static String stackTraceToString(Throwable throwable) {
+        if (throwable == null) {
+            return "";
+        }
+        StringWriter stringWriter = new StringWriter();
+        PrintWriter printWriter = new PrintWriter(stringWriter);
+        throwable.printStackTrace(printWriter);
+        printWriter.flush();
+        return stringWriter.toString();
+    }
+
+    private static String escapeHtml(String value) {
+        if (value == null) {
+            return "";
+        }
+        return value
+                .replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&#39;");
     }
 
     public static void setConsoleLogOnlyInfo(boolean b) {

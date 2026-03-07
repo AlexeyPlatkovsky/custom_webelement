@@ -61,6 +61,7 @@ dependencies {
 
     testCompileOnly 'org.projectlombok:lombok:1.18.34'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.34'
+    testRuntimeOnly 'org.slf4j:slf4j-simple:2.0.16'
 }
 
 //=================================== Test =====================================
@@ -68,6 +69,21 @@ dependencies {
 test {
     finalizedBy('allureReport')
     ignoreFailures = false
+    doFirst {
+        delete(file("${buildDir}/allure-results"))
+    }
+    testLogging {
+        showStandardStreams = true
+        events "PASSED", "FAILED", "SKIPPED"
+        exceptionFormat = 'full'
+    }
+    systemProperty 'org.slf4j.simpleLogger.logFile', 'System.out'
+    systemProperty 'org.slf4j.simpleLogger.defaultLogLevel', 'info'
+    systemProperty 'org.slf4j.simpleLogger.showDateTime', 'true'
+    systemProperty 'org.slf4j.simpleLogger.dateTimeFormat', 'yyyy-MM-dd HH:mm:ss.SSS'
+    systemProperty 'org.slf4j.simpleLogger.showThreadName', 'true'
+    systemProperty 'org.slf4j.simpleLogger.showLogName', 'false'
+    systemProperty 'testng.show.stack.frames', 'true'
 
     def base_url = System.properties.containsKey('base_url') ? System.getProperty('base_url') : ''
     systemProperty 'base_url', base_url
@@ -116,18 +132,12 @@ test {
     def thread_count = System.properties.containsKey('thread_count') ? System.getProperty('thread_count') : 4
 
     useTestNG() {
-        testLogging.showStandardStreams = true
         useDefaultListeners = true
         outputDirectory = file("$projectDir/build/reports/tests/testng")
         includeGroups suiteGroups as String[]
         excludeGroups exclude
         parallel 'methods'
         threadCount = thread_count as int
-
-        testLogging {
-            events "PASSED", "FAILED", "SKIPPED"
-            exceptionFormat = 'full'
-        }
     }
 
     afterSuite { suiteDescription, suiteResult ->
@@ -148,4 +158,18 @@ tasks.named('allureReport') {
     doFirst {
         delete(file("${buildDir}/reports/allure-report/allureReport"))
     }
+}
+
+gradle.buildFinished {
+    def testNgEmailablePath = file("${buildDir}/reports/tests/testng/emailable-report.html").absolutePath.replace('\\', '/')
+    def testNgPath = file("${buildDir}/reports/tests/testng/index.html").absolutePath.replace('\\', '/')
+    def allurePath = file("${buildDir}/reports/allure-report/allureReport/index.html").absolutePath.replace('\\', '/')
+    def testNgEmailable = "file:///${testNgEmailablePath}"
+    def testNgIndex = "file:///${testNgPath}"
+    def allureIndex = "file:///${allurePath}"
+    println ""
+    println "TestNG emailable report: ${testNgEmailable}"
+    println "TestNG report: ${testNgIndex}"
+    println "Allure report: ${allureIndex}"
+    println "If Allure opens blank from file:///, run: ./gradlew allureServe"
 }

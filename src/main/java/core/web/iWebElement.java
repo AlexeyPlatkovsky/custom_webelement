@@ -90,8 +90,46 @@ public class iWebElement implements WebElement {
                 return element;
             } catch (TimeoutException e) {
                 iLogger.error(String.format("Timed out waiting for element %s with locator %s: %s", name, byLocator, e.getMessage()));
+                logTimeoutDiagnostics();
                 throw new SkipException("Don't see " + this);
             }
+        }
+    }
+
+    private void logTimeoutDiagnostics() {
+        try {
+            int matchedCount = driver.findElements(byLocator).size();
+            iLogger.error("Timeout diagnostics: element=" + name + ", locator=" + byLocator + ", matchedNow=" + matchedCount);
+        } catch (Exception ex) {
+            iLogger.error("Timeout diagnostics: failed to count elements for locator " + byLocator + ": " + ex.getMessage());
+        }
+
+        try {
+            iLogger.error("Timeout diagnostics: url=" + driver.getCurrentUrl());
+        } catch (Exception ex) {
+            iLogger.error("Timeout diagnostics: failed to read current URL: " + ex.getMessage());
+        }
+
+        try {
+            iLogger.error("Timeout diagnostics: title=" + driver.getTitle());
+        } catch (Exception ex) {
+            iLogger.error("Timeout diagnostics: failed to read title: " + ex.getMessage());
+        }
+
+        try {
+            Object readyState = executeScript("return document.readyState");
+            iLogger.error("Timeout diagnostics: readyState=" + String.valueOf(readyState));
+        } catch (Exception ex) {
+            iLogger.error("Timeout diagnostics: failed to read document.readyState: " + ex.getMessage());
+        }
+
+        try {
+            String source = driver.getPageSource();
+            String normalized = source.replaceAll("\\s+", " ");
+            int previewLength = Math.min(normalized.length(), 1200);
+            iLogger.error("Timeout diagnostics: pageSourcePreview=" + normalized.substring(0, previewLength));
+        } catch (Exception ex) {
+            iLogger.error("Timeout diagnostics: failed to read page source: " + ex.getMessage());
         }
     }
 
