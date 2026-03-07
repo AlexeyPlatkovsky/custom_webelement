@@ -1,0 +1,7 @@
+pluginManagement {
+    repositories {
+        mavenCentral()
+    }
+}
+
+rootProject.name = 'custom_webelement'

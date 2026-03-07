@@ -30,6 +30,11 @@ public class DriverCaps {
                 .addArguments("--no-sandbox")
                 .addArguments("--remote-allow-origins=*");
 
+        String chromeBinary = System.getProperty("chrome.binary");
+        if (chromeBinary != null && !chromeBinary.isEmpty()) {
+            options.setBinary(chromeBinary);
+        }
+
         if (SystemProperties.OS.equalsIgnoreCase("unix")) {
             options.addArguments("--headless")
                     .addArguments("--disable-gpu");
