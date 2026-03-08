@@ -3,9 +3,17 @@ on:
   push:
     branches:
       - master
+    paths-ignore:
+      - 'docs/**'
+      - '.codex/**'
+      - '.claude/**'
   pull_request:
     branches:
       - master
+    paths-ignore:
+      - 'docs/**'
+      - '.codex/**'
+      - '.claude/**'
 
 permissions:
   contents: read
