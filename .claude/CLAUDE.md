@@ -147,7 +147,43 @@ iAssert.assertEquals(actual, expected, "Descriptive failure message");
   in test or Page Object code
 - `PageCrawlerFacade` is the only entry point for page crawling and Page Object generation
 - Generated Page Objects land in `src/test/java/generated/` — always review before committing;
-  run `./gradlew compileTestJava` to catch syntax errors
+  run `./gradlew compileTestJava -PskipAllure` to catch syntax errors
+
+### Access modifiers for test-accessible methods
+
+Unit tests live in `src/test/java/unit_tests/` (e.g. `unit_tests.ai.provider`) — a
+**different** package from the production code (`ai`, `utils`, etc.). Package-private
+visibility (`static` without `public`) is therefore NOT accessible from tests.
+
+**Rule:** any method intended to be called from unit tests must be `public`. Do not use
+package-private as a "limited public" — it only works when tests are in the exact same
+package, which they are not here.
+
+### Test classes that use instance-field mocks
+
+Test classes that store Mockito mocks as instance fields and initialize them in
+`@BeforeMethod` must declare `singleThreaded = true` to prevent parallel method execution
+from causing `UnfinishedStubbingException`:
+
+```java
+@Test(groups = "unit", singleThreaded = true)
+public class MyProviderTest {
+    private HttpClient mockHttp;
+    private HttpResponse<String> mockResponse;
+    // ...
+}
+```
+
+When stubbing methods with generic return types (e.g. `HttpClient.send()`), use
+`doReturn` instead of `when().thenReturn()` to avoid Java generics type-inference errors:
+
+```java
+// WRONG — won't compile: HttpResponse<String> not assignable to HttpResponse<Object>
+when(mockHttp.send(any(), any())).thenReturn(mockResponse);
+
+// CORRECT
+doReturn(mockResponse).when(mockHttp).send(any(), any());
+```
 
 ---
 
@@ -169,30 +205,39 @@ Log **what** is happening, not **that** something is happening:
 
 ## Git and Commits
 
+- **All new work must branch from `develop`** — never start from `master` or another
+  feature branch
 - Branch naming: `feature/*`, `fix/*`, `docs/*`, `claude/*`
 - Commit messages: imperative mood, concise subject (`Add LoginPage Page Object`),
   no period at end of subject line
 - **Never commit**: API keys, tokens, `.env` files, credentials of any kind
 - `ai-provider.properties` is safe to commit (secrets stay in ENV vars)
-- Always run before committing:
+- Always run before committing, in this order:
   ```sh
-  ./gradlew checkstyleMain
-  ./gradlew test -Psuite=unit
+  ./gradlew compileTestJava -PskipAllure     # catch access/type errors before running
+  ./gradlew checkstyleMain                   # style check
+  ./gradlew test -Dsuite=unit -PskipAllure   # unit tests (note: -Dsuite, not -Psuite)
   ```
+- `skipAllure` is required in network-restricted environments (e.g. Claude Code sandbox)
+  where `plugins-artifacts.gradle.org` is blocked; CI runs without it
+- `-Dsuite` sets a JVM system property (what the build reads); `-Psuite` is a Gradle
+  project property and does NOT affect suite filtering
 
 ---
 
 ## Build Commands Reference
 
 ```sh
-./gradlew test -Psuite=unit          # unit tests only
-./gradlew test -Psuite=ui            # UI tests (requires browser)
-./gradlew test                       # all tests
-./gradlew checkstyleMain             # Checkstyle on main sources
-./gradlew checkstyleTest             # Checkstyle on test sources
-./gradlew compileTestJava            # compile check (catches generated file errors)
-./gradlew installPlaywrightBrowsers  # download Chromium for PageCrawler
-./gradlew allureReport               # generate Allure HTML report
+./gradlew test -Dsuite=unit -PskipAllure   # unit tests only (network-restricted env)
+./gradlew test -Dsuite=unit                # unit tests only (CI / unrestricted network)
+./gradlew test -Dsuite=ui                  # UI tests (requires browser)
+./gradlew test                             # all tests
+./gradlew checkstyleMain                   # Checkstyle on main sources
+./gradlew checkstyleTest                   # Checkstyle on test sources
+./gradlew compileTestJava -PskipAllure     # compile check (fastest, no plugin downloads)
+./gradlew compileTestJava                  # compile check (full, needs network)
+./gradlew installPlaywrightBrowsers        # download Chromium for PageCrawler
+./gradlew allureReport                     # generate Allure HTML report
 ```
 
 ---
