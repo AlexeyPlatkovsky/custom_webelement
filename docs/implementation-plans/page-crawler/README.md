@@ -11,19 +11,19 @@ framework-compliant `iWebElement`-based Page Object code.
 
 | Phase | Step | Deliverable | Depends on | Status |
 |-------|------|-------------|------------|--------|
-| 0 | [0.1](phase-0/step-0.1.md) | `PropertyReader` ENV expansion | — | Todo |
-| 0 | [0.2](phase-0/step-0.2.md) | `build.gradle` + Playwright task | — | Todo |
-| 0 | [0.3](phase-0/step-0.3.md) | `ai-provider.properties` template | — | Todo |
-| 1 | [1.1](phase-1/step-1.1.md) | `AuthConfig`, `AiRequest`, `AiResponse`, `AiProvider` interface | Phase 0 | Todo |
-| 1 | [1.2](phase-1/step-1.2.md) | `AnthropicProvider` | 1.1 | Todo |
-| 1 | [1.3](phase-1/step-1.3.md) | `OllamaProvider` | 1.1 | Todo |
-| 1 | [1.4](phase-1/step-1.4.md) | `GeminiProvider` | 1.1 | Todo |
-| 1 | [1.5](phase-1/step-1.5.md) | `OpenAiProvider` | 1.1 | Todo |
-| 1 | [1.6](phase-1/step-1.6.md) | `AiProviderFactory` | 1.2–1.5 | Todo |
-| 2 | [2.1](phase-2/step-2.1.md) | `PageSnapshot` value object | — | Todo |
-| 2 | [2.2](phase-2/step-2.2.md) | `DomCleaner` | — | Todo |
-| 2 | [2.3](phase-2/step-2.3.md) | `PageCrawler` | 2.1, 2.2, 0.2 | Todo |
-| 2 | [2.4](phase-2/step-2.4.md) | `PageCrawlerFacade` (crawl only) | 2.3 | Todo |
+| 0 | [0.1](phase-0/step-0.1.md) | `PropertyReader` ENV expansion | — | Done |
+| 0 | [0.2](phase-0/step-0.2.md) | `build.gradle` + Playwright task | — | Done |
+| 0 | [0.3](phase-0/step-0.3.md) | `ai-provider.properties` template | — | Done |
+| 1 | [1.1](phase-1/step-1.1.md) | `AuthConfig`, `AiRequest`, `AiResponse`, `AiProvider` interface | Phase 0 | Done |
+| 1 | [1.2](phase-1/step-1.2.md) | `AnthropicProvider` | 1.1 | Done |
+| 1 | [1.3](phase-1/step-1.3.md) | `OllamaProvider` | 1.1 | Done |
+| 1 | [1.4](phase-1/step-1.4.md) | `GeminiProvider` | 1.1 | Done |
+| 1 | [1.5](phase-1/step-1.5.md) | `OpenAiProvider` | 1.1 | Done |
+| 1 | [1.6](phase-1/step-1.6.md) | `AiProviderFactory` | 1.2–1.5 | Done |
+| 2 | [2.1](phase-2/step-2.1.md) | `PageSnapshot` value object | — | In Progress |
+| 2 | [2.2](phase-2/step-2.2.md) | `DomCleaner` | — | In Progress |
+| 2 | [2.3](phase-2/step-2.3.md) | `PageCrawler` | 2.1, 2.2, 0.2 | In Progress |
+| 2 | [2.4](phase-2/step-2.4.md) | `PageCrawlerFacade` (crawl only) | 2.3 | In Progress |
 | 3 | [3.1](phase-3/step-3.1.md) | System prompt resource | Docs review | Todo |
 | 3 | [3.2](phase-3/step-3.2.md) | `PageObjectGenerator` | Phase 1, 2.1 | Todo |
 | 3 | [3.3](phase-3/step-3.3.md) | `GeneratedPageObject` value object | — | Todo |
