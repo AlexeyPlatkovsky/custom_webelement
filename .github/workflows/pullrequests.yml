@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - master
+      - develop
     paths-ignore:
       - 'docs/**'
       - '.codex/**'
@@ -11,6 +12,7 @@ on:
   pull_request:
     branches:
       - master
+      - develop
     paths-ignore:
       - 'docs/**'
       - '.codex/**'
