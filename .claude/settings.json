@@ -1,3 +1,7 @@
 {
-  "permissions": {}
+  "permissions": {
+    "ask": [
+      "Bash(git push*)"
+    ]
+  }
 }
