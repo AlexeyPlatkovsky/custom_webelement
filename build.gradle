@@ -75,6 +75,8 @@ dependencies {
     )
     // Jackson — JSON serialisation for AI provider request/response bodies
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.17.0'
+    // Playwright Java — DOM and accessibility tree extraction for PageCrawler
+    implementation 'com.microsoft.playwright:playwright:1.44.0'
     implementation 'org.jetbrains:annotations:24.0.1'
     compileOnly 'org.projectlombok:lombok:1.18.34'
     annotationProcessor 'org.projectlombok:lombok:1.18.34'
@@ -177,6 +179,14 @@ test {
             }
         }
     }
+}
+
+tasks.register('installPlaywrightBrowsers', JavaExec) {
+    group = 'playwright'
+    description = 'Downloads Playwright Chromium browser binaries'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.microsoft.playwright.CLI'
+    args = ['install', 'chromium']
 }
 
 if (!skipAllure) {
