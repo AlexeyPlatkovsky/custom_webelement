@@ -7,6 +7,7 @@ on:
       - 'docs/**'
       - '.codex/**'
       - '.claude/**'
+      - 'README.md'
   pull_request:
     branches:
       - master
@@ -14,6 +15,7 @@ on:
       - 'docs/**'
       - '.codex/**'
       - '.claude/**'
+      - 'README.md'
 
 permissions:
   contents: read
