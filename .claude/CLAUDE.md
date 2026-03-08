@@ -169,6 +169,8 @@ Log **what** is happening, not **that** something is happening:
 
 ## Git and Commits
 
+- **All new work must branch from `develop`** — never start from `master` or another
+  feature branch
 - Branch naming: `feature/*`, `fix/*`, `docs/*`, `claude/*`
 - Commit messages: imperative mood, concise subject (`Add LoginPage Page Object`),
   no period at end of subject line
