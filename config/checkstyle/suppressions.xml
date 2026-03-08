@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<!DOCTYPE suppressions PUBLIC
+    "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+    "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+
+<!--
+  Suppresses Checkstyle violations for pre-existing code that was written
+  before the checkstyle config was introduced.
+  All new code under ai/generator/ is fully enforced without suppression.
+-->
+<suppressions>
+
+    <!--
+      core/ and utils/ packages: legacy code with existing style violations.
+      Suppressed rather than rewritten to avoid large unrelated diffs.
+    -->
+    <suppress files="src[\\/]main[\\/]java[\\/]core[\\/]" checks=".*"/>
+    <suppress files="src[\\/]main[\\/]java[\\/]utils[\\/]" checks=".*"/>
+
+    <!--
+      ai/crawler/ and ai/provider/: established crawler and provider code
+      written before this checkstyle config existed.
+    -->
+    <suppress files="src[\\/]main[\\/]java[\\/]ai[\\/]crawler[\\/]" checks=".*"/>
+    <suppress files="src[\\/]main[\\/]java[\\/]ai[\\/]provider[\\/]" checks=".*"/>
+    <suppress files="src[\\/]main[\\/]java[\\/]ai[\\/]AiProviderFactory\.java" checks=".*"/>
+
+</suppressions>

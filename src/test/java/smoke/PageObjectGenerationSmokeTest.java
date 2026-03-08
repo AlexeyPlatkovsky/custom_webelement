@@ -1,10 +1,10 @@
 package smoke;
 
 import ai.crawler.DomCleaner;
+import ai.crawler.PageCrawlerFacade;
 import ai.crawler.PageSnapshot;
-import ai.provider.AiProvider;
-import ai.provider.AiRequest;
-import ai.provider.AiResponse;
+import ai.generator.GeneratedPageObject;
+import ai.generator.PageObjectWriter;
 import ai.provider.AnthropicProvider;
 import ai.provider.AuthConfig;
 import org.testng.annotations.BeforeClass;
@@ -13,34 +13,20 @@ import utils.logging.iLogger;
 
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
- * End-to-end smoke test: static HTML fixture → DomCleaner → prompt → Anthropic API → printed output.
- * Run with: ./gradlew test -Dsuite=smoke -PskipAllure
- * Requires: ANTHROPIC_API_KEY environment variable set.
+ * End-to-end smoke test: static HTML fixture → DomCleaner → PageObjectGenerator → Anthropic API
+ * → PageObjectWriter → printed output.
+ *
+ * <p>Run with: {@code ANTHROPIC_API_KEY=<key> ./gradlew test -Dsuite=smoke -PskipAllure}
+ * <p>Requires: {@code ANTHROPIC_API_KEY} environment variable set to a valid key with credits.
  */
 @Test(groups = "smoke")
 public class PageObjectGenerationSmokeTest {
 
-    @BeforeClass
-    public void configureProxyAuth() {
-        // Java's HttpClient does not forward proxy credentials from system properties by default.
-        // Register a default Authenticator so the outbound proxy challenge is answered correctly.
-        String user = System.getProperty("https.proxyUser",
-            System.getProperty("http.proxyUser", ""));
-        String pass = System.getProperty("https.proxyPassword",
-            System.getProperty("http.proxyPassword", ""));
-        if (!user.isBlank()) {
-            Authenticator.setDefault(new Authenticator() {
-                @Override
-                protected PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication(user, pass.toCharArray());
-                }
-            });
-        }
-    }
-
-    // Realistic login page HTML (modelled on the-internet.herokuapp.com/login structure)
+    // Realistic login page HTML with <script>/<style> noise to exercise DomCleaner
     private static final String FIXTURE_HTML = """
         <!DOCTYPE html>
         <html lang="en">
@@ -64,12 +50,14 @@ public class PageObjectGenerationSmokeTest {
             <form id="login-form" action="/authenticate" method="post">
               <div class="form-group">
                 <label for="username">Username</label>
-                <input type="text" id="username" name="username" placeholder="Enter your username"
+                <input type="text" id="username" name="username"
+                       placeholder="Enter your username"
                        data-testid="username-input" required autofocus>
               </div>
               <div class="form-group">
                 <label for="password">Password</label>
-                <input type="password" id="password" name="password" placeholder="Enter your password"
+                <input type="password" id="password" name="password"
+                       placeholder="Enter your password"
                        data-testid="password-input" required>
               </div>
               <div class="form-group">
@@ -101,124 +89,70 @@ public class PageObjectGenerationSmokeTest {
 
     private static final String TARGET_URL = "https://myapp.example.com/login";
 
-    private static final String SYSTEM_PROMPT = """
-        You are an expert Java Selenium 4 test automation engineer. Your task is to generate a
-        Page Object class from the provided page data.
+    private static final String FIXTURE_A11Y =
+        "{\"role\":\"main\",\"children\":["
+        + "{\"role\":\"heading\",\"name\":\"Login to Your Account\"},"
+        + "{\"role\":\"textbox\",\"name\":\"Username\",\"id\":\"username\","
+        +  "\"testid\":\"username-input\"},"
+        + "{\"role\":\"textbox\",\"name\":\"Password\",\"id\":\"password\","
+        +  "\"testid\":\"password-input\"},"
+        + "{\"role\":\"checkbox\",\"name\":\"Remember me\",\"id\":\"remember-me\"},"
+        + "{\"role\":\"button\",\"name\":\"Login\",\"id\":\"login-button\","
+        +  "\"testid\":\"login-submit\"},"
+        + "{\"role\":\"link\",\"name\":\"Forgot your password?\","
+        +  "\"id\":\"forgot-password-link\"},"
+        + "{\"role\":\"link\",\"name\":\"Create an account\",\"id\":\"register-link\"}"
+        + "]}";
 
-        MANDATORY FRAMEWORK CONVENTIONS — follow these exactly, no exceptions:
-
-        1. Package: `generated`
-        2. Extend `AbstractPage` (do not extend anything else)
-        3. Use `@PageURL("URL")` annotation on the class
-        4. Fields: ONLY `iWebElement` or `iWebElementsList` — NEVER raw `WebElement`
-        5. Initialization: `iPageFactory.initElements(this.driver, this)` in constructor — NEVER `PageFactory`
-        6. Locator priority: id > data-testid > aria-label > stable CSS class > XPath (last resort)
-        7. Apply `@CacheElement` to stable, non-dynamic elements (headers, static nav, labels)
-        8. Apply `@Waiter(waitFor = 3)` to elements that may load slowly
-        9. Use `@FindBy` for all fields
-        10. Action methods return `this` when staying on the same page, or `new TargetPage()` when navigating away
-        11. No `Thread.sleep()`, no `@Test` methods, no assertions in Page Objects
-        12. Logging: `iLogger.info("Clicking login button")` in action methods
-
-        FIELD NAMING RULES:
-        - Inputs: `emailInput`, `usernameInput`, `passwordInput`, `searchField`
-        - Buttons: `loginButton`, `submitButton`, `cancelButton`
-        - Links: `forgotPasswordLink`, `registerLink`, `homeLink`
-        - Messages: `errorMessage`, `successBanner`, `flashMessage`
-
-        IMPORTS — use exactly these when needed:
-        ```
-        import core.annotations.CacheElement;
-        import core.annotations.PageURL;
-        import core.annotations.Waiter;
-        import core.web.iWebElement;
-        import core.web.iWebElementsList;
-        import org.openqa.selenium.support.FindBy;
-        import pages.AbstractPage;
-        import utils.iPageFactory;
-        import utils.logging.iLogger;
-        ```
-
-        OUTPUT FORMAT:
-        - Output ONLY the raw Java source code
-        - No markdown code fences, no explanation text
-        - The file must compile as-is
-        """;
+    @BeforeClass
+    public void configureProxyAuth() {
+        // Java's HttpClient does not forward proxy credentials from system properties by default.
+        // Register a default Authenticator so the outbound proxy challenge is answered correctly.
+        String user = System.getProperty("https.proxyUser",
+            System.getProperty("http.proxyUser", ""));
+        String pass = System.getProperty("https.proxyPassword",
+            System.getProperty("http.proxyPassword", ""));
+        if (!user.isBlank()) {
+            Authenticator.setDefault(new Authenticator() {
+                @Override
+                protected PasswordAuthentication getPasswordAuthentication() {
+                    return new PasswordAuthentication(user, pass.toCharArray());
+                }
+            });
+        }
+    }
 
     @Test
-    public void generateLoginPageObject() {
+    public void generateLoginPageObject() throws Exception {
         String apiKey = System.getenv("ANTHROPIC_API_KEY");
         if (apiKey == null || apiKey.isBlank()) {
             throw new IllegalStateException("ANTHROPIC_API_KEY environment variable is not set");
         }
 
-        // Step 1: clean the HTML (exactly as PageCrawler would)
+        // Step 1: clean the HTML exactly as PageCrawler would at runtime
         String cleanedHtml = DomCleaner.clean(FIXTURE_HTML);
         iLogger.info("Cleaned HTML length: " + cleanedHtml.length() + " chars");
 
-        // Step 2: build a minimal accessibility tree (simulated — no browser available)
-        String accessibilityTree = """
-            {"role":"main","children":[
-              {"role":"heading","name":"Login to Your Account"},
-              {"role":"textbox","name":"Username","id":"username","testid":"username-input"},
-              {"role":"textbox","name":"Password","id":"password","testid":"password-input"},
-              {"role":"checkbox","name":"Remember me","id":"remember-me"},
-              {"role":"button","name":"Login","id":"login-button","testid":"login-submit"},
-              {"role":"link","name":"Forgot your password?","id":"forgot-password-link"},
-              {"role":"link","name":"Create an account","id":"register-link"}
-            ]}""";
+        PageSnapshot snapshot = new PageSnapshot(TARGET_URL, "Login Page", cleanedHtml, FIXTURE_A11Y, null);
 
-        PageSnapshot snapshot = new PageSnapshot(
-            TARGET_URL,
-            "Login Page",
-            cleanedHtml,
-            accessibilityTree,
-            null
-        );
-
-        // Step 3: build the user message
-        String userMessage = buildUserMessage(snapshot);
-        iLogger.info("User message length: " + userMessage.length() + " chars");
-
-        // Step 4: call Anthropic API
+        // Step 2: build provider and generate via the facade (snapshot → AI → GeneratedPageObject)
         AuthConfig auth = new AuthConfig(AuthConfig.AuthType.API_KEY, apiKey);
-        AiProvider provider = new AnthropicProvider(auth, "claude-sonnet-4-6");
-        AiRequest request = new AiRequest(SYSTEM_PROMPT, userMessage, null);
+        AnthropicProvider provider = new AnthropicProvider(auth, "claude-sonnet-4-6");
 
-        iLogger.info("Sending request to Anthropic...");
-        AiResponse response = provider.complete(request);
+        iLogger.info("Sending snapshot to Anthropic for Page Object generation...");
+        GeneratedPageObject pageObject = PageCrawlerFacade.generatePageObject(snapshot, provider);
 
-        // Step 5: print results
-        iLogger.info("=== SMOKE TEST RESULT ===");
-        iLogger.info("Model: " + response.getModel());
-        iLogger.info("Tokens used: " + response.getInputTokens() + " in / " + response.getOutputTokens() + " out");
-        iLogger.info("=== GENERATED PAGE OBJECT ===");
+        // Step 3: write the generated source to src/test/java/generated/
+        Path written = new PageObjectWriter().write(pageObject);
+        iLogger.info("Page Object written to: " + written.toAbsolutePath());
 
-        // Print to stdout so it's clearly visible in test output
+        // Step 4: print the result clearly to stdout for manual inspection
         System.out.println("\n" + "=".repeat(80));
-        System.out.println("GENERATED PAGE OBJECT (claude-sonnet-4-6):");
+        System.out.println("GENERATED PAGE OBJECT — class: " + pageObject.getClassName());
         System.out.println("=".repeat(80));
-        System.out.println(response.getContent());
+        System.out.println(pageObject.getSourceCode());
         System.out.println("=".repeat(80) + "\n");
-    }
 
-    private String buildUserMessage(PageSnapshot snapshot) {
-        return String.format("""
-            Generate a Page Object for the following page.
-
-            URL: %s
-            Title: %s
-
-            === CLEANED HTML ===
-            %s
-
-            === ACCESSIBILITY TREE (JSON) ===
-            %s
-            """,
-            snapshot.getUrl(),
-            snapshot.getTitle(),
-            snapshot.getCleanedHtml(),
-            snapshot.getAccessibilityTree()
-        );
+        iLogger.info("Written " + Files.size(written) + " bytes to " + written.getFileName());
     }
 }

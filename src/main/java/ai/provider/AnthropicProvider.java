@@ -34,10 +34,15 @@ public class AnthropicProvider implements AiProvider {
         }
         this.apiKey = auth.getValue();
         this.model = model;
-        this.http = HttpClient.newBuilder()
-            .proxy(ProxySelector.getDefault())
-            .authenticator(Authenticator.getDefault())
-            .build();
+        // Build HttpClient with system proxy support.
+        // Authenticator.getDefault() may be null in unit test environments, so guard before calling.
+        HttpClient.Builder clientBuilder = HttpClient.newBuilder()
+            .proxy(ProxySelector.getDefault());
+        Authenticator defaultAuth = Authenticator.getDefault();
+        if (defaultAuth != null) {
+            clientBuilder.authenticator(defaultAuth);
+        }
+        this.http = clientBuilder.build();
         this.mapper = new ObjectMapper();
     }
 
