@@ -54,6 +54,8 @@ dependencies {
             [group: 'org.testng', name: 'testng', version: '7.3.0'],
             [group: 'io.qameta.allure', name: 'allure-testng', version: '2.19.0']
     )
+    // Jackson — JSON serialisation for AI provider request/response bodies
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.17.0'
     implementation 'org.jetbrains:annotations:24.0.1'
     compileOnly 'org.projectlombok:lombok:1.18.34'
     annotationProcessor 'org.projectlombok:lombok:1.18.34'
