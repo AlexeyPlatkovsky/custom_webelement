@@ -6,10 +6,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import utils.logging.iLogger;
 
 import java.io.IOException;
+import java.net.Authenticator;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.net.ProxySelector;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -32,7 +34,10 @@ public class AnthropicProvider implements AiProvider {
         }
         this.apiKey = auth.getValue();
         this.model = model;
-        this.http = HttpClient.newHttpClient();
+        this.http = HttpClient.newBuilder()
+            .proxy(ProxySelector.getDefault())
+            .authenticator(Authenticator.getDefault())
+            .build();
         this.mapper = new ObjectMapper();
     }
 
