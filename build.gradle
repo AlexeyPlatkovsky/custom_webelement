@@ -1,6 +1,18 @@
 buildscript {
+    // skipAllure=true lets the build configure without resolving the allure plugin
+    // (useful in network-restricted environments where plugins-artifacts.gradle.org is blocked)
+    def skipAllure = gradle.startParameter.projectProperties.containsKey('skipAllure')
+    repositories {
+        mavenCentral()
+        if (!skipAllure) {
+            maven { url 'https://plugins.gradle.org/m2/' }
+        }
+    }
     dependencies {
         classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.8'
+        if (!skipAllure) {
+            classpath 'io.qameta.allure.gradle.allure:allure-plugin:2.11.2'
+        }
     }
 }
 
@@ -8,7 +20,12 @@ plugins {
     id 'checkstyle'
     id 'java'
     id 'idea'
-    id 'io.qameta.allure' version '2.11.2'
+}
+
+def skipAllure = project.hasProperty('skipAllure')
+
+if (!skipAllure) {
+    apply plugin: 'io.qameta.allure'
 }
 
 ext {
@@ -28,13 +45,15 @@ idea {
 
 def allureVersion = "2.13.6"
 
-allure {
-    autoconfigure = true
-    aspectjweaver = true
-    version = allureVersion
-
-    useTestNG {
+if (!skipAllure) {
+    allure {
+        autoconfigure = true
+        aspectjweaver = true
         version = allureVersion
+
+        useTestNG {
+            version = allureVersion
+        }
     }
 }
 
@@ -69,7 +88,9 @@ dependencies {
 //=================================== Test =====================================
 
 test {
-    finalizedBy('allureReport')
+    if (!skipAllure) {
+        finalizedBy('allureReport')
+    }
     ignoreFailures = false
     doFirst {
         delete(file("${buildDir}/allure-results"))
@@ -158,9 +179,11 @@ test {
     }
 }
 
-tasks.named('allureReport') {
-    doFirst {
-        delete(file("${buildDir}/reports/allure-report/allureReport"))
+if (!skipAllure) {
+    tasks.named('allureReport') {
+        doFirst {
+            delete(file("${buildDir}/reports/allure-report/allureReport"))
+        }
     }
 }
 
@@ -168,15 +191,16 @@ gradle.buildFinished {
     def testNgEmailablePath = file("${buildDir}/reports/tests/testng/emailable-report.html").absolutePath.replace('\\', '/')
     def testNgPath = file("${buildDir}/reports/tests/testng/index.html").absolutePath.replace('\\', '/')
     def testNgArtifactsPath = file("${buildDir}/reports/tests/testng/custom-artifacts.html").absolutePath.replace('\\', '/')
-    def allurePath = file("${buildDir}/reports/allure-report/allureReport/index.html").absolutePath.replace('\\', '/')
     def testNgEmailable = "file:///${testNgEmailablePath}"
     def testNgIndex = "file:///${testNgPath}"
     def testNgArtifacts = "file:///${testNgArtifactsPath}"
-    def allureIndex = "file:///${allurePath}"
     println ""
     println "TestNG emailable report: ${testNgEmailable}"
     println "TestNG report: ${testNgIndex}"
     println "TestNG artifacts report: ${testNgArtifacts}"
-    println "Allure report: ${allureIndex}"
-    println "If Allure opens blank from file:///, run: ./gradlew allureServe"
+    if (!skipAllure) {
+        def allurePath = file("${buildDir}/reports/allure-report/allureReport/index.html").absolutePath.replace('\\', '/')
+        println "Allure report: file:///${allurePath}"
+        println "If Allure opens blank from file:///, run: ./gradlew allureServe"
+    }
 }

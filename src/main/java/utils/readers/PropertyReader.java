@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Properties;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class PropertyReader {
@@ -25,7 +26,7 @@ public class PropertyReader {
         }
         return ENV_PATTERN.matcher(value).replaceAll(matchResult -> {
             String envValue = System.getenv(matchResult.group(1));
-            return envValue != null ? envValue : matchResult.group(0);
+            return Matcher.quoteReplacement(envValue != null ? envValue : matchResult.group(0));
         });
     }
 

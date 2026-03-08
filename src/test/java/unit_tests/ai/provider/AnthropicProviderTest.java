@@ -16,6 +16,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
@@ -23,7 +24,7 @@ import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
 
-@Test(groups = "unit")
+@Test(groups = "unit", singleThreaded = true)
 public class AnthropicProviderTest {
 
     private static final String VALID_KEY = "test-api-key";
@@ -64,7 +65,7 @@ public class AnthropicProviderTest {
     public void successfulResponseParsedCorrectly() throws Exception {
         when(mockResponse.statusCode()).thenReturn(200);
         when(mockResponse.body()).thenReturn(SUCCESS_RESPONSE);
-        when(mockHttp.send(any(), any())).thenReturn(mockResponse);
+        doReturn(mockResponse).when(mockHttp).send(any(), any());
 
         AnthropicProvider provider = providerWithMockedHttp(VALID_KEY);
         AiResponse response = provider.complete(new AiRequest("system", "user", null));
@@ -92,7 +93,7 @@ public class AnthropicProviderTest {
     public void http401ThrowsRuntimeException() throws Exception {
         when(mockResponse.statusCode()).thenReturn(401);
         when(mockResponse.body()).thenReturn("{\"error\": \"unauthorized\"}");
-        when(mockHttp.send(any(), any())).thenReturn(mockResponse);
+        doReturn(mockResponse).when(mockHttp).send(any(), any());
 
         AnthropicProvider provider = providerWithMockedHttp(VALID_KEY);
         try {
@@ -108,7 +109,7 @@ public class AnthropicProviderTest {
     public void http429ThrowsRuntimeException() throws Exception {
         when(mockResponse.statusCode()).thenReturn(429);
         when(mockResponse.body()).thenReturn("{\"error\": \"rate_limit\"}");
-        when(mockHttp.send(any(), any())).thenReturn(mockResponse);
+        doReturn(mockResponse).when(mockHttp).send(any(), any());
 
         AnthropicProvider provider = providerWithMockedHttp(VALID_KEY);
         try {
@@ -125,7 +126,7 @@ public class AnthropicProviderTest {
         when(mockResponse.statusCode()).thenReturn(200);
         when(mockResponse.body()).thenReturn(SUCCESS_RESPONSE);
         ArgumentCaptor<HttpRequest> requestCaptor = ArgumentCaptor.forClass(HttpRequest.class);
-        when(mockHttp.send(requestCaptor.capture(), any())).thenReturn(mockResponse);
+        doReturn(mockResponse).when(mockHttp).send(requestCaptor.capture(), any());
 
         AnthropicProvider provider = providerWithMockedHttp(VALID_KEY);
         provider.complete(new AiRequest("system", "user", "base64data=="));
@@ -142,7 +143,7 @@ public class AnthropicProviderTest {
         when(mockResponse.statusCode()).thenReturn(200);
         when(mockResponse.body()).thenReturn(SUCCESS_RESPONSE);
         ArgumentCaptor<HttpRequest> requestCaptor = ArgumentCaptor.forClass(HttpRequest.class);
-        when(mockHttp.send(requestCaptor.capture(), any())).thenReturn(mockResponse);
+        doReturn(mockResponse).when(mockHttp).send(requestCaptor.capture(), any());
 
         AnthropicProvider provider = providerWithMockedHttp(VALID_KEY);
         provider.complete(new AiRequest("system", "user", null));

@@ -11,13 +11,14 @@ import java.net.http.HttpClient;
 import java.net.http.HttpResponse;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
 
-@Test(groups = "unit")
+@Test(groups = "unit", singleThreaded = true)
 public class OllamaProviderTest {
 
     private static final String BASE_URL = "http://localhost:11434";
@@ -56,7 +57,7 @@ public class OllamaProviderTest {
     public void successfulResponseParsedCorrectly() throws Exception {
         when(mockResponse.statusCode()).thenReturn(200);
         when(mockResponse.body()).thenReturn(SUCCESS_RESPONSE);
-        when(mockHttp.send(any(), any())).thenReturn(mockResponse);
+        doReturn(mockResponse).when(mockHttp).send(any(), any());
 
         OllamaProvider provider = providerWithMockedHttp();
         AiResponse response = provider.complete(new AiRequest("system", "user", null));
@@ -72,7 +73,7 @@ public class OllamaProviderTest {
     public void nonOkStatusThrowsRuntimeException() throws Exception {
         when(mockResponse.statusCode()).thenReturn(500);
         when(mockResponse.body()).thenReturn("{\"error\": \"internal error\"}");
-        when(mockHttp.send(any(), any())).thenReturn(mockResponse);
+        doReturn(mockResponse).when(mockHttp).send(any(), any());
 
         OllamaProvider provider = providerWithMockedHttp();
         try {
