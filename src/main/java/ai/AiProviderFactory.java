@@ -18,8 +18,7 @@ public class AiProviderFactory {
         return create(PropertyReader.load(PROPERTIES_FILE));
     }
 
-    /** Package-private entry point for unit tests — accepts pre-built Properties. */
-    static AiProvider create(Properties props) {
+    public static AiProvider create(Properties props) {
         String providerName = required(props, "ai.provider");
 
         return switch (providerName.toLowerCase()) {
