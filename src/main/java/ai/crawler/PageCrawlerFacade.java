@@ -102,6 +102,41 @@ public class PageCrawlerFacade {
     }
 
     /**
+     * Crawls each URL, generates a Page Object, and writes it to disk.
+     * Failed URLs are skipped and logged; processing continues for remaining URLs.
+     * A structured summary is logged after all URLs are processed.
+     *
+     * @param urls     page URLs to process (must use http or https)
+     * @param provider AI provider to use for generation
+     * @return paths of successfully written {@code .java} files
+     */
+    public static List<Path> generateAndWriteAll(List<String> urls, AiProvider provider) {
+        List<String> succeeded = new ArrayList<>();
+        List<String> failed = new ArrayList<>();
+        List<Path> written = new ArrayList<>();
+
+        try (PageCrawler crawler = new PageCrawler()) {
+            for (String url : urls) {
+                try {
+                    validateUrl(url);
+                    PageSnapshot snapshot = crawler.crawl(url);
+                    GeneratedPageObject pageObject =
+                        new PageObjectGenerator(provider).generate(snapshot);
+                    Path path = new PageObjectWriter().write(pageObject);
+                    written.add(path);
+                    succeeded.add(pageObject.getClassName() + " <- " + url);
+                } catch (Exception e) {
+                    failed.add(url + " [FAILED: " + e.getMessage() + "]");
+                    iLogger.error("PageCrawlerFacade: failed to process '" + url + "' — " + e.getMessage());
+                }
+            }
+        }
+
+        logBatchSummary(succeeded, failed);
+        return written;
+    }
+
+    /**
      * Generates a Page Object from an existing snapshot and writes it to
      * {@code src/test/java/generated/<ClassName>.java}.
      *
@@ -130,6 +165,16 @@ public class PageCrawlerFacade {
     }
 
     // ── Internal helpers ──────────────────────────────────────────────────────
+
+    public static void logBatchSummary(List<String> succeeded, List<String> failed) {
+        int total = succeeded.size() + failed.size();
+        iLogger.info(String.format(
+            "PageCrawlerFacade: batch complete — %d/%d page objects generated",
+            succeeded.size(), total
+        ));
+        succeeded.forEach(s -> iLogger.info("  OK  " + s));
+        failed.forEach(f -> iLogger.error("  ERR " + f));
+    }
 
     private static void validateUrl(String url) {
         try {

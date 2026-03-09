@@ -164,6 +164,78 @@ public class PageObjectGeneratorTest {
             "Path composed of only non-alphanumeric characters should produce 'UnknownPage'");
     }
 
+    // ── validateSource ────────────────────────────────────────────────────────
+
+    @Test(expectedExceptions = IllegalStateException.class)
+    public void validateSourceThrowsWhenNoClassDeclaration() {
+        PageObjectGenerator generator = new PageObjectGenerator(mockProvider);
+        generator.validateSource("This is an error message from the AI.", "https://example.com/login");
+    }
+
+    @Test
+    public void validateSourceExceptionMessageContainsUrl() {
+        PageObjectGenerator generator = new PageObjectGenerator(mockProvider);
+        try {
+            generator.validateSource("AI returned an error message.", "https://example.com/login");
+        } catch (IllegalStateException e) {
+            assertTrue(e.getMessage().contains("https://example.com/login"),
+                "Exception message must include the URL");
+            return;
+        }
+        throw new AssertionError("Expected IllegalStateException was not thrown");
+    }
+
+    @Test(expectedExceptions = IllegalStateException.class)
+    public void validateSourceThrowsWhenFencesRemain() {
+        PageObjectGenerator generator = new PageObjectGenerator(mockProvider);
+        generator.validateSource("```java\npublic class Foo {}\n```", "https://example.com");
+    }
+
+    @Test
+    public void validateSourcePassesForValidSource() {
+        PageObjectGenerator generator = new PageObjectGenerator(mockProvider);
+        generator.validateSource(VALID_SOURCE, "https://example.com/login");
+        // no exception expected
+    }
+
+    // ── injectPackageIfMissing ────────────────────────────────────────────────
+
+    @Test
+    public void injectPackageIfMissingLeavesSourceWithPackageUnchanged() {
+        PageObjectGenerator generator = new PageObjectGenerator(mockProvider);
+        String source = "package generated;\n\npublic class Foo extends AbstractPage {}";
+        assertEquals(generator.injectPackageIfMissing(source), source);
+    }
+
+    @Test
+    public void injectPackageIfMissingPrependsPackageWhenAbsent() {
+        PageObjectGenerator generator = new PageObjectGenerator(mockProvider);
+        String source = "public class Foo extends AbstractPage {}";
+        String result = generator.injectPackageIfMissing(source);
+        assertTrue(result.startsWith("package generated;\n\n"),
+            "Package declaration must be prepended");
+        assertTrue(result.contains("public class Foo"),
+            "Original source must be preserved after injection");
+    }
+
+    @Test
+    public void injectPackageIfMissingStripsLeadingBlankLines() {
+        PageObjectGenerator generator = new PageObjectGenerator(mockProvider);
+        String source = "\n\npackage generated;\n\npublic class Foo extends AbstractPage {}";
+        String result = generator.injectPackageIfMissing(source);
+        assertEquals(result, "package generated;\n\npublic class Foo extends AbstractPage {}",
+            "Leading blank lines before package declaration must be stripped");
+    }
+
+    @Test
+    public void injectPackageIfMissingNoDoublePackageWhenLeadingBlanks() {
+        PageObjectGenerator generator = new PageObjectGenerator(mockProvider);
+        String source = "\n\npackage generated;\n\npublic class Foo extends AbstractPage {}";
+        String result = generator.injectPackageIfMissing(source);
+        long packageCount = result.lines().filter(l -> l.startsWith("package ")).count();
+        assertEquals(packageCount, 1L, "There must be exactly one package declaration");
+    }
+
     // ── integration: fenced response is correctly unwrapped ──────────────────
 
     @Test

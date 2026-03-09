@@ -1,12 +1,12 @@
 package generated;
 
-import core.annotations.CacheElement;
-import core.annotations.PageURL;
-import core.annotations.Waiter;
+import core.web.annotations.CacheElement;
+import core.web.annotations.PageURL;
+import core.web.annotations.Waiter;
 import core.web.iWebElement;
+import core.web.iPageFactory;
 import org.openqa.selenium.support.FindBy;
 import pages.AbstractPage;
-import utils.iPageFactory;
 import utils.logging.iLogger;
 
 @PageURL("https://myapp.example.com/login")
@@ -87,16 +87,18 @@ public class LoginPage extends AbstractPage {
         return this;
     }
 
-    public ForgotPasswordPage clickForgotPasswordLink() {
+    // TODO: replace return type with ForgotPasswordPage once that Page Object is generated
+    public LoginPage clickForgotPasswordLink() {
         iLogger.info("Clicking 'Forgot your password?' link");
         forgotPasswordLink.click();
-        return new ForgotPasswordPage();
+        return this;
     }
 
-    public RegisterPage clickRegisterLink() {
+    // TODO: replace return type with RegisterPage once that Page Object is generated
+    public LoginPage clickRegisterLink() {
         iLogger.info("Clicking 'Create an account' link to navigate to registration");
         registerLink.click();
-        return new RegisterPage();
+        return this;
     }
 
     public String getFlashMessageText() {

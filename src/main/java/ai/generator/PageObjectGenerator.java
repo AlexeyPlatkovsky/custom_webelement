@@ -51,10 +51,47 @@ public class PageObjectGenerator {
             + ", tokens=" + response.getInputTokens() + "/" + response.getOutputTokens());
 
         String sourceCode = stripCodeFences(response.getContent());
+        validateSource(sourceCode, snapshot.getUrl());
+        sourceCode = injectPackageIfMissing(sourceCode);
         String className = extractClassName(sourceCode, snapshot.getUrl());
 
         iLogger.info("Extracted class name: " + className);
         return new GeneratedPageObject(className, sourceCode, snapshot);
+    }
+
+    /**
+     * Validates that the AI response looks like Java source code.
+     * Throws {@link IllegalStateException} if the class declaration is absent (model returned
+     * an error message or the response was truncated) or if markdown fences were not fully removed.
+     * Public so unit tests in a different package can exercise this method directly.
+     */
+    public void validateSource(String javaSource, String url) {
+        if (!javaSource.contains("class ")) {
+            throw new IllegalStateException(
+                "AI response for URL '" + url + "' does not contain a class declaration. "
+                + "The model may have returned an error or the response was truncated."
+            );
+        }
+        if (javaSource.contains("```")) {
+            throw new IllegalStateException(
+                "AI response for URL '" + url + "' still contains markdown fences after extraction."
+            );
+        }
+    }
+
+    /**
+     * Ensures the source starts with {@code package generated;}.
+     * The AI occasionally omits the package declaration despite explicit instructions.
+     * Leading blank lines are stripped before the check to avoid a double declaration.
+     * Public so unit tests in a different package can exercise this method directly.
+     */
+    public String injectPackageIfMissing(String javaSource) {
+        String stripped = javaSource.stripLeading();
+        if (!stripped.startsWith("package ")) {
+            iLogger.error("PageObjectGenerator: AI omitted package declaration — injecting 'package generated;'");
+            return "package generated;\n\n" + stripped;
+        }
+        return stripped;
     }
 
     /**
