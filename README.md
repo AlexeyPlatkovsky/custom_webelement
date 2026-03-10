@@ -107,3 +107,68 @@ You can find some example of tests in demo test class:
     src/test/java/tests/DuckDuckGoPageTest.java
     
 Feel free to use and contribute to this open-source framework to enhance your UI testing capabilities.
+
+## AI Page Object Generator
+
+The framework includes an AI-powered Page Object generator that crawls a live page and produces
+a ready-to-use Page Object Java class automatically.
+
+### Prerequisites
+
+- An Anthropic API key with credit balance — set it as the `ANTHROPIC_API_KEY` environment variable
+- Playwright browsers installed (one-time setup):
+
+```sh
+./gradlew installPlaywrightBrowsers
+```
+
+### Generate a Page Object from a URL
+
+```java
+import ai.crawler.PageCrawlerFacade;
+import ai.provider.AnthropicProvider;
+import ai.provider.AuthConfig;
+
+AuthConfig auth = new AuthConfig(AuthConfig.AuthType.API_KEY,
+    System.getenv("ANTHROPIC_API_KEY"));
+AnthropicProvider provider = new AnthropicProvider(auth, "claude-sonnet-4-6");
+
+// Single URL — crawl + generate + write to src/test/java/generated/
+Path written = PageCrawlerFacade.generateAndWrite("https://example.com/login", provider);
+```
+
+The generated `.java` file lands in `src/test/java/generated/`. Always run a compile check
+after generation to catch any issues before running tests:
+
+```sh
+./gradlew compileTestJava -PskipAllure
+```
+
+### Generate Page Objects for multiple URLs (batch)
+
+```java
+List<Path> files = PageCrawlerFacade.generateAndWriteAll(
+    List.of(
+        "https://example.com/login",
+        "https://example.com/dashboard",
+        "https://example.com/checkout"
+    ),
+    provider
+);
+```
+
+After the batch completes a structured summary is logged:
+
+```
+PageCrawlerFacade: batch complete — 2/3 page objects generated
+  OK  LoginPage <- https://example.com/login
+  OK  DashboardPage <- https://example.com/dashboard
+  ERR https://example.com/checkout [FAILED: timeout after 30000ms]
+```
+
+### Run the end-to-end smoke test
+
+```sh
+ANTHROPIC_API_KEY=<your-key> ./gradlew test -Dsuite=smoke -PskipAllure
+```
+
