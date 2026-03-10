@@ -6,10 +6,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import utils.logging.iLogger;
 
 import java.io.IOException;
+import java.net.Authenticator;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.net.ProxySelector;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -32,7 +34,15 @@ public class AnthropicProvider implements AiProvider {
         }
         this.apiKey = auth.getValue();
         this.model = model;
-        this.http = HttpClient.newHttpClient();
+        // Build HttpClient with system proxy support.
+        // Authenticator.getDefault() may be null in unit test environments, so guard before calling.
+        HttpClient.Builder clientBuilder = HttpClient.newBuilder()
+            .proxy(ProxySelector.getDefault());
+        Authenticator defaultAuth = Authenticator.getDefault();
+        if (defaultAuth != null) {
+            clientBuilder.authenticator(defaultAuth);
+        }
+        this.http = clientBuilder.build();
         this.mapper = new ObjectMapper();
     }
 
