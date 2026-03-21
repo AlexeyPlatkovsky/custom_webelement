@@ -34,7 +34,7 @@ public final class iAssert {
             throw new NullPointerException("executables collection must not be null");
         }
 
-        String groupDescription = normalizeDescription(heading, "assertAll");
+        String groupDescription = normalizeFailureMessage(heading, "assertAll");
         iLogger.info("Check group: " + groupDescription);
 
         List<Throwable> failures = new ArrayList<>();
@@ -67,105 +67,105 @@ public final class iAssert {
     }
 
     public static void isTrue(boolean condition, String checkDescription) {
-        String description = normalizeDescription(checkDescription, "condition is true");
-        iLogger.info("Check that " + description);
-        Assert.assertTrue(condition, description);
+        String failureMessage = normalizeFailureMessage(checkDescription, "condition is true");
+        logAssertion("Assert condition is true", failureMessage);
+        Assert.assertTrue(condition, failureMessage);
     }
 
     public static void isFalse(boolean condition, String checkDescription) {
-        String description = normalizeDescription(checkDescription, "condition is false");
-        iLogger.info("Check that " + description);
-        Assert.assertFalse(condition, description);
+        String failureMessage = normalizeFailureMessage(checkDescription, "condition is false");
+        logAssertion("Assert condition is false", failureMessage);
+        Assert.assertFalse(condition, failureMessage);
     }
 
     public static void equalsTo(Object actual, Object expected, String checkDescription) {
-        String description = normalizeDescription(checkDescription, "actual value equals expected value");
-        logCheckWithExpectedActual(description, expected, actual);
-        Assert.assertEquals(actual, expected, description);
+        String failureMessage = normalizeFailureMessage(checkDescription, "actual value equals expected value");
+        logCheckWithExpectedActual("Assert values are equal", failureMessage, expected, actual);
+        Assert.assertEquals(actual, expected, failureMessage);
     }
 
     public static void notEqualsTo(Object actual, Object expected, String checkDescription) {
-        String description = normalizeDescription(checkDescription, "actual value does not equal expected value");
-        logCheckWithExpectedActual(description, expected, actual);
-        Assert.assertNotEquals(actual, expected, description);
+        String failureMessage = normalizeFailureMessage(checkDescription, "actual value does not equal expected value");
+        logCheckWithExpectedActual("Assert values are not equal", failureMessage, expected, actual);
+        Assert.assertNotEquals(actual, expected, failureMessage);
     }
 
     public static void isNull(Object actual, String checkDescription) {
-        String description = normalizeDescription(checkDescription, "value is null");
-        logCheckWithExpectedActual(description, null, actual);
-        Assert.assertNull(actual, description);
+        String failureMessage = normalizeFailureMessage(checkDescription, "value is null");
+        logCheckWithExpectedActual("Assert value is null", failureMessage, null, actual);
+        Assert.assertNull(actual, failureMessage);
     }
 
     public static void isNotNull(Object actual, String checkDescription) {
-        String description = normalizeDescription(checkDescription, "value is not null");
-        logCheckWithExpectedActual(description, "not null", actual);
-        Assert.assertNotNull(actual, description);
+        String failureMessage = normalizeFailureMessage(checkDescription, "value is not null");
+        logCheckWithExpectedActual("Assert value is not null", failureMessage, "not null", actual);
+        Assert.assertNotNull(actual, failureMessage);
     }
 
     public static void same(Object actual, Object expected, String checkDescription) {
-        String description = normalizeDescription(checkDescription, "both references point to the same object");
-        logCheckWithExpectedActual(description, expected, actual);
-        Assert.assertSame(actual, expected, description);
+        String failureMessage = normalizeFailureMessage(checkDescription, "both references point to the same object");
+        logCheckWithExpectedActual("Assert references are the same", failureMessage, expected, actual);
+        Assert.assertSame(actual, expected, failureMessage);
     }
 
     public static void notSame(Object actual, Object expected, String checkDescription) {
-        String description = normalizeDescription(checkDescription, "references point to different objects");
-        logCheckWithExpectedActual(description, "different reference than " + expected, actual);
-        Assert.assertNotSame(actual, expected, description);
+        String failureMessage = normalizeFailureMessage(checkDescription, "references point to different objects");
+        logCheckWithExpectedActual("Assert references are different", failureMessage, "different reference than " + expected, actual);
+        Assert.assertNotSame(actual, expected, failureMessage);
     }
 
     public static void contains(String actual, String expectedSubstring, String checkDescription) {
-        String description = normalizeDescription(checkDescription, "text contains expected substring");
-        logCheckWithExpectedActual(description, expectedSubstring, actual);
-        Assert.assertTrue(actual != null && expectedSubstring != null && actual.contains(expectedSubstring), description);
+        String failureMessage = normalizeFailureMessage(checkDescription, "text contains expected substring");
+        logCheckWithExpectedActual("Assert text contains expected substring", failureMessage, expectedSubstring, actual);
+        Assert.assertTrue(actual != null && expectedSubstring != null && actual.contains(expectedSubstring), failureMessage);
     }
 
     public static void notContains(String actual, String unexpectedSubstring, String checkDescription) {
-        String description = normalizeDescription(checkDescription, "text does not contain unexpected substring");
-        logCheckWithExpectedActual(description, unexpectedSubstring, actual);
-        Assert.assertTrue(actual == null || unexpectedSubstring == null || !actual.contains(unexpectedSubstring), description);
+        String failureMessage = normalizeFailureMessage(checkDescription, "text does not contain unexpected substring");
+        logCheckWithExpectedActual("Assert text does not contain unexpected substring", failureMessage, unexpectedSubstring, actual);
+        Assert.assertTrue(actual == null || unexpectedSubstring == null || !actual.contains(unexpectedSubstring), failureMessage);
     }
 
     public static void isEmpty(String actual, String checkDescription) {
-        String description = normalizeDescription(checkDescription, "string is empty");
-        logCheckWithExpectedActual(description, "", actual);
-        Assert.assertTrue(actual != null && actual.isEmpty(), description);
+        String failureMessage = normalizeFailureMessage(checkDescription, "string is empty");
+        logCheckWithExpectedActual("Assert string is empty", failureMessage, "", actual);
+        Assert.assertTrue(actual != null && actual.isEmpty(), failureMessage);
     }
 
     public static void isNotEmpty(String actual, String checkDescription) {
-        String description = normalizeDescription(checkDescription, "string is not empty");
-        logCheckWithExpectedActual(description, "not empty", actual);
-        Assert.assertTrue(actual != null && !actual.isEmpty(), description);
+        String failureMessage = normalizeFailureMessage(checkDescription, "string is not empty");
+        logCheckWithExpectedActual("Assert string is not empty", failureMessage, "not empty", actual);
+        Assert.assertTrue(actual != null && !actual.isEmpty(), failureMessage);
     }
 
     public static void isEmpty(Collection<?> actual, String checkDescription) {
-        String description = normalizeDescription(checkDescription, "collection is empty");
-        logCheckWithExpectedActual(description, "empty collection", actual);
-        Assert.assertTrue(actual != null && actual.isEmpty(), description);
+        String failureMessage = normalizeFailureMessage(checkDescription, "collection is empty");
+        logCheckWithExpectedActual("Assert collection is empty", failureMessage, "empty collection", actual);
+        Assert.assertTrue(actual != null && actual.isEmpty(), failureMessage);
     }
 
     public static void isNotEmpty(Collection<?> actual, String checkDescription) {
-        String description = normalizeDescription(checkDescription, "collection is not empty");
-        logCheckWithExpectedActual(description, "non-empty collection", actual);
-        Assert.assertTrue(actual != null && !actual.isEmpty(), description);
+        String failureMessage = normalizeFailureMessage(checkDescription, "collection is not empty");
+        logCheckWithExpectedActual("Assert collection is not empty", failureMessage, "non-empty collection", actual);
+        Assert.assertTrue(actual != null && !actual.isEmpty(), failureMessage);
     }
 
     public static void isEmpty(Map<?, ?> actual, String checkDescription) {
-        String description = normalizeDescription(checkDescription, "map is empty");
-        logCheckWithExpectedActual(description, "empty map", actual);
-        Assert.assertTrue(actual != null && actual.isEmpty(), description);
+        String failureMessage = normalizeFailureMessage(checkDescription, "map is empty");
+        logCheckWithExpectedActual("Assert map is empty", failureMessage, "empty map", actual);
+        Assert.assertTrue(actual != null && actual.isEmpty(), failureMessage);
     }
 
     public static void isNotEmpty(Map<?, ?> actual, String checkDescription) {
-        String description = normalizeDescription(checkDescription, "map is not empty");
-        logCheckWithExpectedActual(description, "non-empty map", actual);
-        Assert.assertTrue(actual != null && !actual.isEmpty(), description);
+        String failureMessage = normalizeFailureMessage(checkDescription, "map is not empty");
+        logCheckWithExpectedActual("Assert map is not empty", failureMessage, "non-empty map", actual);
+        Assert.assertTrue(actual != null && !actual.isEmpty(), failureMessage);
     }
 
     public static void fail(String reason) {
-        String description = normalizeDescription(reason, "forced failure");
-        iLogger.error("Check failed: " + description);
-        Assert.fail(description);
+        String failureMessage = normalizeFailureMessage(reason, "forced failure");
+        iLogger.error("Assertion failed: " + failureMessage);
+        Assert.fail(failureMessage);
     }
 
     private static String buildAssertAllMessage(String heading, List<Throwable> failures) {
@@ -206,16 +206,26 @@ public final class iAssert {
         throw new RuntimeException(throwable);
     }
 
-    private static String normalizeDescription(String checkDescription, String fallback) {
+    private static String normalizeFailureMessage(String checkDescription, String fallback) {
         if (checkDescription == null || checkDescription.isBlank()) {
             return fallback;
         }
         return checkDescription;
     }
 
-    private static void logCheckWithExpectedActual(String description, Object expected, Object actual) {
+    private static void logAssertion(String assertionLabel, String failureMessage) {
         iLogger.info(
-                "Check that " + description
+                assertionLabel
+                        + System.lineSeparator()
+                        + " failure message: " + failureMessage
+        );
+    }
+
+    private static void logCheckWithExpectedActual(String assertionLabel, String failureMessage, Object expected, Object actual) {
+        iLogger.info(
+                assertionLabel
+                        + System.lineSeparator()
+                        + " failure message: " + failureMessage
                         + System.lineSeparator()
                         + " expected: " + String.valueOf(expected)
                         + System.lineSeparator()

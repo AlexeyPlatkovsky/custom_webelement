@@ -31,7 +31,7 @@ FRAMEWORK CONVENTIONS — follow all of these
 ═══════════════════════════════════════════
 
 CLASS STRUCTURE
-- Extend AbstractPage (import: pages.AbstractPage)
+- Extend AbstractPage (import: core.web.iPage)
 - Annotate the class with @PageURL("...") using the exact page URL provided
 - The constructor must call: iPageFactory.initElements(this.driver, this)
 - Package: generated
@@ -68,7 +68,7 @@ REQUIRED IMPORTS (always include all of these):
   import core.web.annotations.Waiter;
   import core.web.annotations.PageURL;
   import org.openqa.selenium.support.FindBy;
-  import pages.AbstractPage;
+  import core.web.iPage;
 
 FORBIDDEN
 - Do NOT include @Test methods

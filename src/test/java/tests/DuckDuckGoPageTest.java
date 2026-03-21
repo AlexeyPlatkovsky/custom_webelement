@@ -5,6 +5,9 @@ import pages.DuckDuckGoPage;
 import utils.assertions.iAssert;
 import utils.logging.iLogger;
 
+import java.util.List;
+import java.util.Set;
+
 @Test(groups = {"ui"})
 public class DuckDuckGoPageTest extends BaseTest {
     @Test
@@ -16,7 +19,7 @@ public class DuckDuckGoPageTest extends BaseTest {
         iAssert.equalsTo(
                 duckDuckGoPage.getTextFromSearchInput(),
                 searchText,
-                "search input contains entered query"
+                "search input does not contain entered query"
         );
     }
 
@@ -24,29 +27,25 @@ public class DuckDuckGoPageTest extends BaseTest {
     public void compareCachedAndNonCachedElementsPerformanceTest() {
         DuckDuckGoPage duckDuckGoPage = new DuckDuckGoPage();
         String searchText = "web element implementation performance";
-        iLogger.info("Step: open search page");
         duckDuckGoPage.openPage();
-        iLogger.info("Step: search with cached element");
         duckDuckGoPage.inputSearchText(searchText);
         long cached = duckDuckGoPage.getCachedElementFindTime();
-        iLogger.info("Step: rerun search with non-cached element");
         duckDuckGoPage.openPage();
         duckDuckGoPage.inputSearchText(searchText);
         long nonCached = duckDuckGoPage.getNonCachedElementFindTime();
-        iAssert.isTrue(cached < nonCached, "cached lookup is faster than non-cached lookup");
+        iAssert.isTrue(cached < nonCached, "cached lookup is slower than non-cached lookup");
     }
 
     @Test(description = "Check that iWebElementsList works correctly")
     public void checkWorkOfIWebElementsListTest() {
         DuckDuckGoPage duckDuckGoPage = new DuckDuckGoPage();
         String searchText = "best java testing frameworks";
-        iLogger.info("Step: open search page");
         duckDuckGoPage.openPage();
-        iLogger.info("Step: search for text '" + searchText + "'");
         duckDuckGoPage.searchForText(searchText);
+        List<String> elementTexts = duckDuckGoPage.getAllSearchResults();
         iAssert.isTrue(
-                duckDuckGoPage.checkThatAllSearchResultsAreUnique(),
-                "search results list contains unique entries"
+                Set.copyOf(elementTexts).size() == elementTexts.size(),
+                "search results list contains not only unique entries"
         );
     }
 }
