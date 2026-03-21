@@ -2,6 +2,7 @@ package pages;
 
 import core.web.annotations.CacheElement;
 import core.web.annotations.PageURL;
+import core.web.iPage;
 import core.web.iWebElement;
 import core.web.iWebElementsList;
 import org.openqa.selenium.Keys;
@@ -13,7 +14,7 @@ import java.util.List;
 import java.util.Set;
 
 @PageURL(value = "https://duckduckgo.com/")
-public class DuckDuckGoPage extends AbstractPage {
+public class DuckDuckGoPage extends iPage {
     @FindBy(css = "textarea[name='q'], input[name='q']")
     private iWebElement searchInput;
 
@@ -61,10 +62,9 @@ public class DuckDuckGoPage extends AbstractPage {
         return executionTime;
     }
 
-    public boolean checkThatAllSearchResultsAreUnique() {
+    public List<String> getAllSearchResults() {
         List<String> elementTexts = searchResults.getTextForVisibleElements();
-        Set<String> uniqueTexts = new HashSet<>(elementTexts);
         iLogger.info("Elements for search results are: " + elementTexts);
-        return elementTexts.size() == uniqueTexts.size();
+        return elementTexts;
     }
 }

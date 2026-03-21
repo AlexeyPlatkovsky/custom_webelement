@@ -24,10 +24,6 @@ public class BaseTest {
 
     @AfterMethod(alwaysRun = true)
     protected void tearDown(ITestResult result) {
-        WebDriver driver = DriverFactory.getCurrentDriver();
-        if (result.getStatus() == ITestResult.FAILURE && DriverFactory.driverName().equals(DriverNames.LAMBDA)) {
-            ((JavascriptExecutor) driver).executeScript("lambda-status=failed");
-        }
         iLogger.info("Close browser");
         DriverFactory.disposeCurrentDriver();
     }

@@ -35,8 +35,23 @@ public class iPageFactory {
             if (!hasAnnotation(field)) {
                 return;
             }
+            if (isClass(field, iPage.class)) {
+                iPage component = (iPage) getValueField(field, section);
+                if (component == null) {
+                    iPage.beginPageInitialization(driver, field.getName());
+                    try {
+                        component = (iPage) field.getType().getDeclaredConstructor().newInstance();
+                    } finally {
+                        iPage.clearPageInitialization();
+                    }
+                } else {
+                    component.initializePage(driver, field.getName());
+                }
+                field.set(section, component);
+                return;
+            }
             Object instance = getValueField(field, section);
-            if (instance == null) {
+            if (shouldCreateNewInstance(driver, instance)) {
                 instance = newInstance(driver, field);
             }
             if (instance != null) {
@@ -55,9 +70,19 @@ public class iPageFactory {
                 }
                 field.set(section, instance);
             }
-        } catch (IllegalAccessException e) {
+        } catch (ReflectiveOperationException e) {
             iLogger.error(e);
         }
+    }
+
+    private static boolean shouldCreateNewInstance(WebDriver driver, Object instance) {
+        if (instance == null) {
+            return true;
+        }
+        if (instance instanceof iWebElement element) {
+            return element.getDriver() != driver;
+        }
+        return false;
     }
 
     private static Object newInstance(WebDriver driver, Field field) {
@@ -66,7 +91,8 @@ public class iPageFactory {
         }
         if (isInterface(field, WebElement.class) || isInterface(field, iWebElement.class)) {
             return new iWebElement(driver, field.getName());
-        } else {
+        }
+        else {
             return null;
         }
     }
