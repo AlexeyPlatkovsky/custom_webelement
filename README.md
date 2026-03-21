@@ -63,6 +63,44 @@ In addition, this framework offers several additional features. For example, you
     private iWebElement cachedSearchInput;
     ```
 
+5. Compose Page Objects from nested `iPage` components:
+
+    You can now model reusable page sections as their own `iPage` classes and include them inside a parent page.
+    `iPageFactory` initializes nested `iPage` fields recursively and preserves the driver passed by the caller.
+
+    ```java
+    @FindBy(css = "main")
+    public class SearchComponent extends iPage {
+        @FindBy(css = "textarea[name='q'], input[name='q']")
+        private iWebElement searchInput;
+
+        public void searchForText(String text) {
+            searchInput.sendKeys(text);
+            searchInput.sendKeys(Keys.ENTER);
+        }
+    }
+
+    @PageURL("https://duckduckgo.com/")
+    public class SearchPage extends iPage {
+        private SearchComponent searchComponent;
+
+        @FindBy(xpath = "//article//h2//a")
+        private iWebElementsList searchResults;
+
+        public void searchForText(String text) {
+            searchComponent.searchForText(text);
+        }
+    }
+    ```
+
+    Example implementation:
+
+    `src/test/java/pages/DuckDuckGoSearchComponent.java`
+
+    `src/test/java/pages/ComposedDuckDuckGoPage.java`
+
+    `src/test/java/tests/ComposedDuckDuckGoPageTest.java`
+
 ## Logging policy (test reports)
 
 The framework now applies a status-aware logging policy for test reports:
