@@ -8,7 +8,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.nio.charset.StandardCharsets;
 
 public final class LocalTestPageServer {
     private static final String COMPONENT_PLAYGROUND_PATH = "/component-playground.html";
@@ -26,7 +25,7 @@ public final class LocalTestPageServer {
         try {
             server = HttpServer.create(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), 0);
             server.createContext(COMPONENT_PLAYGROUND_PATH,
-                    exchange -> writeHtml(exchange, "ui/component-playground.html"));
+                    LocalTestPageServer::writeHtml);
             server.start();
             baseUrl = "http://127.0.0.1:" + server.getAddress().getPort();
             return baseUrl;
@@ -45,25 +44,23 @@ public final class LocalTestPageServer {
         baseUrl = null;
     }
 
-    private static void writeHtml(HttpExchange exchange, String resourcePath) throws IOException {
-        byte[] body = loadResource(resourcePath);
+    private static void writeHtml(HttpExchange exchange) throws IOException {
+        byte[] body = loadResource();
         exchange.getResponseHeaders().set("Content-Type", "text/html; charset=UTF-8");
         exchange.sendResponseHeaders(200, body.length);
-        try (OutputStream responseBody = exchange.getResponseBody()) {
+        try (exchange; OutputStream responseBody = exchange.getResponseBody()) {
             responseBody.write(body);
-        } finally {
-            exchange.close();
         }
     }
 
-    private static byte[] loadResource(String resourcePath) {
-        try (InputStream stream = LocalTestPageServer.class.getClassLoader().getResourceAsStream(resourcePath)) {
+    private static byte[] loadResource() {
+        try (InputStream stream = LocalTestPageServer.class.getClassLoader().getResourceAsStream("ui/component-playground.html")) {
             if (stream == null) {
-                throw new IllegalArgumentException("Resource not found: " + resourcePath);
+                throw new IllegalArgumentException("Resource not found: " + "ui/component-playground.html");
             }
             return stream.readAllBytes();
         } catch (IOException e) {
-            throw new RuntimeException("Failed to load test resource " + resourcePath, e);
+            throw new RuntimeException("Failed to load test resource " + "ui/component-playground.html", e);
         }
     }
 }
