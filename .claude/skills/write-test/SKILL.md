@@ -36,4 +36,4 @@ Use method-level groups only when a specific method intentionally differs from t
 - If a UI test changes only one page or workflow, prefer a single targeted smoke test over running the whole UI suite.
 - Use `singleThreaded = true` on class-level `@Test` only when shared mutable state or filesystem artifacts make parallel execution unsafe.
 - Keep test data local to the test unless multiple tests truly need the same fixture.
-- For framework refactoring, follow the `refactor` skill — the protecting test must exist and pass before the refactor is considered complete.
+- For framework refactoring, follow the `refactor` skill - the protecting test must exist and pass before the refactor is considered complete.

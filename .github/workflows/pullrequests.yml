@@ -1,13 +1,5 @@
 name: Pull requests runs
 on:
-  push:
-    branches:
-      - master
-    paths-ignore:
-      - 'docs/**'
-      - '.codex/**'
-      - '.claude/**'
-      - 'README.md'
   pull_request:
     branches:
       - master

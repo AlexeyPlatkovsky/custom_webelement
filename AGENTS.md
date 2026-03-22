@@ -49,6 +49,8 @@ Treat as non-trivial if any are true:
 
 Examples: nested page objects, `iPageFactory` refactor, new AI provider, test execution changes.
 
+Use @ORCHESTRATION.md for agent delegation and orchestration rules for non-trivial tasks
+
 ## Coding Guidelines
 
 - Use Java 21 features when they improve clarity; do not force them.
@@ -92,12 +94,3 @@ At session start, scan all `.claude/skills/**/SKILL.md` files and index their `n
 | `work-with-git` | Branch strategy and git safety rules |
 | `write-test` | Rules for writing and placing unit and UI tests |
 
-## Default Workflow
-
-1. Classify the task as trivial or non-trivial.
-2. Inspect relevant code and docs.
-3. Suggest a branch for non-trivial work if appropriate.
-4. Implement the smallest coherent change set.
-5. Add or update tests for behavior changes; for framework refactors, do this first.
-6. Update docs when needed.
-7. Report what changed, what was verified, and what remains unverified.
