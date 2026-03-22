@@ -6,6 +6,7 @@
       "Bash(git :*)",
       "Bash(git add:*)",
       "Bash(git checkout:*)",
+      "Bash(git pull:*)",
       "Bash(git stash:*)",
       "Bash(mkdir :*)",
       "Edit",
@@ -16,7 +17,6 @@
     ],
     "ask": [
       "Bash(git comment:*)",
-      "Bash(git pull:*)",
       "Bash(git push:*)"
     ]
   }
