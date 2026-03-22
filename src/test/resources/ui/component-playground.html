@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Component Playground</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 24px;
+            background: #f5f7fb;
+            color: #1f2937;
+        }
+
+        h1 {
+            margin-bottom: 8px;
+        }
+
+        .page-grid {
+            display: grid;
+            gap: 16px;
+        }
+
+        .card {
+            padding: 16px;
+            border: 1px solid #dbe2ea;
+            border-radius: 12px;
+            background: #ffffff;
+        }
+
+        .card h2 {
+            margin-top: 0;
+        }
+
+        .component-input,
+        #global-input {
+            width: 100%;
+            max-width: 320px;
+            padding: 8px 10px;
+            border: 1px solid #94a3b8;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .component-value,
+        #global-value {
+            margin-top: 10px;
+            font-weight: 700;
+        }
+
+        .result-item {
+            margin: 6px 0;
+        }
+    </style>
+    <script>
+        function mirrorValue(rootId, value) {
+            document.querySelector("#" + rootId + " .component-value").textContent = value;
+        }
+
+        function mirrorGlobalValue(value) {
+            document.getElementById("global-value").textContent = value;
+        }
+    </script>
+</head>
+<body>
+<main class="page-grid">
+    <section class="card" id="top-level-demo">
+        <h1>Component Playground</h1>
+        <p>Local fixture for page object and component scope tests.</p>
+        <label for="global-input">Global input</label>
+        <input
+            id="global-input"
+            type="text"
+            value=""
+            oninput="mirrorGlobalValue(this.value)"
+        />
+        <div id="global-value"></div>
+        <ul id="result-list">
+            <li class="result-item">Stable alpha entry</li>
+            <li class="result-item">Stable beta entry</li>
+            <li class="result-item">Stable gamma entry</li>
+        </ul>
+    </section>
+
+    <section class="card" id="class-component">
+        <h2>Class scoped component</h2>
+        <input
+            class="component-input"
+            type="text"
+            value=""
+            oninput="mirrorValue('class-component', this.value)"
+        />
+        <div class="component-value"></div>
+    </section>
+
+    <section class="card" id="field-component">
+        <h2>Field scoped component</h2>
+        <input
+            class="component-input"
+            type="text"
+            value=""
+            oninput="mirrorValue('field-component', this.value)"
+        />
+        <div class="component-value"></div>
+    </section>
+
+    <section class="card" id="field-override-component">
+        <h2>Field overrides class component</h2>
+        <input
+            class="component-input"
+            type="text"
+            value=""
+            oninput="mirrorValue('field-override-component', this.value)"
+        />
+        <div class="component-value"></div>
+    </section>
+
+    <section class="card" id="class-ignored-component">
+        <h2>Wrong scope component</h2>
+        <input class="component-input" type="text" value="wrong-scope-input" />
+        <div class="component-value">wrong-scope-value</div>
+    </section>
+</main>
+</body>
+</html>

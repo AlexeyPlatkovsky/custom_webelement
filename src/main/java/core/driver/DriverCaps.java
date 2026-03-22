@@ -7,6 +7,9 @@ import utils.logging.iLogger;
 import utils.properties.RemoteEnvProperties;
 import utils.properties.SystemProperties;
 
+import java.io.IOException;
+import java.nio.file.Files;
+
 public class DriverCaps {
     private static MutableCapabilities capabilities;
 
@@ -28,13 +31,24 @@ public class DriverCaps {
                 .addArguments("--ignore-certificate-errors")
                 .addArguments("--disable-extensions")
                 .addArguments("--no-sandbox")
+                .addArguments("--disable-dev-shm-usage")
+                .addArguments("--remote-debugging-port=0")
+                .addArguments("--user-data-dir=" + createChromeProfileDir())
                 .addArguments("--remote-allow-origins=*");
 
         if (SystemProperties.OS.equalsIgnoreCase("unix")) {
-            options.addArguments("--headless")
+            options.addArguments("--headless=new")
                     .addArguments("--disable-gpu");
         }
         return options;
+    }
+
+    private static String createChromeProfileDir() {
+        try {
+            return Files.createTempDirectory("chrome-profile-").toAbsolutePath().toString();
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to create temporary Chrome profile directory", e);
+        }
     }
 
     public static MutableCapabilities getFirefoxCas() {

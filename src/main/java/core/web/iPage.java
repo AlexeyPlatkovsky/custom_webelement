@@ -18,29 +18,43 @@ public abstract class iPage {
     protected WebDriver driver;
     protected WebDriverWait wait;
     private String pageName;
+    private iWebElement scopeRoot;
 
     public iPage() {
         PageInitializationContext initContext = PAGE_INITIALIZATION_CONTEXT.get();
         if (initContext != null) {
-            initializePage(initContext.driver(), initContext.pageName());
+            initializePage(initContext.driver(), initContext.pageName(), initContext.scopeRoot());
         } else {
-            initializePage(DriverFactory.getCurrentDriver(), getClass().getSimpleName());
+            initializePage(DriverFactory.getCurrentDriver(), getClass().getSimpleName(), null);
         }
     }
 
     protected final void initializePage(WebDriver driver, String pageName) {
+        initializePage(driver, pageName, null);
+    }
+
+    protected final void initializePage(WebDriver driver, String pageName, iWebElement scopeRoot) {
         this.driver = driver;
         this.pageName = pageName;
+        this.scopeRoot = scopeRoot;
         wait = new WebDriverWait(this.driver, Duration.ofSeconds(10));
         iPageFactory.initElements(this.driver, this);
     }
 
     static void beginPageInitialization(WebDriver driver, String pageName) {
-        PAGE_INITIALIZATION_CONTEXT.set(new PageInitializationContext(driver, pageName));
+        beginPageInitialization(driver, pageName, null);
+    }
+
+    static void beginPageInitialization(WebDriver driver, String pageName, iWebElement scopeRoot) {
+        PAGE_INITIALIZATION_CONTEXT.set(new PageInitializationContext(driver, pageName, scopeRoot));
     }
 
     static void clearPageInitialization() {
         PAGE_INITIALIZATION_CONTEXT.remove();
+    }
+
+    iWebElement getScopeRoot() {
+        return scopeRoot;
     }
 
     public void openPage() {
@@ -83,6 +97,6 @@ public abstract class iPage {
         }
     }
 
-    private record PageInitializationContext(WebDriver driver, String pageName) {
+    private record PageInitializationContext(WebDriver driver, String pageName, iWebElement scopeRoot) {
     }
 }
