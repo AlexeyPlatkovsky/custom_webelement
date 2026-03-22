@@ -35,8 +35,24 @@ public class iPageFactory {
             if (!hasAnnotation(field)) {
                 return;
             }
+            if (isClass(field, iPage.class)) {
+                iWebElement scopeRoot = createComponentScopeRoot(driver, field, section);
+                iPage component = (iPage) getValueField(field, section);
+                if (component == null) {
+                    iPage.beginPageInitialization(driver, field.getName(), scopeRoot);
+                    try {
+                        component = (iPage) field.getType().getDeclaredConstructor().newInstance();
+                    } finally {
+                        iPage.clearPageInitialization();
+                    }
+                } else {
+                    component.initializePage(driver, field.getName(), scopeRoot);
+                }
+                field.set(section, component);
+                return;
+            }
             Object instance = getValueField(field, section);
-            if (instance == null) {
+            if (shouldCreateNewInstance(driver, instance)) {
                 instance = newInstance(driver, field);
             }
             if (instance != null) {
@@ -45,6 +61,7 @@ public class iPageFactory {
                     iWebElement el = (iWebElement) instance;
                     By locator = getLocatorFromField(field);
                     Waiter waiter = getWaiterFromField(field);
+                    el.setParent(getScopeRoot(section));
                     if (locator != null) {
                         el.setLocator(locator);
                     }
@@ -55,9 +72,19 @@ public class iPageFactory {
                 }
                 field.set(section, instance);
             }
-        } catch (IllegalAccessException e) {
+        } catch (ReflectiveOperationException e) {
             iLogger.error(e);
         }
+    }
+
+    private static boolean shouldCreateNewInstance(WebDriver driver, Object instance) {
+        if (instance == null) {
+            return true;
+        }
+        if (instance instanceof iWebElement element) {
+            return element.getDriver() != driver;
+        }
+        return false;
     }
 
     private static Object newInstance(WebDriver driver, Field field) {
@@ -66,7 +93,8 @@ public class iPageFactory {
         }
         if (isInterface(field, WebElement.class) || isInterface(field, iWebElement.class)) {
             return new iWebElement(driver, field.getName());
-        } else {
+        }
+        else {
             return null;
         }
     }
@@ -107,6 +135,33 @@ public class iPageFactory {
     private static boolean hasAnnotation(Field field) {
         return field.isAnnotationPresent(FindBy.class)
                 || field.getType().isAnnotationPresent(FindBy.class);
+    }
+
+    private static iWebElement createComponentScopeRoot(WebDriver driver, Field field, Object section) {
+        By locator = getComponentLocator(field);
+        if (locator == null) {
+            return null;
+        }
+
+        iWebElement scopeRoot = new iWebElement(driver, field.getName() + "Root");
+        scopeRoot.setLocator(locator);
+        scopeRoot.setParent(getScopeRoot(section));
+        return scopeRoot;
+    }
+
+    private static By getComponentLocator(Field field) {
+        FindBy locator = field.getAnnotation(FindBy.class);
+        if (locator == null) {
+            locator = field.getType().getAnnotation(FindBy.class);
+        }
+        return findByToBy(locator);
+    }
+
+    private static iWebElement getScopeRoot(Object section) {
+        if (section instanceof iPage page) {
+            return page.getScopeRoot();
+        }
+        return null;
     }
 
     private static By findByToBy(FindBy locator) {

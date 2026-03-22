@@ -1,5 +1,6 @@
 package core.web;
 
+import org.jetbrains.annotations.NotNull;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -23,7 +24,7 @@ public class iWebElementsList extends iWebElement implements List<iWebElement> {
 
     @Override
     public boolean isEmpty() {
-        return getAll().size() == 0;
+        return getAll().isEmpty();
     }
 
     @Override
@@ -46,27 +47,27 @@ public class iWebElementsList extends iWebElement implements List<iWebElement> {
     }
 
     @Override
-    public boolean containsAll(Collection<?> c) {
+    public boolean containsAll(@NotNull Collection<?> c) {
         return false;
     }
 
     @Override
-    public boolean addAll(Collection<? extends iWebElement> c) {
+    public boolean addAll(@NotNull Collection<? extends iWebElement> c) {
         return false;
     }
 
     @Override
-    public boolean addAll(int index, Collection<? extends iWebElement> c) {
+    public boolean addAll(int index, @NotNull Collection<? extends iWebElement> c) {
         return false;
     }
 
     @Override
-    public boolean removeAll(Collection<?> c) {
+    public boolean removeAll(@NotNull Collection<?> c) {
         return false;
     }
 
     @Override
-    public boolean retainAll(Collection<?> c) {
+    public boolean retainAll(@NotNull Collection<?> c) {
         return false;
     }
 
@@ -106,15 +107,15 @@ public class iWebElementsList extends iWebElement implements List<iWebElement> {
         return getAll().contains(o);
     }
 
-    public Iterator<iWebElement> iterator() {
+    public @NotNull Iterator<iWebElement> iterator() {
         return getAll().iterator();
     }
 
-    public Object[] toArray() {
+    public Object @NotNull [] toArray() {
         return getAll().toArray();
     }
 
-    public <T> T[] toArray(T[] a) {
+    public <T> T @NotNull [] toArray(T @NotNull [] a) {
         return getAll().toArray(a);
     }
 
@@ -127,20 +128,20 @@ public class iWebElementsList extends iWebElement implements List<iWebElement> {
         return null;
     }
 
-    public ListIterator<iWebElement> listIterator() {
+    public @NotNull ListIterator<iWebElement> listIterator() {
         return getAll().listIterator();
     }
 
-    public ListIterator<iWebElement> listIterator(int index) {
+    public @NotNull ListIterator<iWebElement> listIterator(int index) {
         return getAll().listIterator(index);
     }
 
-    public List<iWebElement> subList(int fromIndex, int toIndex) {
+    public @NotNull List<iWebElement> subList(int fromIndex, int toIndex) {
         return getAll().subList(fromIndex, toIndex);
     }
 
     public boolean isDisplayed() {
-        return getWebElements().get(0).isDisplayed();
+        return getWebElements().getFirst().isDisplayed();
     }
 
     public List<iWebElement> getAll() {
@@ -150,13 +151,16 @@ public class iWebElementsList extends iWebElement implements List<iWebElement> {
     private List<iWebElement> getWebElements() {
         List<iWebElement> elElements = new ArrayList<>();
         try {
-            wait.until(ExpectedConditions.numberOfElementsToBeMoreThan(getLocator(), 0));
+            wait.until(driver -> !findElementsInScope().isEmpty() ? Boolean.TRUE : null);
         } catch (Exception e) {
             iLogger.info("No webelements with locator {}", getLocator().toString());
         }
 
-        for (int i = 0; i < getDriver().findElements(getLocator()).size(); i++) {
-            elElements.add(new iWebElement(driver, name, getLocatorWithId(getLocator(), i + 1)));
+        List<org.openqa.selenium.WebElement> scopedElements = findElementsInScope();
+        for (int i = 0; i < scopedElements.size(); i++) {
+            iWebElement element = new iWebElement(driver, name, getLocatorWithId(getLocator(), i + 1));
+            element.setParent(getParentElement());
+            elElements.add(element);
         }
         return elElements;
     }

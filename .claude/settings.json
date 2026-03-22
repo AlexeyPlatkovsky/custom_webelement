@@ -1,7 +1,19 @@
 {
   "permissions": {
+    "defaultMode": "acceptEdits",
+    "allow": [
+      "Bash(./gradlew :*)",
+      "Bash(git :*)",
+      "Bash(mkdir :*)",
+      "Edit",
+      "Glob",
+      "Grep",
+      "Read",
+      "Write"
+    ],
     "ask": [
-      "Bash(git push*)"
+      "Bash(git push:*)",
+      "Bash(git comment:*)"
     ]
   }
 }

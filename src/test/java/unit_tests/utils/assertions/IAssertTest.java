@@ -57,6 +57,17 @@ public class IAssertTest {
     }
 
     @Test
+    public void checkDescriptionIsUsedAsFailureMessage() {
+        try {
+            iAssert.isTrue(false, "boolean assertion failure message");
+            iAssert.fail("assertion should have failed");
+        } catch (AssertionError error) {
+            iAssert.contains(error.getMessage(), "boolean assertion failure message",
+                    "assertion preserves provided failure message");
+        }
+    }
+
+    @Test
     public void emptyChecksShouldPass() {
         iAssert.isEmpty("", "string is empty");
         iAssert.isNotEmpty("x", "string is not empty");
