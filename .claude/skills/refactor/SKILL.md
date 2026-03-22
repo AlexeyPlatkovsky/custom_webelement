@@ -18,9 +18,9 @@ Do NOT use for: feature additions, isolated bug fixes in a single page/test, or 
 Before changing any production code:
 
 1. Write or update a unit test that describes the behavior being preserved (or the bug being fixed).
-2. Run it — confirm it passes (behavior preservation) or fails for the expected reason (bug fix).
+2. Run it - confirm it passes (behavior preservation) or fails for the expected reason (bug fix).
 3. Change production code.
-4. Rerun the protecting test — it must pass before the refactor is considered complete.
+4. Rerun the protecting test - it must pass before the refactor is considered complete.
 
 Name protecting tests by behavior, not by implementation:
 - Good: `elementIsReusedAfterPageNavigation`
@@ -36,7 +36,7 @@ For non-trivial refactors, write a plan before starting (see `work-with-docs` sk
 
 ## High-Risk Areas
 
-Extra care required — these have hidden coupling across the framework:
+Extra care required - these have hidden coupling across the framework:
 
 | Area | Risk |
 |------|------|
@@ -69,10 +69,10 @@ If the refactor changes a public method signature, annotation name, or config ke
 
 Run in this order:
 
-1. `./gradlew compileJava` — must be clean
-2. `./gradlew compileTestJava` — must be clean
-3. `./gradlew test -Dsuite=unit` — protecting test and all unit tests must pass
-4. `./gradlew checkstyleMain` — style must be clean
+1. `./gradlew compileJava` - must be clean
+2. `./gradlew compileTestJava` - must be clean
+3. `./gradlew test -Dsuite=unit` - protecting test and all unit tests must pass
+4. `./gradlew checkstyleMain` - style must be clean
 5. If lifecycle, page factory, or driver behavior changed: run the narrowest relevant UI smoke test
 
 See the `validate` skill for the full decision table.
