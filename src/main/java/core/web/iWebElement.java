@@ -29,6 +29,7 @@ public class iWebElement implements WebElement {
     private final CacheValue<WebElement> cachedWebElement = new CacheValue<>();
     protected By byLocator;
     protected String copiedByLocator;
+    private iWebElement parentElement;
     private boolean shouldBeCached = false;
     private final JavascriptExecutor jsExecutor;
 
@@ -80,7 +81,7 @@ public class iWebElement implements WebElement {
             return cachedWebElement.get();
         } else {
             try {
-                WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(byLocator));
+                WebElement element = resolveElement();
                 if (isHighlight) {
                     highlightElement(element);
                 }
@@ -98,7 +99,7 @@ public class iWebElement implements WebElement {
 
     private void logTimeoutDiagnostics() {
         try {
-            int matchedCount = driver.findElements(byLocator).size();
+            int matchedCount = findElementsInScope().size();
             iLogger.error("Timeout diagnostics: element=" + name + ", locator=" + byLocator + ", matchedNow=" + matchedCount);
         } catch (Exception ex) {
             iLogger.error("Timeout diagnostics: failed to count elements for locator " + byLocator + ": " + ex.getMessage());
@@ -189,7 +190,7 @@ public class iWebElement implements WebElement {
             try {
                 waitForClick.until(new HiddenElementCondition(element));
             } catch (TimeoutException ex) {
-                if (driver.findElements(byLocator).size() == 0) {
+                if (findElementsInScope().isEmpty()) {
                     throw new NoSuchElementException("No such element " + this);
                 }
                 throw new TimeoutException("Failed to click with JS on " + this);
@@ -439,6 +440,39 @@ public class iWebElement implements WebElement {
 
     public void setShouldBeCached(boolean shouldBeCached) {
         this.shouldBeCached = shouldBeCached;
+    }
+
+    public void setParent(iWebElement parentElement) {
+        this.parentElement = parentElement;
+    }
+
+    protected iWebElement getParentElement() {
+        return parentElement;
+    }
+
+    protected List<WebElement> findElementsInScope() {
+        try {
+            if (parentElement != null) {
+                return parentElement.getWebElement(false).findElements(byLocator);
+            }
+            return driver.findElements(byLocator);
+        } catch (NoSuchElementException | StaleElementReferenceException e) {
+            return List.of();
+        }
+    }
+
+    private WebElement resolveElement() {
+        if (parentElement == null) {
+            return wait.until(ExpectedConditions.presenceOfElementLocated(byLocator));
+        }
+
+        return wait.until(webDriver -> {
+            try {
+                return parentElement.getWebElement(false).findElement(byLocator);
+            } catch (NoSuchElementException | StaleElementReferenceException e) {
+                return null;
+            }
+        });
     }
 
     public void selectTextInElement() {
