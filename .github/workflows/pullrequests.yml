@@ -2,7 +2,7 @@ name: Pull requests runs
 on:
   pull_request:
     branches:
-      - master
+      - main
     paths-ignore:
       - 'docs/**'
       - '.codex/**'

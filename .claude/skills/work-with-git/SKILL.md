@@ -27,7 +27,7 @@ git symbolic-ref refs/remotes/origin/HEAD
 - Do not assume the correct base branch without checking the repo.
 - Do not switch branches or pull automatically.
 - If the worktree is dirty, stay on the current branch unless the user explicitly approves a branch change.
-- When a new branch is needed, suggest the repo's active integration branch or remote default branch as the base. In this repo that may be `master`, but do not hardcode it.
+- When a new branch is needed, suggest the repo's active integration branch or remote default branch as the base. In this repo that may be `main`, but do not hardcode it.
 - If `refs/remotes/origin/HEAD` is unavailable locally, inspect the local branches and ask before fetching remote state.
 
 ## Branch Creation Example
@@ -56,4 +56,4 @@ git checkout -b <prefix>/my-change
 - Keep commits focused. Do not include unrelated files from a dirty worktree.
 - Prefer `git status --short` and targeted `git diff -- <path>` before staging.
 - If a task only updates skills or docs, keep the branch and commit scoped to those files.
-- Direct pushes to `master` are not allowed; always open a PR.
+- Direct pushes to `main` are not allowed; always open a PR.

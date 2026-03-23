@@ -1,7 +1,7 @@
 # Core Package Refactoring Plan
 
 **Branch:** `refactor/core-package-improvements`
-**Based on:** `master` by default; use another base branch only if the user explicitly requests it
+**Based on:** `main` by default; use another base branch only if the user explicitly requests it
 **Scope:** `src/main/java/core/`
 
 ---
