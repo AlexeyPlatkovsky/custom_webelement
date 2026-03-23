@@ -2,13 +2,16 @@
   "permissions": {
     "defaultMode": "acceptEdits",
     "allow": [
-      "Bash(./gradlew :*)",
-      "Bash(git :*)",
-      "Bash(git add:*)",
-      "Bash(git checkout:*)",
-      "Bash(git pull:*)",
-      "Bash(git stash:*)",
-      "Bash(mkdir :*)",
+      "Bash(./gradlew:*)",
+      "Bash(do if:*)",
+      "Bash(done)",
+      "Bash(git:*)",
+      "Bash(grep:*)",
+      "Bash(fi)",
+      "Bash(find:*)",
+      "Bash(mkdir:*)",
+      "Bash(then echo:*)",
+      "Bash(while read:*)",
       "Edit",
       "Glob",
       "Grep",
@@ -16,8 +19,11 @@
       "Write"
     ],
     "ask": [
-      "Bash(git comment:*)",
-      "Bash(git push:*)"
+      "Bash(git clean:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git rebase:*)",
+      "Bash(git reset:*)"
     ]
   }
 }

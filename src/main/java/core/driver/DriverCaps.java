@@ -11,20 +11,22 @@ import java.io.IOException;
 import java.nio.file.Files;
 
 public class DriverCaps {
-    private static MutableCapabilities capabilities;
 
     public static MutableCapabilities getCaps(DriverNames driverName) {
-        switch (driverName) {
-            case CHROME -> capabilities = getChromeCaps();
-            case FIREFOX -> capabilities = getFirefoxCas();
-            case LAMBDA -> capabilities = getLambdaCaps();
+        MutableCapabilities capabilities = switch (driverName) {
+            case CHROME  -> getChromeCaps();
+            case FIREFOX -> getFirefoxCaps();
+            case LAMBDA  -> getLambdaCaps();
+        };
+        if (driverName == DriverNames.LAMBDA) {
+            iLogger.info("Driver options are : [Lambda caps - credentials redacted]");
+        } else {
+            iLogger.info("Driver options are : {}", capabilities.toString());
         }
-
-        iLogger.info("Driver options are : {}", capabilities.toString());
         return capabilities;
     }
 
-    public static MutableCapabilities getChromeCaps() {
+    static MutableCapabilities getChromeCaps() {
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--window-size=" + SystemProperties.SCREEN_RESOLUTION)
                 .addArguments("--lang=ru-RU")
@@ -51,7 +53,7 @@ public class DriverCaps {
         }
     }
 
-    public static MutableCapabilities getFirefoxCas() {
+    static MutableCapabilities getFirefoxCaps() {
         FirefoxOptions options = new FirefoxOptions();
         options.addArguments("--window-size=" + SystemProperties.SCREEN_RESOLUTION)
                 .addArguments("--lang=ru-RU")
@@ -59,7 +61,7 @@ public class DriverCaps {
         return options;
     }
 
-    public static MutableCapabilities getLambdaCaps() {
+    static MutableCapabilities getLambdaCaps() {
         MutableCapabilities remoteCapabilities = new MutableCapabilities();
         remoteCapabilities.setCapability("browser", SystemProperties.REMOTE_BROWSER);
         remoteCapabilities.setCapability("version", SystemProperties.BROWSER_VERSION);

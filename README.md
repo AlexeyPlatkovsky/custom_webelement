@@ -143,5 +143,17 @@ This keeps test code concise and guarantees assertion intent is always visible i
 You can find some example of tests in demo test class: 
 
     src/test/java/tests/DuckDuckGoPageTest.java
-    
+
+## Validation
+
+For fast local verification, use Gradle compile, static-analysis, and targeted test tasks:
+
+```powershell
+./gradlew compileJava
+./gradlew compileTestJava
+./gradlew checkstyleMain
+./gradlew checkstyleTest
+./gradlew test -Dsuite=unit
+```
+
 Feel free to use and contribute to this open-source framework to enhance your UI testing capabilities.

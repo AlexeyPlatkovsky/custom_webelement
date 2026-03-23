@@ -4,8 +4,27 @@ import core.tools.CacheValue;
 import core.web.conditions.HiddenElementCondition;
 import core.web.conditions.TextCondition;
 import lombok.Getter;
-import org.openqa.selenium.*;
-import org.openqa.selenium.By.*;
+import org.openqa.selenium.By;
+import org.openqa.selenium.Dimension;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.Point;
+import org.openqa.selenium.Rectangle;
+import org.openqa.selenium.StaleElementReferenceException;
+import org.openqa.selenium.TimeoutException;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebDriverException;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.By.ByClassName;
+import org.openqa.selenium.By.ByCssSelector;
+import org.openqa.selenium.By.ById;
+import org.openqa.selenium.By.ByLinkText;
+import org.openqa.selenium.By.ByName;
+import org.openqa.selenium.By.ByPartialLinkText;
+import org.openqa.selenium.By.ByTagName;
+import org.openqa.selenium.By.ByXPath;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -16,7 +35,6 @@ import utils.properties.WebElementProperties;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -258,24 +276,23 @@ public class iWebElement implements WebElement {
     }
 
     public String getText() {
-        setFocus();
         WebElement el = getWebElement();
+        executeScript("arguments[0].scrollIntoView(true);", el);
+        executeScript("arguments[0].focus();", el);
         String text = el.getText();
         String value = el.getAttribute("value");
-        String returnText;
         if (!isBlank(text)) {
             iLogger.debug("Get inner text -->" + text + "<-- from " + name);
-            returnText = text;
-        } else if (!isBlank(value)) {
+            stopHighlight(el);
+            return text;
+        }
+        if (!isBlank(value)) {
             iLogger.debug("Get value text -->" + value + "<-- from " + name);
-            returnText = value;
-        } else {
-            text = el.getText();
-            iLogger.debug("Get inner text -->" + text + "<-- from " + name);
-            returnText = text;
+            stopHighlight(el);
+            return value;
         }
         stopHighlight(el);
-        return returnText;
+        return "";
     }
 
     public List<WebElement> findElements(By by) {
@@ -476,6 +493,12 @@ public class iWebElement implements WebElement {
     }
 
     public void selectTextInElement() {
+        if (!(byLocator instanceof By.ByXPath)) {
+            throw new UnsupportedOperationException(
+                "selectTextInElement() only supports XPath locators; got: "
+                    + byLocator.getClass().getSimpleName()
+            );
+        }
         iLogger.debug("Select text in element {}", toString());
         executeScript("let element = document.evaluate(\"" + getLocatorValue() + "\", " +
                 "document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;\n" +
@@ -495,7 +518,10 @@ public class iWebElement implements WebElement {
     }
 
     public boolean isScrollPresented() {
-        boolean isScrollPresented = (boolean) executeScript("return arguments[0].scrollHeight > arguments[0].clientHeight;", getWebElement());
+        boolean isScrollPresented = (boolean) executeScript(
+                "return arguments[0].scrollHeight > arguments[0].clientHeight;",
+                getWebElement()
+        );
         stopHighlight();
         return isScrollPresented;
     }
@@ -519,3 +545,5 @@ public class iWebElement implements WebElement {
         return this.findElement(By.xpath("./.."));
     }
 }
+
+

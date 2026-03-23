@@ -1,16 +1,16 @@
 package core.web.conditions;
 
-import core.driver.DriverFactory;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import utils.logging.iLogger;
 
-public class HiddenElementCondition implements ExpectedCondition {
+public class HiddenElementCondition implements ExpectedCondition<Boolean> {
 
-    WebElement element;
+    private final WebElement element;
 
     public HiddenElementCondition(WebElement element) {
         iLogger.info("Try to click element with JS");
@@ -18,10 +18,11 @@ public class HiddenElementCondition implements ExpectedCondition {
     }
 
     @Override
-    public Boolean apply(Object input) {
+    public Boolean apply(WebDriver driver) {
         try {
-            executeScript("arguments[0].scrollIntoView(true);", element);
-            executeScript("arguments[0].focus();", element);
+            JavascriptExecutor js = (JavascriptExecutor) driver;
+            js.executeScript("arguments[0].scrollIntoView(true);", element);
+            js.executeScript("arguments[0].focus();", element);
             try {
                 element.click();
             } catch (WebDriverException ex) {
@@ -31,9 +32,5 @@ public class HiddenElementCondition implements ExpectedCondition {
         } catch (WebDriverException e) {
             return false;
         }
-    }
-
-    private void executeScript(String s, WebElement element) {
-        ((JavascriptExecutor) DriverFactory.getCurrentDriver()).executeScript(s, element);
     }
 }

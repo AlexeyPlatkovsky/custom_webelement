@@ -2,12 +2,18 @@ package core.web;
 
 import org.jetbrains.annotations.NotNull;
 import org.openqa.selenium.By;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.WebElement;
 import org.testng.SkipException;
 import utils.logging.iLogger;
+import utils.properties.WebElementProperties;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.stream.Collectors;
 
 public class iWebElementsList extends iWebElement implements List<iWebElement> {
@@ -29,61 +35,62 @@ public class iWebElementsList extends iWebElement implements List<iWebElement> {
 
     @Override
     public boolean add(iWebElement webElement) {
-        return true;
+        throw new UnsupportedOperationException("iWebElementsList is read-only");
     }
 
     @Override
     public void add(int index, iWebElement element) {
+        throw new UnsupportedOperationException("iWebElementsList is read-only");
     }
 
     @Override
     public boolean remove(Object o) {
-        return false;
+        throw new UnsupportedOperationException("iWebElementsList is read-only");
     }
 
     @Override
     public iWebElement remove(int index) {
-        return null;
+        throw new UnsupportedOperationException("iWebElementsList is read-only");
     }
 
     @Override
     public boolean containsAll(@NotNull Collection<?> c) {
-        return false;
+        throw new UnsupportedOperationException("iWebElementsList is read-only");
     }
 
     @Override
     public boolean addAll(@NotNull Collection<? extends iWebElement> c) {
-        return false;
+        throw new UnsupportedOperationException("iWebElementsList is read-only");
     }
 
     @Override
     public boolean addAll(int index, @NotNull Collection<? extends iWebElement> c) {
-        return false;
+        throw new UnsupportedOperationException("iWebElementsList is read-only");
     }
 
     @Override
     public boolean removeAll(@NotNull Collection<?> c) {
-        return false;
+        throw new UnsupportedOperationException("iWebElementsList is read-only");
     }
 
     @Override
     public boolean retainAll(@NotNull Collection<?> c) {
-        return false;
+        throw new UnsupportedOperationException("iWebElementsList is read-only");
     }
 
     @Override
     public iWebElement set(int index, iWebElement element) {
-        return null;
+        throw new UnsupportedOperationException("iWebElementsList is read-only");
     }
 
     @Override
     public int indexOf(Object o) {
-        return 0;
+        throw new UnsupportedOperationException("iWebElementsList is read-only");
     }
 
     @Override
     public int lastIndexOf(Object o) {
-        return 0;
+        throw new UnsupportedOperationException("iWebElementsList is read-only");
     }
 
     @Override
@@ -156,40 +163,20 @@ public class iWebElementsList extends iWebElement implements List<iWebElement> {
             iLogger.info("No webelements with locator {}", getLocator().toString());
         }
 
-        List<org.openqa.selenium.WebElement> scopedElements = findElementsInScope();
-        for (int i = 0; i < scopedElements.size(); i++) {
-            iWebElement element = new iWebElement(driver, name, getLocatorWithId(getLocator(), i + 1));
-            element.setParent(getParentElement());
-            elElements.add(element);
+        int size = findElementsInScope().size();
+        for (int index = 0; index < size; index++) {
+            elElements.add(new IndexedListItem(index));
         }
         return elElements;
     }
 
-    private By getLocatorWithId(By byLocator, int index) {
-        String locator = getLocator().toString().replaceAll("(By\\.)(\\w+)(: )", "").trim();
-        switch (byLocator.getClass().getSimpleName()) {
-            case "ByXPath" -> {
-                locator = "(" + locator + ")[" + index + "]";
-                return new By.ByXPath(locator);
-            }
-            case "ByCssSelector" -> {
-                locator = locator + ":nth-child(" + index + ")";
-                return new By.ByCssSelector(locator);
-            }
-            default -> {
-                iLogger.error("iWebElementList works only with CSS and XPATH selectors");
-                throw new IllegalArgumentException("iWebElementList works only with CSS and XPATH selectors");
-            }
-        }
-    }
-
     public iWebElement getChildWithText(String expectedText) {
         for (iWebElement element : getWebElements()) {
-            if (element.getChild(By.xpath(String.format("//*[text()='%s']", expectedText))).isDisplayed()) {
+            if (!element.findElements(By.xpath(".//*[text()='" + expectedText + "']")).isEmpty()) {
                 return element;
             }
         }
-        throw new SkipException("No child with expected text");
+        throw new SkipException("No child with expected text: " + expectedText);
     }
 
     public void clickAll() {
@@ -200,4 +187,55 @@ public class iWebElementsList extends iWebElement implements List<iWebElement> {
         List<iWebElement> allElements = getAll();
         return allElements.stream().filter(iWebElement::isDisplayed).map(iWebElement::getText).collect(Collectors.toList());
     }
+
+    private By getItemLocator(int index) {
+        if (getLocator() instanceof By.ByXPath) {
+            return By.xpath("(" + getLocatorValue() + ")[" + (index + 1) + "]");
+        }
+        return getLocator();
+    }
+
+    private class IndexedListItem extends iWebElement {
+        private final int index;
+        private final By collectionLocator;
+
+        private IndexedListItem(int index) {
+            super(iWebElementsList.this.driver, iWebElementsList.this.name, iWebElementsList.this.getItemLocator(index));
+            this.index = index;
+            this.collectionLocator = iWebElementsList.this.getLocator();
+            this.wait = iWebElementsList.this.wait;
+            setParent(iWebElementsList.this.getParentElement());
+        }
+
+        @Override
+        public WebElement getWebElement(boolean isHighlight) {
+            try {
+                WebElement element = wait.until(webDriver -> {
+                    List<WebElement> currentElements = iWebElementsList.this.findElementsInScope();
+                    return index < currentElements.size() ? currentElements.get(index) : null;
+                });
+                if (isHighlight) {
+                    highlightElement(element);
+                }
+                return element;
+            } catch (TimeoutException e) {
+                iLogger.error(String.format("Timed out waiting for list item %s[%s] with locator %s",
+                        name, index, collectionLocator));
+                throw new SkipException("Don't see " + this);
+            }
+        }
+
+        private void highlightElement(WebElement element) {
+            boolean shouldBeHighlighted = Boolean.parseBoolean(WebElementProperties.WEBELEMENT_BORDER_SHOULD_BE_HIGHLIGHTED);
+            if (shouldBeHighlighted) {
+                String border = String.format("arguments[0].style.border='%s solid %s'",
+                        WebElementProperties.WEBELEMENT_BORDER_WIDTH, WebElementProperties.WEBELEMENT_BORDER_COLOR);
+                try {
+                    ((org.openqa.selenium.JavascriptExecutor) driver).executeScript(border, element);
+                } catch (Exception ignored) {
+                }
+            }
+        }
+    }
 }
+

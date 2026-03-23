@@ -15,7 +15,7 @@ public class Environment {
         Matcher m = p.matcher(rootUrl);
         if (m.find()) {
             rootUrl = m.group(1);
-            iLogger.info("Get root URL: " + rootUrl);
+            iLogger.info("Get root URL: {}", rootUrl);
         }
         return StringUtil.cutExtraEndSlashes(rootUrl);
     }

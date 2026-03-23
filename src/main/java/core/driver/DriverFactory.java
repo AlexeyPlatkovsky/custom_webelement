@@ -8,7 +8,6 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.remote.RemoteWebDriver;
-import org.testng.Assert;
 import utils.logging.iLogger;
 import utils.properties.RemoteEnvProperties;
 import utils.properties.SystemProperties;
@@ -19,7 +18,11 @@ import java.util.Objects;
 
 public class DriverFactory {
     private static final ThreadLocal<WebDriver> DRIVER = new ThreadLocal<>();
-    private static DriverNames driverName;
+    private static final ThreadLocal<DriverNames> DRIVER_NAME = new ThreadLocal<>();
+
+    static {
+        configureWebDriverManagerCache();
+    }
 
 
     public static WebDriver getCurrentDriver() {
@@ -33,9 +36,9 @@ public class DriverFactory {
     }
 
     public static WebDriver initDriver() {
-        driverName = DriverNames.valueOf(SystemProperties.DRIVER.toUpperCase());
+        DriverNames driverName = DriverNames.valueOf(SystemProperties.DRIVER.toUpperCase());
+        DRIVER_NAME.set(driverName);
         iLogger.info("Create driver " + driverName);
-        configureWebDriverManagerCache();
 
         switch (driverName) {
             case CHROME -> createChromeDriver();
@@ -68,12 +71,12 @@ public class DriverFactory {
             DRIVER.set(new RemoteWebDriver(new URL(accessUrl), capabilities));
             iLogger.info("Remote Lambda Driver is created. Remote session is starting.");
         } catch (Exception e) {
-            Assert.fail("Remote Web Driver creation failed. " + e);
+            throw new IllegalStateException("Remote WebDriver creation failed: " + e.getMessage(), e);
         }
     }
 
     public static DriverNames driverName() {
-        return driverName;
+        return DRIVER_NAME.get();
     }
 
     public static void disposeCurrentDriver() {
@@ -86,6 +89,7 @@ public class DriverFactory {
             driver.quit();
         } finally {
             DRIVER.remove();
+            DRIVER_NAME.remove();
         }
     }
 
