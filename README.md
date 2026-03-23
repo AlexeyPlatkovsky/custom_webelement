@@ -2,6 +2,8 @@
 
 This is an open-source framework for automating UI tests using Java 21 and Selenium. The primary distinction from native Selenium is the built-in capability to log all actions by default, such as finding elements, performing clicks, retrieving text, and more.
 
+For page-object conventions and locator guidance, see `docs/guides/writing-pages.md`.
+
 You can easily integrate this framework into your project if you are already using plain Selenium and following the Page Factory Pattern. To do this, you need to change the default PageFactory initialization to use "iPageFactory" as shown below:
 
 **Before:**
