@@ -38,7 +38,7 @@ public final class ReflectionUtils {
         if (type == expected) {
             return true;
         }
-        List<Class> interfaces = asList(type.getInterfaces());
+        List<Class<?>> interfaces = asList(type.getInterfaces());
         return interfaces.stream().anyMatch(i -> isInterface(i, expected)) || isInterface(type.getSuperclass(), expected);
     }
 
@@ -47,7 +47,7 @@ public final class ReflectionUtils {
         try {
             return field.get(obj);
         } catch (Exception ex) {
-            throw new RuntimeException(format("Can't get field '%s' value", field.getName()));
+            throw new RuntimeException(format("Can't get field '%s' value", field.getName()), ex);
         }
     }
 }

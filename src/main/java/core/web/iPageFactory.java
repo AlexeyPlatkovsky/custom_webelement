@@ -14,7 +14,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static core.tools.ReflectionUtils.*;
+import static core.tools.ReflectionUtils.getValueField;
+import static core.tools.ReflectionUtils.isClass;
+import static core.tools.ReflectionUtils.isInterface;
 
 public class iPageFactory {
 
@@ -195,3 +197,4 @@ public class iPageFactory {
         return null;
     }
 }
+

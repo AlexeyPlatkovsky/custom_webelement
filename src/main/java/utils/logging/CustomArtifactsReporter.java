@@ -61,11 +61,21 @@ public class CustomArtifactsReporter implements IReporter {
         return entries;
     }
 
-    private void addByStatus(List<ArtifactEntry> entries, String suiteName, String testName, Set<ITestResult> testResults, int fallbackStatus) {
+    private void addByStatus(
+            List<ArtifactEntry> entries,
+            String suiteName,
+            String testName,
+            Set<ITestResult> testResults,
+            int fallbackStatus
+    ) {
         for (ITestResult testResult : testResults) {
             int status = testResult.getStatus() > 0 ? testResult.getStatus() : fallbackStatus;
-            String className = testResult.getTestClass() == null ? "UnknownClass" : safeString(testResult.getTestClass().getName());
-            String methodName = testResult.getMethod() == null ? safeString(testResult.getName()) : safeString(testResult.getMethod().getMethodName());
+            String className = testResult.getTestClass() == null
+                    ? "UnknownClass"
+                    : safeString(testResult.getTestClass().getName());
+            String methodName = testResult.getMethod() == null
+                    ? safeString(testResult.getName())
+                    : safeString(testResult.getMethod().getMethodName());
             List<String> rawLogs = Reporter.getOutput(testResult);
             String normalizedLogs = CustomArtifactsReporterSupport.normalizeReporterLogs(rawLogs);
             String reportLogs = CustomArtifactsReporterSupport.filterLogsForStatus(normalizedLogs, status);
@@ -117,8 +127,12 @@ public class CustomArtifactsReporter implements IReporter {
                         .append("<td>").append(CustomArtifactsReporterSupport.htmlEscape(entry.testName())).append("</td>")
                         .append("<td>").append(CustomArtifactsReporterSupport.htmlEscape(entry.className())).append("</td>")
                         .append("<td>").append(CustomArtifactsReporterSupport.htmlEscape(entry.methodName())).append("</td>")
-                        .append("<td><span class='status'>").append(statusLabel).append("</span></td>")
-                        .append("<td>").append(CustomArtifactsReporterSupport.renderScreenshotCell(entry.screenshotPath(), reportOutputDir)).append("</td>")
+                        .append("<td><span class='status'>")
+                        .append(statusLabel)
+                        .append("</span></td>")
+                        .append("<td>")
+                        .append(CustomArtifactsReporterSupport.renderScreenshotCell(entry.screenshotPath(), reportOutputDir))
+                        .append("</td>")
                         .append("<td><pre>").append(CustomArtifactsReporterSupport.htmlEscape(entry.executionLog())).append("</pre></td>")
                         .append("</tr>");
             }
@@ -143,3 +157,7 @@ public class CustomArtifactsReporter implements IReporter {
     ) {
     }
 }
+
+
+
+

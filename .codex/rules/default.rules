@@ -52,6 +52,11 @@ prefix_rule(
 )
 
 prefix_rule(
+    pattern = ["git", "commit"],
+    decision = "ask",
+)
+
+prefix_rule(
     pattern = ["git", "branch"],
     decision = "allow",
 )
@@ -79,6 +84,11 @@ prefix_rule(
 prefix_rule(
     pattern = ["git", "merge-base"],
     decision = "allow",
+)
+
+prefix_rule(
+    pattern = ["git", "push"],
+    decision = "ask",
 )
 
 prefix_rule(

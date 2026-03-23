@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+    "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
+    "https://checkstyle.org/dtds/configuration_1_3.dtd">
+
+<module name="Checker">
+    <property name="severity" value="error"/>
+    <property name="fileExtensions" value="java"/>
+
+    <!-- Line length (AGENTS.md: "140-char style") -->
+    <module name="LineLength">
+        <property name="max" value="140"/>
+        <property name="ignorePattern" value="^(package|import)\s"/>
+    </module>
+
+    <module name="TreeWalker">
+        <!-- Imports (AGENTS.md: "no wildcard imports") -->
+        <module name="AvoidStarImport"/>
+        <module name="UnusedImports"/>
+        <module name="RedundantImport"/>
+
+        <!-- Naming -->
+        <module name="PackageName">
+            <property name="format" value="^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)*$"/>
+        </module>
+
+        <!-- Allow the project's i-prefix convention for framework types. -->
+        <module name="TypeName">
+            <property name="format" value="^(i[A-Z][a-zA-Z0-9]*|[A-Z][a-zA-Z0-9]*)$"/>
+        </module>
+
+        <module name="MethodName"/>
+        <module name="MemberName"/>
+        <module name="LocalVariableName"/>
+        <module name="ConstantName"/>
+
+        <!-- Banned usage -->
+        <module name="RegexpSinglelineJava">
+            <property name="format" value="System\.(out|err)\.print"/>
+            <property name="message" value="Use iLogger instead of System.out/err"/>
+            <property name="ignoreComments" value="true"/>
+        </module>
+
+        <module name="EmptyCatchBlock">
+            <property name="exceptionVariableName" value="ignored|ignore"/>
+        </module>
+
+        <!-- Correctness -->
+        <module name="StringLiteralEquality"/>
+        <module name="EqualsHashCode"/>
+        <module name="OneTopLevelClass"/>
+        <module name="MultipleVariableDeclarations"/>
+    </module>
+</module>

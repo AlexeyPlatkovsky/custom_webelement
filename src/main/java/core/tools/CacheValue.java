@@ -1,36 +1,21 @@
 package core.tools;
 
-import java.util.function.Supplier;
-
 public class CacheValue<T> {
 
-    private final static ThreadLocal<Long> globalCache = new ThreadLocal<>();
-    public long elementCache = 0;
+    private static final ThreadLocal<Long> GLOBAL_CACHE = new ThreadLocal<>();
+    private long elementCache = 0;
     private T value;
-    private final Supplier<T> getRule = () -> null;
 
-    public CacheValue() {
-    }
-
-    private static Long getGlobalCache() {
-        if (globalCache.get() == null) {
-            globalCache.set(0L);
+    private static long getGlobalCache() {
+        Long v = GLOBAL_CACHE.get();
+        if (v == null) {
+            GLOBAL_CACHE.set(0L);
+            return 0L;
         }
-        return globalCache.get();
+        return v;
     }
 
     public T get() {
-        return get(getRule);
-    }
-
-    public T get(Supplier<T> defaultResult) {
-        if (!isUseCache()) {
-            return defaultResult.get();
-        }
-        if (elementCache < getGlobalCache() || value == null) {
-            this.value = getRule.get();
-            elementCache = getGlobalCache();
-        }
         return value;
     }
 
@@ -47,3 +32,6 @@ public class CacheValue<T> {
         return elementCache > -1;
     }
 }
+
+
+

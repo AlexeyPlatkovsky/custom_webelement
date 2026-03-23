@@ -9,13 +9,15 @@ import java.util.regex.Pattern;
 
 public class Environment {
     public static String getRootUrl() {
-        String rootUrl = SystemProperties.ROOT_URL;
+        return normalizeRootUrl(SystemProperties.ROOT_URL);
+    }
 
+    public static String normalizeRootUrl(String rootUrl) {
         Pattern p = Pattern.compile("^\\w+\\.([\\w.-]+)(?::\\d+)?/?$");
         Matcher m = p.matcher(rootUrl);
         if (m.find()) {
             rootUrl = m.group(1);
-            iLogger.info("Get root URL: " + rootUrl);
+            iLogger.info("Get root URL: {}", rootUrl);
         }
         return StringUtil.cutExtraEndSlashes(rootUrl);
     }

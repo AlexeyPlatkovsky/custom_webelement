@@ -49,6 +49,32 @@ public class ComponentPlaygroundPageTest extends LocalFixtureBaseTest {
     }
 
     @Test
+    public void reactiveResultItemCanBeReadAfterListRerenderTest() {
+        ComponentPlaygroundPage page = new ComponentPlaygroundPage();
+
+        page.openPage();
+
+        iAssert.equalsTo(
+                page.getReactiveItemTextAfterRerender(1),
+                "Reactive beta entry",
+                "list item should resolve again after the fixture replaces the DOM nodes"
+        );
+    }
+
+    @Test
+    public void xpathListItemSelectionTargetsRequestedRowTest() {
+        ComponentPlaygroundPage page = new ComponentPlaygroundPage();
+
+        page.openPage();
+
+        iAssert.equalsTo(
+                page.captureReactiveItemSelection(1),
+                "Reactive beta entry",
+                "item-scoped selection should target the requested xpath list row"
+        );
+    }
+
+    @Test
     public void classLevelFindByScopesComponentUiLookupTest() {
         ComponentPlaygroundPage page = new ComponentPlaygroundPage();
         String text = "class scoped value";

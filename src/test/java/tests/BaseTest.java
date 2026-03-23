@@ -1,9 +1,6 @@
 package tests;
 
 import core.driver.DriverFactory;
-import core.driver.DriverNames;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
 import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeSuite;

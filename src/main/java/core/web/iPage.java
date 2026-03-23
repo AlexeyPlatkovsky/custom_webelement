@@ -13,7 +13,7 @@ import java.net.URL;
 import java.time.Duration;
 
 public abstract class iPage {
-    private static final String RELATIVE_URL_ANNOTATION_NOT_SPECIFIED = "Page URL is not specified in @RelativeURL annotation for class ";
+    private static final String MISSING_PAGE_URL_ANNOTATION = "Page URL is not specified in @RelativeURL annotation for class ";
     private static final ThreadLocal<PageInitializationContext> PAGE_INITIALIZATION_CONTEXT = new ThreadLocal<>();
     protected WebDriver driver;
     protected WebDriverWait wait;
@@ -67,7 +67,7 @@ public abstract class iPage {
         Class<?> pageClass = getClass();
         PageURL pageURL = pageClass.getAnnotation(PageURL.class);
         if (pageURL == null) {
-            throw new RuntimeException(RELATIVE_URL_ANNOTATION_NOT_SPECIFIED + pageClass.getName());
+            throw new RuntimeException(MISSING_PAGE_URL_ANNOTATION + pageClass.getName());
         }
 
         if (pageURL.value().startsWith("http")) {
@@ -80,7 +80,7 @@ public abstract class iPage {
             if (annotation != null) {
                 relativeUrl.insert(0, StringUtil.formatRelativeURL(annotation.value()));
             } else
-                throw new RuntimeException(RELATIVE_URL_ANNOTATION_NOT_SPECIFIED + pageClass.getName()
+                throw new RuntimeException(MISSING_PAGE_URL_ANNOTATION + pageClass.getName()
                         + " or its parent");
             pageClass = pageClass.getSuperclass();
         } while (pageClass != iPage.class);

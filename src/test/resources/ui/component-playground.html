@@ -51,8 +51,35 @@
         .result-item {
             margin: 6px 0;
         }
+
+        .button-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        button {
+            padding: 8px 12px;
+            border: 1px solid #94a3b8;
+            border-radius: 8px;
+            background: #ffffff;
+            cursor: pointer;
+        }
+
+        #selection-output {
+            min-height: 20px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
     </style>
     <script>
+        const reactiveEntries = [
+            "Reactive alpha entry",
+            "Reactive beta entry",
+            "Reactive gamma entry"
+        ];
+
         function mirrorValue(rootId, value) {
             document.querySelector("#" + rootId + " .component-value").textContent = value;
         }
@@ -60,6 +87,20 @@
         function mirrorGlobalValue(value) {
             document.getElementById("global-value").textContent = value;
         }
+
+        function renderReactiveResults() {
+            document.getElementById("reactive-result-list").innerHTML = reactiveEntries
+                .map(entry => `<li class="reactive-result-item">${entry}</li>`)
+                .join("");
+        }
+
+        function captureSelection() {
+            document.getElementById("selection-output").textContent = window.getSelection().toString();
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            renderReactiveResults();
+        });
     </script>
 </head>
 <body>
@@ -80,6 +121,17 @@
             <li class="result-item">Stable beta entry</li>
             <li class="result-item">Stable gamma entry</li>
         </ul>
+    </section>
+
+    <section class="card" id="reactive-list-demo">
+        <h2>Reactive result list</h2>
+        <p>Re-renders the same rows to catch stale list item wrappers.</p>
+        <div class="button-row">
+            <button id="rerender-results" type="button" onclick="renderReactiveResults()">Re-render results</button>
+            <button id="capture-selection" type="button" onclick="captureSelection()">Capture selected text</button>
+        </div>
+        <div id="selection-output"></div>
+        <ul id="reactive-result-list"></ul>
     </section>
 
     <section class="card" id="class-component">

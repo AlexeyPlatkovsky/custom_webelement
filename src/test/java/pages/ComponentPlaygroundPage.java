@@ -22,6 +22,21 @@ public class ComponentPlaygroundPage extends iPage {
     @FindBy(css = ".result-item")
     private iWebElementsList resultItems;
 
+    @FindBy(css = "#reactive-result-list .reactive-result-item")
+    private iWebElementsList reactiveResultItems;
+
+    @FindBy(xpath = "//*[@id='reactive-result-list']//li[contains(@class,'reactive-result-item')]")
+    private iWebElementsList xpathReactiveResultItems;
+
+    @FindBy(id = "rerender-results")
+    private iWebElement rerenderResultsButton;
+
+    @FindBy(id = "capture-selection")
+    private iWebElement captureSelectionButton;
+
+    @FindBy(id = "selection-output")
+    private iWebElement selectionOutput;
+
     private ClassScopedDemoComponent classScopedComponent;
 
     @FindBy(css = "#field-component")
@@ -50,6 +65,18 @@ public class ComponentPlaygroundPage extends iPage {
 
     public List<String> getAllResultItems() {
         return resultItems.getTextForVisibleElements();
+    }
+
+    public String getReactiveItemTextAfterRerender(int index) {
+        iWebElement item = reactiveResultItems.get(index);
+        rerenderResultsButton.click();
+        return item.getText();
+    }
+
+    public String captureReactiveItemSelection(int index) {
+        xpathReactiveResultItems.get(index).selectTextInElement();
+        captureSelectionButton.click();
+        return selectionOutput.getText();
     }
 
     public void enterClassScopedText(String text) {
