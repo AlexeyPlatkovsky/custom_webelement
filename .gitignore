@@ -21,3 +21,6 @@ Thumbs.db
 # Test output
 allure-results/
 allure-report/
+
+# AI
+./docs/plans/

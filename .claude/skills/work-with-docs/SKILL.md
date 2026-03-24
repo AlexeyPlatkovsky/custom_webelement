@@ -26,7 +26,7 @@ docs/plans/yyyy-MM-dd-<ai-agent-name>-<plan-name>.md
 
 Examples:
 - `2026-03-22-claude-core-refactor.md`
-- `2026-03-22-claude-page-crawler-phase2.md`
+- `2026-03-22-codex-assisted-test-authoring.md`
 
 ## Plan Template
 
@@ -35,13 +35,24 @@ Examples:
 
 **Status:** draft | in-progress | done
 **Branch:** `<prefix>/<name>`
+**Date:** `yyyy-MM-dd`
 **Scope:** <one sentence: what is changing and where>
+
+---
+
+## Phase Status
+
+| Phase | Status | Outcome |
+|---|---|---|
+| 1. <Phase name> | 🟡 Planned | <expected result> |
+
+**Status legend:** `🟡 Planned` | `🔵 In Progress` | `🟢 Done`
 
 ---
 
 ## Overview
 
-<1–2 sentences max. What problem this solves and the approach.>
+<1-2 sentences max. What problem this solves and the approach.>
 
 ## Steps
 
@@ -66,6 +77,8 @@ Examples:
 - **draft** - plan written, not yet started
 - **in-progress** - implementation underway; update the status field as you start
 - **done** - all steps implemented and validated; do not delete, just mark done
+- Keep the top `Phase Status` table current as work progresses.
+- Use emoji-backed phase states in the table: `🟡 Planned`, `🔵 In Progress`, `🟢 Done`.
 
 Do not append new work to an existing plan file. Create a new dated file for each distinct effort.
 
@@ -73,6 +86,7 @@ Do not append new work to an existing plan file. Create a new dated file for eac
 
 - Keep every doc under 150 lines. If it exceeds that, suggest user to split into focused sections or extract a sub-doc and link to it.
 - Prefer tables and bullets over narrative prose.
+- For plan docs, put the `Phase Status` table near the top, before the overview.
 - Use code blocks for commands and diffs.
 - Use absolute dates - never "last week", "yesterday", or "Thursday".
 - Do not restate information already in another doc - link to it instead.
