@@ -1,6 +1,6 @@
 # AI-Assisted Test Authoring - Merged Plan
 
-**Status:** draft
+**Status:** done
 **Branch:** `main`
 **Date:** `2026-03-24`
 **Scope:** New `ai-write-test` skill and supporting files that convert a structured test case into working, verified code under `src/test` only.
@@ -11,10 +11,10 @@
 
 | Phase | Status | Outcome |
 |---|---|---|
-| 1. Test case template | 🟡 Planned | Stable BDD input format users fill in before invoking the skill |
-| 2. `ai-write-test` skill | 🟡 Planned | Orchestration skill covering all 6 stages |
-| 3. Playwright MCP setup | 🟡 Planned | Config + `.env.example` for auth credentials |
-| 4. User-facing guide | 🟡 Planned | `docs/ai-features/` doc explaining the full flow |
+| 1. Test case template | 🟢 Done | Stable BDD input format users fill in before invoking the skill |
+| 2. `ai-write-test` skill | 🟢 Done | Orchestration skill covering all 6 stages |
+| 3. Playwright MCP setup | 🟢 Done | Config + `.env.example` for auth credentials |
+| 4. User-facing guide | 🟢 Done | `docs/ai-features/` doc explaining the full flow |
 
 **Status legend:** `🟡 Planned` | `🔵 In Progress` | `🟢 Done`
 

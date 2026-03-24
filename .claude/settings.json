@@ -16,6 +16,7 @@
       "Glob",
       "Grep",
       "Read",
+      "WebFetch",
       "Write"
     ],
     "ask": [

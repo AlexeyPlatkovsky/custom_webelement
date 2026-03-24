@@ -85,6 +85,8 @@ At session start, scan all `.claude/skills/**/SKILL.md` files and index their `n
 
 | Skill | Description |
 |---|---|
+| `ai-write-test` | Author, edit, or fix Java tests under src/test (new tests via test case template — BDD or plain steps; edits/fixes via file path + description) |
+| `playwright-cli` | Automate browser interactions — navigate, click, fill, snapshot, manage tabs/storage/network |
 | `create-page-object` | Scaffold a Page Object following project conventions |
 | `explain-code` | Explain code with diagrams and analogies |
 | `refactor` | Rules and practices for safely refactoring shared framework code |

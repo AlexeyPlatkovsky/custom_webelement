@@ -8,9 +8,9 @@ description: Rules for creating and maintaining project documentation. Use when 
 | Folder | What goes there |
 |---|---|
 | `docs/plans/` | All plans: refactoring, implementation, design spikes |
-| `docs/guides/` | User-facing how-to docs (setup, configuration, writing pages) |
+| `docs/guides/` | User-facing how-to docs (setup, configuration, writing pages, AI skills) |
 | `docs/architecture/` | ADRs and structural overviews |
-| `docs/ai-features/` | Feature docs for AI capabilities |
+| `docs/cases/` | Test case input files for the `ai-write-test` skill |
 
 Never create plan files at the `docs/` root or in arbitrary subfolders.
 

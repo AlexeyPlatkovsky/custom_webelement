@@ -24,3 +24,6 @@ allure-report/
 
 # AI
 ./docs/plans/
+
+# Credentials
+.env
