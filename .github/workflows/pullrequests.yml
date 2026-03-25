@@ -4,10 +4,13 @@ on:
     branches:
       - main
     paths-ignore:
+      - 'config/**'
       - 'docs/**'
       - '.codex/**'
       - '.claude/**'
-      - 'README.md'
+      - '.gitignore'
+      - '.env.example'
+      - '*.md'
 
 permissions:
   contents: read
