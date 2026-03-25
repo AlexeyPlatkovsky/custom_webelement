@@ -12,5 +12,5 @@ Expected result: The top menu items are: Home, Practice, Courses, Blog, Contact
 Scenario: Blog: article has title and Published by sections
 Steps:
 1. User opens Practice test automation main page
-2. User click Blog menu item
+2. User clicks Blog menu item
 Expected result: Every article has Title and 'Published by' section with template 'Published by <author name> on <date>'
