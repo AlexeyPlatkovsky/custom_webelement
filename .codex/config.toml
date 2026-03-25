@@ -3,7 +3,7 @@ model_reasoning_effort = "high"
 
 # Always ask for approval mode
 approval_policy = "on-request"
-sandbox_mode    = "workspace-write"
+sandbox_mode = "danger-full-access"
 allow_login_shell = false # optional hardening: disallow login shells for shell-based tools
 
 # Optional: Allow network in workspace-write mode

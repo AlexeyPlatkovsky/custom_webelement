@@ -43,7 +43,7 @@ playwright-cli upload ./document.pdf
 playwright-cli check e12
 playwright-cli uncheck e12
 playwright-cli snapshot
-playwright-cli snapshot --filename=after-click.yaml
+playwright-cli snapshot --filename=.playwright/snapshots/after-click.yaml
 playwright-cli eval "document.title"
 playwright-cli eval "el => el.textContent" e5
 playwright-cli dialog-accept
@@ -189,12 +189,13 @@ After each command, playwright-cli provides a snapshot of the current browser st
 - Page URL: https://example.com/
 - Page Title: Example Domain
 ### Snapshot
-[Snapshot](.playwright-cli/page-2026-02-14T19-22-42-679Z.yml)
+[Snapshot](.playwright/snapshots/page-2026-02-14T19-22-42-679Z.yml)
 ```
 
 You can also take a snapshot on demand using `playwright-cli snapshot` command.
 
-If `--filename` is not provided, a new snapshot file is created with a timestamp. Default to automatic file naming, use `--filename=` when artifact is a part of the workflow result.
+If `--filename` is not provided, a new snapshot file is created with a timestamp under `.playwright/snapshots/`.
+Do not write snapshot YAML artifacts to the repository root. If a named artifact is needed, pass a path under `.playwright/snapshots/`.
 
 ## Browser Sessions
 

@@ -2,6 +2,11 @@
 # These rules let Codex skip approval prompts for exact command prefixes.
 
 prefix_rule(
+    pattern=["playwright-cli"],
+    decision="allow"
+)
+
+prefix_rule(
     pattern = [".\\gradlew"],
     decision = "allow",
 )
