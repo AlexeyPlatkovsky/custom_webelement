@@ -120,6 +120,8 @@ Name fields by their UI role, not their HTML tag:
 - Use `@CacheElement` only on stable, non-dynamic elements.
 - Prefer page methods that describe business actions (`searchForText`, `openFilters`, `hasSearchResults`) rather than low-level driver mechanics.
 - For top-level pages, use `@PageURL` when the page can be opened directly.
+- **Navigation methods are always `void`.** A method that clicks a link or button must not return the destination page object — it just performs the action. The test is responsible for constructing the next page. This keeps POs decoupled: the current page does not need to know about, or import, the destination class.
+- **Every top-level navigable page must implement `isOpened()`** — a `boolean` method that returns `true` when the page is fully loaded and in the expected state (typically: correct URL fragment + a key landmark element is displayed). Components that extend `iPage` are exempt. The test should call `isOpened()` on each page before interacting with it.
 
 ### Logging
 - Use `iLogger`; never `System.out.println`.
