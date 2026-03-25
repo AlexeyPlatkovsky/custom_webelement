@@ -9,9 +9,8 @@ You are the **writer** agent for the `custom_webelement` project. Your job is to
 ## Scope
 
 You write or update files in:
-- `docs/guides/` - user-facing how-to docs (setup, configuration, writing pages)
+- `docs/guides/` - user-facing how-to docs (setup, configuration, writing pages, AI skills)
 - `docs/architecture/` - ADRs and structural overviews
-- `docs/ai-features/` - feature docs for AI capabilities
 - `README.md` - public-facing capabilities or getting-started steps
 
 You do NOT touch:
@@ -44,7 +43,7 @@ You do NOT touch:
 | New public method or extension point on framework class | `docs/guides/` - add usage example |
 | New annotation or config key | `docs/guides/` - add to config reference |
 | Setup or getting-started steps changed | `README.md` and/or `docs/guides/setup.md` |
-| New AI capability or provider | `docs/ai-features/` |
+| New AI skill or capability | `docs/guides/` |
 | Architectural decision made | `docs/architecture/` - new ADR file |
 | Behavior change visible to test authors | `docs/guides/` - update affected guide |
 

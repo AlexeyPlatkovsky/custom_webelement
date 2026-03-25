@@ -11,8 +11,36 @@ Page Objects go in `src/test/java/pages/`. One class per logical page or compone
 
 Use one of these patterns:
 
-1. **Top-level page** - navigable object, usually annotated with `@PageURL`, extends `iPage`.
-2. **Page component** - reusable nested section, can also extend `iPage`, and may use a class-level `@FindBy` to scope child locators.
+1. **Top-level page** - navigable object, annotated with `@PageURL`, extends `iPage` or a site base page.
+2. **Site base page** - abstract anchor for a group of pages that share a domain; holds the root `@PageURL` so child pages use relative paths.
+3. **Page component** - reusable nested section, can also extend `iPage`, and may use a class-level `@FindBy` to scope child locators.
+
+## URL Hierarchy
+
+The framework builds page URLs by walking up the class chain and concatenating each class's `@PageURL` value, then prepending `Environment.getRootUrl()` (`base_url` property).
+
+**Rule: when two or more pages share a domain, use a base page — not repeated absolute URLs.**
+
+```java
+// Base page — holds the domain; abstract because it is never instantiated directly
+@PageURL("https://example.com")
+public abstract class ExampleBasePage extends iPage { }
+
+// Child pages — only know their own path segment
+@PageURL("/search/")
+public class SearchPage extends ExampleBasePage { ... }   // → https://example.com/search/
+
+@PageURL("/results/")
+public class ResultsPage extends ExampleBasePage { ... }  // → https://example.com/results/
+```
+
+Changing the domain is then a one-line edit in the base class.
+
+**When to use an absolute URL directly on a leaf page** (no base class needed):
+- The page is the only page from that domain in the entire test suite.
+- The URL must not be affected by `base_url` under any circumstances.
+
+**Important:** the `base_url` property (`Environment.getRootUrl()`) is always prepended after the hierarchy is assembled. If `base_url` is non-empty it will be prepended to the assembled path — including the domain in the base class — producing a broken URL. Use the base-class pattern only when `base_url` is empty (the default) or equals the same domain.
 
 ## Top-Level Page Template
 
@@ -70,7 +98,7 @@ public class SearchComponent extends iPage {
 ### Locator Priority
 1. `id` - most stable, prefer when available.
 2. `data-testid`, `name`, or `aria-*` attributes - semantic and stable.
-3. Stable CSS class or attribute selector.
+3. Stable CSS class or attribute selector. When the selector relies on a utility or framework-generated class (e.g., WordPress block classes, Tailwind/Bootstrap utilities), always scope it with a stable semantic ancestor (e.g., `.post-content .has-text-align-center strong`, not `.has-text-align-center strong`).
 4. XPath - last resort only.
 
 Avoid fragile locators: positional XPath (`//div[3]`), auto-generated classes, text-content selectors that break on copy changes.

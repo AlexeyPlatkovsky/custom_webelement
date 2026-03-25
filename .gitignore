@@ -24,3 +24,13 @@ allure-report/
 
 # AI
 ./docs/plans/
+
+# Credentials
+.env
+auth.json
+
+# Local tooling caches
+.npm-cache/
+
+# Playwright CLI snapshots
+.playwright/snapshots/

@@ -30,7 +30,7 @@ Use method-level groups only when a specific method intentionally differs from t
 
 - Use `iAssert` for assertions. It keeps logs readable and consistent with the framework.
 - Use plain-English test names that describe the scenario, not the implementation.
-- Do not hardcode real credentials or secrets in tests.
+- Do not hardcode real credentials or secrets in tests. Read them from environment variables via `System.getenv()`. Never supply a fallback default with an actual value — use `Objects.requireNonNull(System.getenv("KEY"), "KEY env var must be set")` so missing config fails fast and clearly.
 - Prefer targeted unit validation before broad UI runs.
 - Do not add `@Test` methods or assertions inside Page Objects. They belong in test classes.
 - If a UI test changes only one page or workflow, prefer a single targeted smoke test over running the whole UI suite.
