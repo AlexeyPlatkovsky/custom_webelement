@@ -1,5 +1,5 @@
 ---
-Description: This test case is a demo for `ai-write-test` skill. After you've installed all tools and AI CLI(s) you can run it with `/ai-write-test docs/cases/demo_test_case.md` or simply ask your AI agent to automate this file.
+Description: This test case is a demo for `ai-write-test` skill. It should be run after `docs/cases/demo_test_case.md` so you can check that Ai can not only create but and update and extend existing code.
 ---
 
 Feature: Practice test automation: extend existing pages

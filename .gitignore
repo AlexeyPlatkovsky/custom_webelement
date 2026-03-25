@@ -33,4 +33,4 @@ auth.json
 .npm-cache/
 
 # Playwright CLI snapshots
-.playwright-cli/
+.playwright/snapshots/
