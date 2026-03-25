@@ -46,7 +46,26 @@ playwright-cli install --skills
 
 This registers the CLI's browser automation tools so Claude Code can invoke them directly during a skill run.
 
-## 4. Populate `.env`
+## 4. Pre-authorize Commands in `settings.json`
+
+If your Claude Code setup uses command allow-lists, pre-authorize Playwright before running `ai-write-test`.
+
+Add both the global binary and the documented `npx` fallback to `permissions.allow`:
+
+```json
+{
+  "permissions": {
+    "allow": [
+      "Bash(playwright-cli:*)",
+      "Bash(npx playwright-cli:*)"
+    ]
+  }
+}
+```
+
+Both entries are required: some machines use the global `playwright-cli` binary, while others rely on `npx playwright-cli`.
+
+## 5. Populate `.env`
 
 Copy `.env.example` to `.env` and fill in credentials (only needed for authenticated scenarios):
 
@@ -64,13 +83,20 @@ playwright-cli state-save auth.json   # saved after login
 playwright-cli state-load auth.json   # restored on subsequent runs
 ```
 
-## 5. Verify `.gitignore`
+Also ignore the saved storage-state file so session tokens are not committed:
+
+```gitignore
+auth.json
+```
+
+## 6. Verify `.gitignore`
 
 ```bash
 git check-ignore -v .env
+git check-ignore -v auth.json
 ```
 
-Expected output: `.gitignore:... .env`
+Expected output should show `.gitignore` entries for both `.env` and `auth.json`.
 
 ## Fallback: HTML Paste
 

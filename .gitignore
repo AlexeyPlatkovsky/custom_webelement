@@ -27,3 +27,7 @@ allure-report/
 
 # Credentials
 .env
+auth.json
+
+# Local tooling caches
+.npm-cache/
