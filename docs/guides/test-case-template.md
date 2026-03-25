@@ -41,7 +41,6 @@ Test data:
 
 ## Rules
 
-- **One scenario per file.** Split multi-scenario files before running.
 - **Required fields** — `Feature`, one scenario, scenario steps, expected outcome, and any referenced `Test data`.
 - **Starting page** — provide it explicitly, or make it clear from the first step ("User opens X", "User logged in as Admin"). The skill will infer it; it will only ask if the entry point is genuinely ambiguous.
 - **Auth required** — optional. You can provide it explicitly, or imply it through the steps ("User logs in as Admin", credentials in test data). The skill will infer it; it will only ask if auth state is unclear.

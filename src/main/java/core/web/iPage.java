@@ -57,6 +57,10 @@ public abstract class iPage {
         return scopeRoot;
     }
 
+    public String getCurrentUrl() {
+        return driver.getCurrentUrl();
+    }
+
     public void openPage() {
         String absoluteUrl = getAbsoluteURL();
         iLogger.info("Go to page " + pageName + " with absolute URL " + absoluteUrl);

@@ -4,6 +4,7 @@
     "allow": [
       "Bash(./gradlew:*)",
       "Bash(cat:*)",
+      "Bash(cd:*)",
       "Bash(do if:*)",
       "Bash(done)",
       "Bash(gh:*)",

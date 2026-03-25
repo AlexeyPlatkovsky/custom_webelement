@@ -3,6 +3,8 @@ name: write-test
 description: Rules for writing and placing tests in this project. Use when creating unit tests, UI tests, or reviewing generated tests.
 ---
 
+# write-test Skill (Gemini)
+
 ## Test Locations
 
 | Type | Location |

@@ -1,9 +1,9 @@
 ---
 name: ai-write-test
-description: End-to-end orchestration skill for authoring, editing, or fixing Java tests under src/test — driven by a test case template (BDD or plain steps) for new tests, or a file path + description for edits and fixes.
+description: Author, edit, or fix Java tests under src/test — driven by a test case template (BDD or plain steps) for new tests, or a file path + description for edits and fixes.
 ---
 
-# ai-write-test Skill
+# ai-write-test Skill (Gemini)
 
 Author new tests from a test case template (BDD or plain steps), or edit and fix existing tests given a file path and a description of the problem. Browser automation is a discovery tool; final code is grounded in existing Page Objects, local docs, and the observed DOM.
 
@@ -89,7 +89,7 @@ Before moving to validation, run a self-review on the full PO set created or edi
 
 Run verification in order:
 
-```
+```bash
 ./gradlew compileTestJava
 ./gradlew test -Dsuite=ui --tests "tests.<TestClassName>"
 ```
