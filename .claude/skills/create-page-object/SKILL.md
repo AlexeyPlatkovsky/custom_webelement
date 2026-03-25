@@ -98,7 +98,7 @@ public class SearchComponent extends iPage {
 ### Locator Priority
 1. `id` - most stable, prefer when available.
 2. `data-testid`, `name`, or `aria-*` attributes - semantic and stable.
-3. Stable CSS class or attribute selector.
+3. Stable CSS class or attribute selector. When the selector relies on a utility or framework-generated class (e.g., WordPress block classes, Tailwind/Bootstrap utilities), always scope it with a stable semantic ancestor (e.g., `.post-content .has-text-align-center strong`, not `.has-text-align-center strong`).
 4. XPath - last resort only.
 
 Avoid fragile locators: positional XPath (`//div[3]`), auto-generated classes, text-content selectors that break on copy changes.

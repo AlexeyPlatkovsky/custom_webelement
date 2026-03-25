@@ -6,6 +6,7 @@
       "Bash(cat:*)",
       "Bash(do if:*)",
       "Bash(done)",
+      "Bash(gh:*)",
       "Bash(git:*)",
       "Bash(grep:*)",
       "Bash(fi)",
