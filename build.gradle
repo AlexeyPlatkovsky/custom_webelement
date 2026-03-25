@@ -66,6 +66,17 @@ dependencies {
 
 //=================================== Test =====================================
 
+def dotEnv = [:]
+def dotEnvFile = file('.env')
+if (dotEnvFile.exists()) {
+    dotEnvFile.readLines().each { line ->
+        if (line && !line.startsWith('#') && line.contains('=')) {
+            def (key, value) = line.split('=', 2)
+            dotEnv[key.trim()] = value.trim()
+        }
+    }
+}
+
 test {
     finalizedBy('allureReport')
     ignoreFailures = false
@@ -85,6 +96,8 @@ test {
     systemProperty 'org.slf4j.simpleLogger.showThreadName', 'true'
     systemProperty 'org.slf4j.simpleLogger.showLogName', 'false'
     systemProperty 'testng.show.stack.frames', 'true'
+
+    dotEnv.each { key, value -> environment key, value }
 
     def base_url = System.properties.containsKey('base_url') ? System.getProperty('base_url') : ''
     systemProperty 'base_url', base_url

@@ -3,6 +3,7 @@
     "defaultMode": "acceptEdits",
     "allow": [
       "Bash(./gradlew:*)",
+      "Bash(cat:*)",
       "Bash(do if:*)",
       "Bash(done)",
       "Bash(git:*)",
@@ -12,6 +13,8 @@
       "Bash(mkdir:*)",
       "Bash(then echo:*)",
       "Bash(while read:*)",
+      "Bash(playwright-cli:*)",
+      "Skill(playwright-cli)",
       "Edit",
       "Glob",
       "Grep",

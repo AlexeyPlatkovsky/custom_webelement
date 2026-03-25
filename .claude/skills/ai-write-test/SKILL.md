@@ -40,11 +40,12 @@ In both modes: collect all questions in a single batch. Do not generate code or 
 ## Stage 2 — Plan
 
 1. Walk the scenario path mentally from the starting page through each step.
-2. List every page or component the scenario touches.
-3. Compare that list against `src/test/java/pages/` to identify:
+2. List every page or component the scenario touches, noting the URL of each.
+3. **Domain grouping** — if two or more new pages share the same domain and no existing base page covers it, plan a new abstract base page that carries that domain in its `@PageURL`. Child pages then use relative path-only `@PageURL` values and extend the base. Do not repeat the full absolute URL on each sibling page. See the `create-page-object` skill URL Hierarchy section for the pattern and its constraints.
+4. Compare that list against `src/test/java/pages/` to identify:
    - Pages that already have a matching PO (reuse or extend).
    - Pages with no matching PO (must create).
-4. Print a short plan — files to create, files to update — and wait for acknowledgement before proceeding.
+5. Print a short plan — files to create, files to update — and wait for acknowledgement before proceeding.
 
 ---
 
@@ -55,7 +56,7 @@ Skip this stage for edit/fix mode when all affected pages already have complete 
 For new tests, or when a locator is missing or broken, use the `playwright-cli` skill to walk the scenario path live:
 
 - Open the browser and navigate to the starting page.
-- If the scenario requires authentication: fill the login form using credentials from `.env`, then save session state with `playwright-cli state-save auth.json`. On subsequent runs, restore it with `playwright-cli state-load auth.json`.
+- If the scenario requires authentication: fill the login form using credentials from `.env` (read via `System.getenv()`), then save session state with `playwright-cli state-save auth.json`. On subsequent runs, restore it with `playwright-cli state-load auth.json`. Never embed credential values in generated test code — not even as fallback defaults.
 - Follow each scenario step using the appropriate CLI commands (`click`, `fill`, `type`, `press`, etc.).
 - After each navigation or interaction, read the snapshot to capture element refs and current DOM state.
 - For each page encountered, record:

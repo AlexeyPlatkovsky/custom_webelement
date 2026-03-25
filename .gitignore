@@ -31,3 +31,6 @@ auth.json
 
 # Local tooling caches
 .npm-cache/
+
+# Playwright CLI snapshots
+.playwright-cli/
