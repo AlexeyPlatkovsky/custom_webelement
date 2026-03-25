@@ -69,6 +69,9 @@ Use @ORCHESTRATION.md for agent delegation and orchestration rules for non-trivi
 - For non-trivial work, run relevant checks before claiming completion.
 - If you cannot run full validation, say what was skipped.
 - For framework refactoring, do not treat the work as complete unless the new or updated protecting test is part of the validation story.
+- Run compile-only checks in the sandbox when appropriate.
+- Run Selenium UI tests that launch a real browser only out of the sandbox with escalated permissions.
+- Do not use a sandboxed browser-start failure as a signal that the test or code is broken; rerun the same UI command out of the sandbox instead of checking it twice.
 
 See the `validate` skill for commands and the decision table.
 
@@ -78,6 +81,14 @@ See the `validate` skill for commands and the decision table.
 - If you see a broader issue, note it separately instead of expanding scope silently.
 - For non-trivial work, summarize the plan before broad edits.
 - State assumptions, risks, and unverified areas plainly.
+
+## Skill Compliance
+
+- If a task matches a local skill, use that skill and follow its workflow. Treat matched skills as binding procedure, not optional reference material.
+- Do not replace a required skill stage, tool, or discovery method with a different one unless the prescribed option is unavailable or blocked.
+- If you must deviate from a matched skill, state the blocker before proceeding and get user approval for the fallback.
+- Before substantial work, declare the triggered skills, why they apply, the required stages/tools you will execute, and any stage you expect to skip.
+- Before considering the task complete, state which selected skill stages were completed, skipped, or blocked.
 
 ## Skills
 
