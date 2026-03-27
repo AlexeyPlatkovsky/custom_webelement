@@ -25,7 +25,7 @@ Determine the mode from the input:
 
 1. **Feature name** — must be present; ask if missing.
 2. **Starting page** — derive from any of: explicit `Starting page` / `Background` field, first step ("User opens X", "Navigate to X"), or an implied entry point ("User logged in as Admin" → login page or an authenticated landing page). Ask only if the entry point cannot be determined from the steps at all.
-3. **Auth required** — infer from step content ("logged in as", "user opens login", credentials in test data). Ask only if auth state is ambiguous after reading all steps.
+3. **Auth required** — infer from step content ("logged in as", "user opens login", credentials in test data). Identify sensitive data placeholders (like "login", "password", "API key") and ensure they are NOT hardcoded. Ask only if auth state is ambiguous after reading all steps.
 4. **Steps and expected outcome** — must be present in some form (BDD `Given/When/Then`, numbered list + `Expected result`, or plain prose steps). Ask only if the intended action or outcome is unclear.
 
 **Edit / fix** (existing file path + problem description provided) — read the target files first:
@@ -77,8 +77,9 @@ Implement in this order:
 
 Write only under `src/test`.
 
-Before moving to validation, run a self-review on the full PO set created or edited for the scenario:
+Before moving to validation, run a self-review on the full test and PO set created or edited for the scenario:
 
+- **Security Check:** Confirm that ALL sensitive data (login, password, keys) identified in Stage 1 or discovered in Stage 3 is being read via `System.getenv()` and is NOT hardcoded in the test or PO.
 - If two or more pages share a domain, confirm they reuse an existing abstract site base page or create a new one.
 - Treat repeated absolute URLs on sibling pages as a defect unless the `create-page-object` exception for absolute leaf pages clearly applies.
 - Confirm each top-level page models only its own path segment when a shared site base page exists.

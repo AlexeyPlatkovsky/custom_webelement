@@ -12,7 +12,8 @@ Work through each item in order. Stop and fix before moving on if any step fails
 - [ ] **Validation scope selected** - use the `validate` skill to choose the smallest meaningful verification for the changed files before declaring the task done.
 - [ ] **Selected verification passes** - run the chosen commands or manual review steps and fix failures before handoff.
 - [ ] **Public API docs** - new or changed public methods have Javadoc when they add user-facing behavior or extension points.
-- [ ] **No secrets** - no API keys, tokens, or real credentials are introduced in committed files.
+- [ ] **No secrets** - no API keys, tokens, or credentials (including those discovered during discovery) are hardcoded in test code or Page Objects. Verify that sensitive data is read via `System.getenv()`.
+- [ ] **Env variables documented** - if new environment variables were introduced, `.env.example` is updated.
 - [ ] **Docs updated** - if behavior, setup, extension points, configuration, or workflow changed, the relevant docs are updated.
 - [ ] **Scope clean** - no unrelated cleanup or opportunistic refactors are bundled into the task result.
 - [ ] **Framework refactor** - if framework behavior was changed, the protecting test passes (see `refactor` skill).

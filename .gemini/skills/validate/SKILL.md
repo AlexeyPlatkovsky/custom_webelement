@@ -48,3 +48,4 @@ Inspect what changed first, then run the smallest meaningful verification and br
   ./gradlew compileTestJava
   ./gradlew test -Dsuite=unit
   ```
+- **Compliance Rule:** A test pass is not a successful validation if the code violates the `write-test` security mandates (e.g., hardcoded credentials). Always verify compliance manually or with `grep` if automation is unavailable.
