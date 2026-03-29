@@ -79,7 +79,12 @@ Write only under `src/test`.
 
 Before moving to validation, run a self-review on the full test and PO set created or edited for the scenario:
 
-- **Security Check:** Confirm that ALL sensitive data (login, password, keys) identified in Stage 1 or discovered in Stage 3 is being read via `System.getenv()` and is NOT hardcoded in the test or PO.
+- **Security Check:** Confirm that ALL sensitive data (login, password, keys) identified in Stage 1 or discovered in Stage 3 is being read via `java.util.Objects.requireNonNull(System.getenv("VAR_NAME"))` and is NOT hardcoded in the test or PO, even as a fallback.
+- **Structural Check:**
+    - All Page Objects required for a test scenario must be declared at the top of the test method.
+    - Always use the project's custom assertion utility (`utils.assertions.iAssert`) instead of standard TestNG `Assert`.
+    - Immediately after page navigation or initialization, the first assertion MUST be a page-level check (e.g., `isOpened()`) before interacting with or asserting on specific elements.
+    - Avoid compound boolean helper methods for assertions. Use individual, descriptive `iAssert` calls to ensure failure reports pinpoint exactly which condition failed (e.g., visibility vs. text content).
 - If two or more pages share a domain, confirm they reuse an existing abstract site base page or create a new one.
 - Treat repeated absolute URLs on sibling pages as a defect unless the `create-page-object` exception for absolute leaf pages clearly applies.
 - Confirm each top-level page models only its own path segment when a shared site base page exists.

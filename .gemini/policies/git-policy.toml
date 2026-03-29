@@ -9,3 +9,9 @@ toolName = "run_shell_command"
 commandPrefix = "git push"
 decision = "ask_user"
 priority = 1000
+
+[[rule]]
+toolName = "run_shell_command"
+commandPrefix = "git"
+decision = "allow"
+priority = 100

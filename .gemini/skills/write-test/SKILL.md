@@ -30,10 +30,10 @@ Use method-level groups only when a specific method intentionally differs from t
 
 ## Rules
 
-- Use `iAssert` for assertions. It keeps logs readable and consistent with the framework.
+- **Use `iAssert` for assertions.** Always use the project's custom assertion utility (`utils.assertions.iAssert`) instead of standard TestNG `Assert` to ensure consistent logging and reporting.
 - Use plain-English test names that describe the scenario, not the implementation.
-- **Never put credentials or secrets in test code** — not as constants, not as default values, not in comments. This rule has no exceptions unless the user explicitly asks for it in the same conversation. Always read from environment variables: `Objects.requireNonNull(System.getenv("KEY"), "KEY env var must be set")`. A missing env var must fail fast and loudly, not silently fall back to a hardcoded value.
-- **Declare and construct all page objects at the top of the test method**, before any actions or assertions, unless doing so would break test stability (e.g., a page that can only be constructed after a navigation side-effect). Group declarations together; do not intersperse `new PageX()` calls between assertions.
+- **Never put credentials or secrets in test code** — not as constants, not as default values, not in comments. Strictly use `java.util.Objects.requireNonNull(System.getenv("VAR_NAME"))` with no hardcoded fallback.
+- **Declare and construct all page objects at the top of the test method**, before any actions or assertions. Avoid instantiating or initializing POs mid-test after interactions.
 - Prefer targeted unit validation before broad UI runs.
 - Do not add `@Test` methods or assertions inside Page Objects. They belong in test classes.
 - If a UI test changes only one page or workflow, prefer a single targeted smoke test over running the whole UI suite.

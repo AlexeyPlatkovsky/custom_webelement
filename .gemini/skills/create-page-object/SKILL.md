@@ -123,8 +123,11 @@ Name fields by their UI role, not their HTML tag:
 - Prefer page methods that describe business actions (`searchForText`, `openFilters`, `hasSearchResults`) rather than low-level driver mechanics.
 - For top-level pages, use `@PageURL` when the page can be opened directly.
 - **Navigation methods are always `void`.** A method that clicks a link or button must not return the destination page object — it just performs the action. The test is responsible for constructing the next page. This keeps POs decoupled: the current page does not need to know about, or import, the destination class.
-- **Every top-level navigable page must implement `isOpened()`** — a `boolean` method that returns `true` when the page is fully loaded and in the expected state (typically: correct URL fragment + a key landmark element is displayed). Components that extend `iPage` are exempt. The test should call `isOpened()` on each page before interacting with it.
-- **Security Rule:** If a method handles sensitive data (e.g., `login(user, pass)`), ensure the calling test provides these from an environment variable, NOT a hardcoded literal. Do not store credentials as constants or defaults in the PO.
+- **Every top-level navigable page must implement `isOpened()`** — a `boolean` method that returns `true` when the page is fully loaded and in the expected state. This MUST validate both:
+    1. The correct URL fragment (e.g., `driver.getCurrentUrl().contains("/my-page/")`).
+    2. A unique 'landmark' element is displayed (e.g., a specific heading, unique container ID, or primary action button).
+- **Selector Scoping:** Prefer scoped CSS selectors over generic tags. Avoid 'naked' selectors like `strong` or `span` that are prone to collisions; always scope them to a parent container (e.g., `.post-content strong`).
+- **Security Rule:** If a method handles sensitive data (e.g., `login(user, pass)`), ensure the calling test provides these from `java.util.Objects.requireNonNull(System.getenv("VAR_NAME"))`, NOT a hardcoded literal or fallback. Do not store credentials as constants or defaults in the PO.
 
 ### Logging
 - Use `iLogger`; never `System.out.println`.
