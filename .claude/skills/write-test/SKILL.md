@@ -38,6 +38,7 @@ Use method-level groups only when a specific method intentionally differs from t
 - Use `singleThreaded = true` on class-level `@Test` only when shared mutable state or filesystem artifacts make parallel execution unsafe.
 - Keep test data local to the test unless multiple tests truly need the same fixture.
 - For framework refactoring, follow the `refactor` skill - the protecting test must exist and pass before the refactor is considered complete.
+- For new or materially revised UI automation spanning tests and page objects, run the `review-automation-code` skill before handoff.
 
 ## Review Checklist For Generated UI Tests
 
@@ -46,3 +47,4 @@ When reviewing generated or AI-edited UI automation, inspect Page Objects as a s
 - Check page-object hierarchy and URL modeling against the `create-page-object` skill, especially when multiple pages share one domain.
 - Flag repeated absolute URLs on sibling pages when a shared abstract site base page should be used instead.
 - Verify assertions match the scenario contract precisely; prefer asserting a specific visible element over broad container-text checks when the test case names a label, message, or landmark.
+- Check that page-specific constants live with the owning page object and shared test-support logic lives in reusable `src/test/java/**` support code.

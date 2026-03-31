@@ -83,6 +83,8 @@ Before moving to validation, run a self-review on the full PO set created or edi
 - Treat repeated absolute URLs on sibling pages as a defect unless the `create-page-object` exception for absolute leaf pages clearly applies.
 - Confirm each top-level page models only its own path segment when a shared site base page exists.
 
+For multi-file UI automation work, or whenever the task adds or reshapes page-object APIs, run the `review-automation-code` skill on the changed tests and page objects before validation. Fix `HIGH` and `MEDIUM` findings before moving on.
+
 ---
 
 ## Stage 5 — Run & Repair
@@ -99,6 +101,8 @@ If compilation or the test fails, diagnose and fix. Repeat up to **3 cycles**. A
 ---
 
 ## Stage 6 — Report
+
+Before reporting completion, run the `task-ready` skill and complete its checklist.
 
 Print a summary:
 

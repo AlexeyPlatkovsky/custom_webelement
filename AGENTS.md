@@ -21,6 +21,7 @@ Project-specific baseline for coding agents working in `custom_webelement`.
 - Do not add dependencies unless the JDK or current dependencies are insufficient.
 - Update docs when public usage, extension points, or workflow expectations change.
 - For framework refactoring, use a TDD approach: add or adjust the protecting test first, confirm it fails for the expected reason, then change production code and re-run the smallest relevant checks.
+- For material UI automation changes under `src/test/java/tests/` or `src/test/java/pages/`, review the result for page-object API design, ownership of page data, and shared test-support reuse before claiming completion. Use the `review-automation-code` skill when it matches.
 
 ## Trivial Vs Non-Trivial Tasks
 
@@ -102,6 +103,7 @@ At session start, scan all `.claude/skills/**/SKILL.md` files and index their `n
 | `explain-code` | Explain code with diagrams and analogies |
 | `refactor` | Rules and practices for safely refactoring shared framework code |
 | `task-ready` | Task completion checklist (compile, unit tests, checkstyle, doc review) |
+| `review-automation-code` | Review Java UI automation design and conventions before handoff |
 | `validate` | Select and run the right verification commands based on what changed |
 | `work-with-docs` | Rules for creating and maintaining docs, plans, guides, and ADRs |
 | `work-with-git` | Branch strategy and git safety rules |
