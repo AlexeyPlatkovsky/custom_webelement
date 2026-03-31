@@ -19,19 +19,19 @@ Use one of these patterns:
 
 The framework builds page URLs by walking up the class chain and concatenating each class's `@PageURL` value, then prepending `Environment.getRootUrl()` (`base_url` property).
 
-**Rule: when two or more pages share a domain, use a base page — not repeated absolute URLs.**
+**Rule: when two or more pages share a domain, use a base page - not repeated absolute URLs.**
 
 ```java
-// Base page — holds the domain; abstract because it is never instantiated directly
+// Base page - holds the domain; abstract because it is never instantiated directly
 @PageURL("https://example.com")
 public abstract class ExampleBasePage extends iPage { }
 
-// Child pages — only know their own path segment
+// Child pages - only know their own path segment
 @PageURL("/search/")
-public class SearchPage extends ExampleBasePage { ... }   // → https://example.com/search/
+public class SearchPage extends ExampleBasePage { ... }   // -> https://example.com/search/
 
 @PageURL("/results/")
-public class ResultsPage extends ExampleBasePage { ... }  // → https://example.com/results/
+public class ResultsPage extends ExampleBasePage { ... }  // -> https://example.com/results/
 ```
 
 Changing the domain is then a one-line edit in the base class.
@@ -40,7 +40,7 @@ Changing the domain is then a one-line edit in the base class.
 - The page is the only page from that domain in the entire test suite.
 - The URL must not be affected by `base_url` under any circumstances.
 
-**Important:** the `base_url` property (`Environment.getRootUrl()`) is always prepended after the hierarchy is assembled. If `base_url` is non-empty it will be prepended to the assembled path — including the domain in the base class — producing a broken URL. Use the base-class pattern only when `base_url` is empty (the default) or equals the same domain.
+**Important:** the `base_url` property (`Environment.getRootUrl()`) is always prepended after the hierarchy is assembled. If `base_url` is non-empty it will be prepended to the assembled path - including the domain in the base class - producing a broken URL. Use the base-class pattern only when `base_url` is empty (the default) or equals the same domain.
 
 ## Top-Level Page Template
 
@@ -119,9 +119,11 @@ Name fields by their UI role, not their HTML tag:
 - Do not use `Thread.sleep()`; use `@Waiter` or explicit waits via the framework.
 - Use `@CacheElement` only on stable, non-dynamic elements.
 - Prefer page methods that describe business actions (`searchForText`, `openFilters`, `hasSearchResults`) rather than low-level driver mechanics.
+- **Non-routing business-action methods may return the current page instance.** If a method keeps the user on the same page, it may return `this` using the concrete page type when chaining improves readability.
 - For top-level pages, use `@PageURL` when the page can be opened directly.
-- **Navigation methods are always `void`.** A method that clicks a link or button must not return the destination page object — it just performs the action. The test is responsible for constructing the next page. This keeps POs decoupled: the current page does not need to know about, or import, the destination class.
-- **Every top-level navigable page must implement `isOpened()`** — a `boolean` method that returns `true` when the page is fully loaded and in the expected state (typically: correct URL fragment + a key landmark element is displayed). Components that extend `iPage` are exempt. The test should call `isOpened()` on each page before interacting with it.
+- Inherited `iPage.isOpened()` is acceptable when resolved URL matching is sufficient; override it only when the page also needs a landmark or readiness check.
+- **Navigation methods are always `void`.** A method that clicks a link or button must not return the destination page object - it just performs the action. The test is responsible for constructing the next page. This keeps POs decoupled: the current page does not need to know about, or import, the destination class.
+- **Every top-level navigable page must support `isOpened()`.** Use the inherited implementation when URL matching is enough, and override it when the page must prove additional readiness. Components that extend `iPage` are exempt. The test should call `isOpened()` on each page before interacting with it.
 
 ### Logging
 - Use `iLogger`; never `System.out.println`.

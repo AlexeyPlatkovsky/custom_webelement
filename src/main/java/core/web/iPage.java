@@ -11,6 +11,9 @@ import utils.logging.iLogger;
 import java.net.URI;
 import java.net.URL;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 public abstract class iPage {
     private static final String MISSING_PAGE_URL_ANNOTATION = "Page URL is not specified in @RelativeURL annotation for class ";
@@ -62,27 +65,28 @@ public abstract class iPage {
     }
 
     public void openPage() {
-        String absoluteUrl = getAbsoluteURL();
+        String absoluteUrl = getExpectedPageUrl();
         iLogger.info("Go to page " + pageName + " with absolute URL " + absoluteUrl);
         navigateToUrl(absoluteUrl);
     }
 
-    private String getAbsoluteURL() {
+    /**
+     * Returns the fully resolved page URL assembled from the current class {@link PageURL} hierarchy.
+     */
+    protected final String getExpectedPageUrl() {
         Class<?> pageClass = getClass();
-        PageURL pageURL = pageClass.getAnnotation(PageURL.class);
-        if (pageURL == null) {
-            throw new RuntimeException(MISSING_PAGE_URL_ANNOTATION + pageClass.getName());
-        }
-
-        if (pageURL.value().startsWith("http")) {
-            return pageURL.value();
-        }
-
+        List<String> relativeSegments = new ArrayList<>();
         StringBuilder relativeUrl = new StringBuilder();
         do {
             PageURL annotation = pageClass.getAnnotation(PageURL.class);
             if (annotation != null) {
-                relativeUrl.insert(0, StringUtil.formatRelativeURL(annotation.value()));
+                String pageUrlValue = annotation.value();
+                if (pageUrlValue.startsWith("http")) {
+                    return buildAbsoluteUrl(pageUrlValue, relativeSegments);
+                }
+                String formattedRelativeUrl = StringUtil.formatRelativeURL(pageUrlValue);
+                relativeSegments.add(0, formattedRelativeUrl);
+                relativeUrl.insert(0, formattedRelativeUrl);
             } else
                 throw new RuntimeException(MISSING_PAGE_URL_ANNOTATION + pageClass.getName()
                         + " or its parent");
@@ -92,6 +96,14 @@ public abstract class iPage {
         return Environment.getRootUrl() + relativeUrl;
     }
 
+    /**
+     * Default open-state check based on the resolved {@link PageURL}.
+     * Override when the page also needs a landmark or readiness check.
+     */
+    public boolean isOpened() {
+        return urlsRepresentSamePage(getCurrentUrl(), getExpectedPageUrl());
+    }
+
     private void navigateToUrl(String url) {
         try {
             URL validatedUrl = new URI(url).toURL();
@@ -99,6 +111,42 @@ public abstract class iPage {
         } catch (Exception e) {
             throw new RuntimeException("Invalid URL: " + url, e);
         }
+    }
+
+    private static String buildAbsoluteUrl(String absoluteRootUrl, List<String> relativeSegments) {
+        return StringUtil.cutExtraEndSlashes(absoluteRootUrl) + String.join("", relativeSegments);
+    }
+
+    private static boolean urlsRepresentSamePage(String currentUrl, String expectedUrl) {
+        try {
+            URI current = new URI(currentUrl);
+            URI expected = new URI(expectedUrl);
+
+            boolean hasExpectedQuery = expected.getQuery() != null && !expected.getQuery().isBlank();
+            boolean queryMatches = !hasExpectedQuery || Objects.equals(current.getQuery(), expected.getQuery());
+
+            return Objects.equals(current.getScheme(), expected.getScheme())
+                    && Objects.equals(current.getHost(), expected.getHost())
+                    && current.getPort() == expected.getPort()
+                    && Objects.equals(normalizePath(current.getPath()), normalizePath(expected.getPath()))
+                    && queryMatches;
+        } catch (Exception ignored) {
+            return normalizeUrlForComparison(currentUrl).equals(normalizeUrlForComparison(expectedUrl));
+        }
+    }
+
+    private static String normalizePath(String path) {
+        if (path == null || path.isBlank() || "/".equals(path)) {
+            return "/";
+        }
+        return StringUtil.cutExtraEndSlashes(path);
+    }
+
+    private static String normalizeUrlForComparison(String url) {
+        if (url == null || url.isBlank()) {
+            return "";
+        }
+        return StringUtil.cutExtraEndSlashes(url);
     }
 
     private record PageInitializationContext(WebDriver driver, String pageName, iWebElement scopeRoot) {

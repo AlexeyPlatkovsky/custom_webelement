@@ -8,6 +8,23 @@ Use this guide when creating or updating Page Objects and component classes in t
 - Use `@FindBy` on `iWebElement`, `iWebElementsList`, and component fields.
 - Prefer CSS locators for normal lookup and interaction.
 - Use XPath only when CSS cannot express the locator clearly.
+- Non-routing business-action methods may return the current page instance when chaining improves readability.
+- Navigation methods should stay `void`; they should not return the destination page object.
+- `iPage.isOpened()` provides a default URL-based implementation. Override it only when the page also needs a landmark or readiness check.
+
+Example:
+
+```java
+public TestLoginPage enterPassword(String password) {
+    passwordInput.clear();
+    passwordInput.sendKeys(password);
+    return this;
+}
+
+public void clickSubmitButton() {
+    submitButton.click();
+}
+```
 
 ## `iWebElementsList`
 
