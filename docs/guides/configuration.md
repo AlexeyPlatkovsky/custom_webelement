@@ -8,17 +8,17 @@ Pass these on the command line with `-Dproperty=value` or set them in your TestN
 |---|---|---|
 | `driver` | Browser to use: `chrome`, `firefox`, `lambda` | `-Ddriver=chrome` |
 | `browser_version` | Pin a specific browser driver version | `-Dbrowser_version=114` |
-| `base_url` | Root URL prepended to relative `@PageURL` values | `-Dbase_url=https://app.example.com` |
+| `base_url` | Root URL for fully relative `@PageURL` hierarchies | `-Dbase_url=https://app.example.com` |
 | `screen_maximize` | Maximize the browser window on start | `-Dscreen_maximize=true` |
 | `screen_resolution` | Screen resolution string passed to remote grid | `1920x1080` |
 | `locale` | Locale hint for the browser or app under test | `en_US` |
 | `platform` | Platform hint passed to remote capabilities | `Windows 11` |
 | `os` | OS hint passed to remote capabilities | `Windows` |
 | `remote_browser` | Browser name for remote execution | `chrome` |
-| `remote_key` | Access key for the remote grid service | — |
-| `remote_username` | Username for the remote grid service | — |
+| `remote_key` | Access key for the remote grid service | - |
+| `remote_username` | Username for the remote grid service | - |
 | `build_number` | Build number tag for remote session metadata | `42` |
-| `test_rail_url` | TestRail instance URL for reporting integration | — |
+| `test_rail_url` | TestRail instance URL for reporting integration | - |
 
 ## Element Highlight
 
@@ -40,23 +40,40 @@ Remote properties live in `src/test/resources/remoteEnv.properties`. They are re
 
 The remote WebDriver URL is resolved from `RemoteEnvProperties.REMOTE_URL_KEY`. Credentials (`remote_username`, `remote_key`) are passed as desired capabilities via `DriverCaps`.
 
-## `@PageURL` and Base URL
+## `@PageURL` and `base_url`
 
-`iPage.openPage()` resolves the URL as follows:
+`iPage.openPage()` resolves the target URL by walking the page class hierarchy and reading every `@PageURL` value.
 
-1. If `@PageURL` starts with `http`, it is used as-is (absolute URL).
-2. Otherwise, `base_url` from system properties is prepended to the relative path.
-3. For inherited page hierarchies, all `@PageURL` values from the chain are concatenated before the base URL is prepended.
+1. If every collected value is relative, the framework concatenates the segments and prepends `base_url`.
+2. If any class in that hierarchy has an absolute `@PageURL` starting with `http`, that absolute value becomes the root and any relative child values are appended to it.
+3. The default `iPage.isOpened()` uses the same resolved URL.
+
+Relative page hierarchy:
 
 ```java
-// Absolute — ignores base_url
-@PageURL("https://duckduckgo.com/")
-public class SearchPage extends iPage { ... }
-
-// Relative — base_url + "/search"
-@PageURL("/search")
-public class SearchResultsPage extends iPage { ... }
+@PageURL("/component-playground.html")
+public class ComponentPlaygroundPage extends iPage { }
 ```
+
+Run it with:
+
+```bash
+./gradlew test -Ddriver=chrome -Dbase_url=http://localhost:8080 --tests "tests.ComponentPlaygroundPageTest"
+```
+
+Absolute base page hierarchy:
+
+```java
+@PageURL("https://practicetestautomation.com")
+public abstract class PracticeTestAutomationBasePage extends iPage { }
+
+@PageURL("/practice/")
+public class PracticePage extends PracticeTestAutomationBasePage { }
+```
+
+`PracticePage.openPage()` resolves to `https://practicetestautomation.com/practice/` even if `base_url` is set for other tests in the same run.
+
+This allows mixed UI suites where local fixture pages use `base_url` and external-site pages use an absolute base page without interfering with each other.
 
 ## Log4j2
 

@@ -46,13 +46,15 @@ public AbstractPage() {
 | `driver` | `chrome`, `firefox`, `lambda` | Required |
 | `browser_version` | e.g. `114` | Latest if omitted |
 | `screen_maximize` | `true` / `false` | Browser default |
-| `base_url` | Root URL for relative `@PageURL` values | Required when using relative URLs |
+| `base_url` | Root URL for fully relative `@PageURL` hierarchies | Required when the page chain has no absolute `@PageURL` |
 
 Pass properties at runtime:
 
 ```bash
 ./gradlew test -Ddriver=chrome -Dbase_url=https://example.com
 ```
+
+If a page hierarchy includes an absolute `@PageURL` on a base page, that hierarchy does not depend on `base_url`.
 
 ## Page Object Skeleton
 
@@ -78,6 +80,18 @@ public class LoginPage extends iPage {
 ```
 
 Extend `iPage` instead of a plain class. Call `openPage()` (inherited) to navigate using `@PageURL`.
+
+For a shared external domain, prefer an absolute base page plus relative children:
+
+```java
+@PageURL("https://practicetestautomation.com")
+public abstract class PracticeTestAutomationBasePage extends iPage { }
+
+@PageURL("/practice/")
+public class PracticePage extends PracticeTestAutomationBasePage { }
+```
+
+For local fixtures or one app environment, keep page URLs relative and provide `-Dbase_url=...` at runtime.
 
 ## Running Local Verification
 
